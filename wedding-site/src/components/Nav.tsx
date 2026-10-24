@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -69,7 +69,12 @@ export function Nav({ mark }: { mark: string }) {
       <nav className="nav" aria-label="Hlavná navigácia">
         <div className="wrap nav__inner">
           <a className="nav__mark" href={home ? "#uvod" : "/"}>
-            {mark}
+            {mark.split("&").map((part, i) => (
+              <Fragment key={i}>
+                {i > 0 && <span className="nav__amp">&amp;</span>}
+                {part}
+              </Fragment>
+            ))}
           </a>
           <ul className="nav__links" ref={links}>
             {sections.map((s) => (

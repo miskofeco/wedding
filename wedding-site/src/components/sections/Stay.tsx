@@ -32,7 +32,7 @@ export function Stay() {
                   {s.distanceKm !== null && <p className="stop__dist">{formatKm(s.distanceKm)} od Stodoly Zlatník</p>}
                   {s.note && <p>{s.note}</p>}
                   {s.url && (
-                    <a href={s.url} target="_blank" rel="noopener noreferrer">
+                    <a className="link" href={s.url} target="_blank" rel="noopener noreferrer">
                       Webová stránka<span className="sr-only"> {s.name} (otvorí sa v novom okne)</span>
                     </a>
                   )}

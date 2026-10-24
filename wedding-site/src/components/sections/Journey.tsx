@@ -95,7 +95,7 @@ export function Journey() {
             </text>
           </g>
 
-          <a href={mapHref(venue)} target="_blank" rel="noopener noreferrer" aria-label={`Zlatník, stodola: ${mapLabel(venue, "do stodoly")}`}>
+          <a data-stop="barn" href={mapHref(venue)} target="_blank" rel="noopener noreferrer" aria-label={`Zlatník, stodola: ${mapLabel(venue, "do stodoly")}`}>
             <ellipse className="map__hit" cx={bx} cy={by - 110} rx="140" ry="150" />
             <image
               href={art("barn", "black")}
@@ -114,9 +114,9 @@ export function Journey() {
             </text>
           </a>
           <circle className="map__pulse" cx={bx} cy={by} r="14" aria-hidden="true" />
-          <circle className="map__pin map__drop" cx={bx} cy={by} r="8" style={{ "--d": "300ms" } as CSSProperties} />
+          <circle className="map__pin map__drop" data-stop="barn" cx={bx} cy={by} r="8" style={{ "--d": "300ms" } as CSSProperties} />
 
-          <a href={mapHref(church)} target="_blank" rel="noopener noreferrer" aria-label={`Hlinné, kostol: ${mapLabel(church, "ku kostolu")}`}>
+          <a data-stop="church" href={mapHref(church)} target="_blank" rel="noopener noreferrer" aria-label={`Hlinné, kostol: ${mapLabel(church, "ku kostolu")}`}>
             <ellipse className="map__hit" cx={cx - 100} cy={cy + 70} rx="130" ry="110" />
             <image
               href={art("church", "black")}
@@ -134,7 +134,7 @@ export function Journey() {
               kostol · obrad
             </text>
           </a>
-          <circle className="map__pin map__drop" cx={cx} cy={cy} r="8" style={{ "--d": "150ms" } as CSSProperties} />
+          <circle className="map__pin map__drop" data-stop="church" cx={cx} cy={cy} r="8" style={{ "--d": "150ms" } as CSSProperties} />
 
           {pension && <StayMark stay={pension} at={project(pension.at)} offset={[70, -82]} delay={450} />}
           {hotel && <StayMark stay={hotel} at={project(hotel.at)} offset={[-40, -170]} short="Vranov n. T." delay={600} />}
@@ -155,31 +155,31 @@ export function Journey() {
 
       <div className="wrap">
         <ul className="journey__stops" data-rv-stagger="90">
-          <li className="rv" style={{ "--c": "var(--apricot)" } as CSSProperties}>
+          <li className="rv" data-stop="church" style={{ "--c": "var(--apricot)" } as CSSProperties}>
             <h3>Hlinné</h3>
             <p>
               {church.name ?? "Kostol"}
               {church.address && <span className="journey__addr">{church.address}</span>}
             </p>
             <p className="journey__when">Obrad · {ceremony?.time ?? "čas upresníme"}</p>
-            <a href={mapHref(church)} target="_blank" rel="noopener noreferrer">
+            <a className="link" href={mapHref(church)} target="_blank" rel="noopener noreferrer">
               {mapLabel(church, "ku kostolu")}
               <span className="sr-only"> (otvorí sa v novom okne)</span>
             </a>
           </li>
-          <li className="rv" style={{ "--c": "var(--sage)" } as CSSProperties}>
+          <li className="rv" data-stop="barn" style={{ "--c": "var(--sage)" } as CSSProperties}>
             <h3>Zlatník</h3>
             <p>
               {venue.name ?? "Stodola"}
               {venue.address && <span className="journey__addr">{venue.address}</span>}
             </p>
             <p className="journey__when">Oslava, záhrada a jazierko · {venue.time ? `od ${venue.time}` : "po obrade"}</p>
-            <a href={mapHref(venue)} target="_blank" rel="noopener noreferrer">
+            <a className="link" href={mapHref(venue)} target="_blank" rel="noopener noreferrer">
               {mapLabel(venue, "do stodoly")}
               <span className="sr-only"> (otvorí sa v novom okne)</span>
             </a>
           </li>
-          <li className="rv" style={{ "--c": "var(--white)" } as CSSProperties}>
+          <li className="rv" data-stop="stay" style={{ "--c": "var(--white)" } as CSSProperties}>
             <h3>Nocľah</h3>
             {stays.map((s) => (
               <p key={s.name}>
@@ -190,7 +190,9 @@ export function Journey() {
                 </span>
               </p>
             ))}
-            <a href="#ubytovanie">Pozrieť ubytovanie</a>
+            <a className="link" href="#ubytovanie">
+              Pozrieť ubytovanie
+            </a>
           </li>
         </ul>
       </div>
@@ -220,7 +222,7 @@ function StayMark({
   return (
     <>
       <path className="map__leader map__fade" d={`M${x} ${y} L${lx + 14} ${ly + 70}`} style={d} />
-      <a href="#ubytovanie" aria-label={`Nocľah: ${stay.name}, ${stay.town}. Pozrieť ubytovanie`}>
+      <a data-stop="stay" href="#ubytovanie" aria-label={`Nocľah: ${stay.name}, ${stay.town}. Pozrieť ubytovanie`}>
         <ellipse className="map__hit" cx={lx + 120} cy={ly + 40} rx="150" ry="70" />
         <image
           href={art("lantern", "black")}
@@ -247,7 +249,7 @@ function StayMark({
           nocľah{stay.distanceKm !== null && ` · ${formatKm(stay.distanceKm)}`}
         </text>
       </a>
-      <circle className="map__pin map__pin--stay map__drop" cx={x} cy={y} r="7" style={d} />
+      <circle className="map__pin map__pin--stay map__drop" data-stop="stay" cx={x} cy={y} r="7" style={d} />
     </>
   );
 }

@@ -1,6 +1,6 @@
 # Motion proposal — Svadba 29. 05. 2027
 
-Status: phases A–D built 24 Oct 2026 (see DESIGN.md, Motion). Deviations: the palette cycle stops on hover, tap, click or focus but not on page scrolling; the hero breathing runs only after the march has stopped; the route crossfade needs no `next.config.ts` flag (React 19.3 `<ViewTransition>`). Built rows are recorded in `DESIGN.md` (Motion), `wedding-site/src/styles/motion.css` and the components named below.
+Status: phases A–D built 24 Oct 2026, followed the same day by an interaction layer (hover, press, choose); the living reference is now `MOTION.md`. Deviations: the palette cycle stops on hover, tap, click or focus but not on page scrolling; the hero breathing runs only after the march has stopped; the route crossfade needs no `next.config.ts` flag (React 19.3 `<ViewTransition>`). Built rows are recorded in `MOTION.md`, `wedding-site/src/styles/motion.css` and the components named below.
 
 ## 1. What the page does today (audit)
 

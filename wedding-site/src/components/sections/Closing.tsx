@@ -33,7 +33,9 @@ export function Closing() {
       <ul className="close__links rv" style={d(320)}>
         {links.map((l) => (
           <li key={l.href}>
-            <a href={l.href}>{l.label}</a>
+            <a className="link" href={l.href}>
+              {l.label}
+            </a>
           </li>
         ))}
       </ul>

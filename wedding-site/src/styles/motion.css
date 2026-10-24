@@ -1,4 +1,4 @@
-/* Motion. See DESIGN.md (Motion) and planning/MOTION-PROPOSAL.md.
+/* Motion. Rules, inventory and the checklist for new components: MOTION.md (project root). Rationale: planning/MOTION-PROPOSAL.md.
    The boot script (app/layout.tsx) sets html.js (JavaScript runs), html.mo (motion allowed: no ?static, no
    reduced-motion preference) and html.land (the page opened below the top). Every hidden "from" state lives
    under html.mo, so no JavaScript, reduced motion and ?static all show everything in place.
@@ -28,7 +28,7 @@ html.js .rv--settle { transition: none; }
 html.mo:not(.land) .rv--settle:not(.in) { opacity: 1; translate: none; }
 html.js .rv--settle img { transition: opacity var(--t-stamp) var(--ease-out) var(--delay, 0ms), scale var(--t-stamp) var(--ease-stamp) var(--delay, 0ms), rotate var(--t-stamp) var(--ease-stamp) var(--delay, 0ms); }
 html.js .rv--settle::before, html.js .rv--settle::after {
-  transition: transform 600ms var(--ease-out), opacity var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms),
+  transition: transform var(--t-nudge) var(--ease-out), opacity var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms),
     translate var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms), scale var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms);
 }
 html.mo:not(.land) .rv--settle:not(.in) img { opacity: 0; scale: 1.04; rotate: -2deg; }
@@ -106,7 +106,7 @@ html.mo:not(.land) .milestone__count:not(.in) .milestone__num--word { scale: 1.0
 html.js .map__fade { transition: opacity 500ms var(--ease-out) var(--delay, 0ms); }
 html.js .map__stamp { transform-box: fill-box; transform-origin: 50% 100%; }
 html.js .map__stamp, html.js .map__drop {
-  transition: transform 400ms var(--ease-out), opacity var(--t-stamp) var(--ease-out) var(--delay, 0ms),
+  transition: transform var(--t-nudge) var(--ease-out), opacity var(--t-stamp) var(--ease-out) var(--delay, 0ms),
     scale var(--t-stamp) var(--ease-stamp) var(--delay, 0ms), rotate var(--t-stamp) var(--ease-stamp) var(--delay, 0ms);
 }
 html.js .map__drop { transform-box: fill-box; transform-origin: center; }
@@ -121,12 +121,19 @@ html.mo .map.arrived .map__lm--barn { animation: lift 900ms var(--ease-out); }
 @keyframes lift { 40% { transform: translateY(-8px) rotate(-2deg); } }
 
 /* ===== FAQ: rows open and close with height (where ::details-content exists; elsewhere instantly) ===== */
-html.js .faq details.rv { transition: background-color var(--t-hover), opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
+html.js .faq details.rv { transition: background-color var(--t-hover), transform var(--t-press) var(--ease-out), opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
 @supports selector(::details-content) {
   html.mo .faq__list { interpolate-size: allow-keywords; }
   html.mo .faq details::details-content { height: 0; opacity: 0; overflow: clip; transition: height 300ms var(--ease-out), opacity 300ms var(--ease-out), content-visibility 300ms allow-discrete; }
   html.mo .faq details[open]::details-content { height: auto; opacity: 1; }
+  /* the calendar menu under the milestone opens and closes the same way */
+  html.mo .cal { interpolate-size: allow-keywords; }
+  html.mo .cal::details-content { display: grid; justify-items: center; gap: 10px; height: 0; opacity: 0; overflow: clip; overflow-clip-margin: 8px; transition: height 300ms var(--ease-out), opacity 300ms var(--ease-out), content-visibility 300ms allow-discrete; }
+  html.mo .cal[open]::details-content { height: auto; opacity: 1; }
+  html.mo .cal[open] :is(.cal__menu, .cal__other) { animation: none; }
 }
+/* an opened answer rises a little behind its row */
+html.mo .faq details[open] p { --rv-y: 8px; animation: rise 360ms var(--ease-out) 60ms both; }
 
 /* ===== places: text rises, the cropped drawing is pushed into frame from the edge that crops it ===== */
 @property --px { syntax: "<length>"; inherits: false; initial-value: 0px; }
@@ -148,18 +155,18 @@ html.mo .dab[data-picked] .dab__shape { animation: squash 360ms var(--ease-out);
 @keyframes squash { 45% { transform: rotate(-6deg) scale(0.98); } }
 
 /* ===== stay: the road draws with scroll (below), each pin drops as it arrives, the lantern sways ===== */
-html.js .stop__pin.rv { transition: opacity 200ms var(--ease-out) var(--delay, 0ms), scale 420ms var(--ease-stamp) var(--delay, 0ms); }
+html.js .stop__pin.rv { transition: transform var(--t-nudge) var(--ease-stamp), opacity 200ms var(--ease-out) var(--delay, 0ms), scale 420ms var(--ease-stamp) var(--delay, 0ms); }
 html.mo:not(.land) .stop__pin.rv:not(.in) { translate: none; scale: 0; }
-html.js .stop__card.rv { transition: transform var(--t-hover) var(--ease-out), opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
+html.js .stop__card.rv { transition: transform var(--t-nudge) var(--ease-out), opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
 html.mo .stay__lantern { transform-origin: 50% 0; animation: sway 4.5s ease-in-out infinite alternate; }
 @keyframes sway { from { rotate: -2deg; } to { rotate: 2deg; } }
 
 /* ===== photos: the cards land like prints dropped on a table, the middle one last ===== */
 html.js .photos figure.rv {
-  transition: opacity 400ms var(--ease-out) var(--delay, 0ms), translate 700ms var(--ease-stamp) var(--delay, 0ms),
+  transition: transform var(--t-nudge) var(--ease-out), opacity 400ms var(--ease-out) var(--delay, 0ms), translate 700ms var(--ease-stamp) var(--delay, 0ms),
     scale 700ms var(--ease-stamp) var(--delay, 0ms), rotate 700ms var(--ease-stamp) var(--delay, 0ms);
 }
-html.js .photos figure.rv[data-rv-done] { transition: rotate 500ms var(--ease-out); }
+html.js .photos figure.rv[data-rv-done] { transition: rotate var(--t-nudge) var(--ease-out), transform var(--t-nudge) var(--ease-out); }
 html.mo:not(.land) .photos figure.rv:not(.in) { translate: 0 -6px; scale: 1.04; }
 html.mo:not(.land) .photos figure.rv:nth-child(1):not(.in) { rotate: -5deg; }
 html.mo:not(.land) .photos figure.rv:nth-child(2):not(.in) { rotate: 4.5deg; }
@@ -237,10 +244,42 @@ html.mo .nav__links a[aria-current]:not(:hover, :focus-visible)::after { transfo
 ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 240ms; }
 html:not(.mo)::view-transition-group(*), html:not(.mo)::view-transition-old(*), html:not(.mo)::view-transition-new(*) { animation: none; }
 
-/* ===== reduced motion: hover and state changes snap ===== */
+/* ===== interaction: hover previews, press confirms, choosing nods (see MOTION.md, Interaction) =====
+   Hover and press styles live with each component (components.css, sections.css, rsvp.css); keyframed
+   responses to an interaction live here, under html.mo. */
+
+/* the playlist's logo turns like a record while the button is hovered */
+@media (hover: hover) {
+  html.mo .ev__playlist-btn:hover .ev__playlist-logo { animation: spin 2.4s linear infinite; }
+}
+@keyframes spin { to { rotate: 1turn; } }
+
+/* the car hops when the pointer meets it */
+html.mo .map__car image { transform-box: fill-box; transform-origin: 50% 100%; }
+@media (hover: hover) {
+  html.mo .map__car:hover image { animation: hop 520ms var(--ease-stamp); }
+}
+@keyframes hop { 35% { translate: 0 -14px; rotate: -4deg; } 70% { translate: 0 0; rotate: 1deg; } }
+
+/* RSVP: the chosen card's drawing nods (the glass clinks, the bouquet bows); checks pop in */
+html.mo .tile:has(input:checked) .tint img { transform-origin: 50% 80%; animation: nod 520ms var(--ease-stamp); }
+@keyframes nod { 40% { rotate: -8deg; scale: 1.06; } }
+html.mo :is(.chip[aria-pressed="true"], .kidpick__opt:has(input:checked))::before { animation: check-in 240ms var(--ease-stamp); }
+/* while sending, the road under the label marches */
+html.mo .btn--send[data-pending]::after { animation: march-x 0.8s linear infinite; }
+@keyframes march-x { to { background-position: 16px 0; } }
+/* a returned error: the notice rises, each error's dot drops in */
+html.mo .rsvp-form .notice { --rv-y: 8px; animation: rise 420ms var(--ease-out) both; }
+html.mo .step .field__error::before { animation: drop 420ms var(--ease-stamp) 160ms both; }
+
+/* ===== reduced motion =====
+   Every hidden "from" state, loop and scroll-linked animation already sits under html.mo, which reduced
+   motion never gets. This catch-all makes everything else (hover, press, open/close, state changes) snap,
+   so a new component needs no reduced-motion rule of its own. Animations still run for 0s, so they end in
+   their final state and animationend still fires. */
 @media (prefers-reduced-motion: reduce) {
-  .tint::before, .btn, .ev__disc, .dab__shape, .fit__fig, .photos__frame img, .stop__card, .faq summary::after { transition: none; }
-  html.js .rv--settle::before, html.js .rv--settle::after, html.js .map__stamp, html.js .faq details.rv, html.js .stop__card.rv, html.js .photos figure.rv, html.js .panel__art.rv { transition: none; }
-  .map__lm, .map__hit, .cal__toggle::after { transition: none; }
-  .cal[open] .cal__menu, .cal[open] .cal__other { animation: none; }
+  *, *::before, *::after {
+    transition-duration: 0s !important; transition-delay: 0s !important;
+    animation-duration: 0s !important; animation-delay: 0s !important; animation-iteration-count: 1 !important;
+  }
 }

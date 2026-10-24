@@ -61,7 +61,9 @@
 .step--send { justify-items: start; }
 .step--send::before { content: ""; top: 6px; background: var(--peony); box-shadow: inset 0 0 0 3px var(--ink), 0 0 0 8px var(--ground); }
 .step--send::after { content: ""; position: absolute; left: calc(-1 * var(--indent)); top: calc(6px + var(--pin)); bottom: -2px; width: var(--pin); background: var(--ground); }
-.btn--send { --btn-h: 60px; padding-inline: 36px; font-size: 17px; }
+.btn--send { --btn-h: 60px; position: relative; padding-inline: 36px; font-size: 17px; }
+/* while the answer is on its way, a dashed road runs under the label (it marches in motion.css) */
+.btn--send[data-pending]::after { content: ""; position: absolute; left: 36px; right: 36px; bottom: 12px; height: 2px; background: linear-gradient(to right, currentColor 0 7px, transparent 7px) 0 0 / 16px 2px repeat-x; }
 
 /* yes / no as two picture cards */
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -70,8 +72,8 @@
   border-radius: var(--card-radius); background: var(--surface-quiet); cursor: pointer;
   transition: background-color var(--t-hover), transform var(--t-press) var(--ease-out);
 }
-.tile:hover { background: color-mix(in srgb, var(--linen) 35%, var(--ivory)); }
-.tile:active { transform: scale(0.98); }
+@media (hover: hover) { .tile:hover { background: color-mix(in srgb, var(--linen) 35%, var(--ivory)); } }
+.tile:active { transform: scale(var(--press-card)); }
 .tile input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .tile:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
 .tile__art { width: clamp(72px, 9vw, 112px); margin: -4px 0 6px -8px; }
@@ -98,8 +100,8 @@
   background: var(--surface-quiet); font: 400 26px/1 var(--font-text); cursor: pointer;
   transition: background-color var(--t-hover), color var(--t-hover), transform var(--t-press) var(--ease-out);
 }
-.stepper__btn:hover:not(:disabled) { background: var(--ink); color: var(--white); }
-.stepper__btn:active:not(:disabled) { transform: scale(0.94); }
+@media (hover: hover) { .stepper__btn:hover:not(:disabled) { background: var(--ink); color: var(--white); } }
+.stepper__btn:active:not(:disabled) { transform: scale(var(--press-small)); }
 .stepper__btn:disabled { cursor: default; opacity: 0.35; }
 .step .stepper input[type="number"] { width: 88px; text-align: center; font: 600 1.6rem/1 var(--font-display); font-variant-numeric: tabular-nums lining-nums; -moz-appearance: textfield; appearance: textfield; }
 .stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -120,11 +122,12 @@
 
 /* adult / child: two small pills under a guest's name */
 .kidpick { display: flex; flex-wrap: wrap; gap: 8px; }
-.kidpick__opt { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover); }
-.kidpick__opt:hover { background: var(--butter); }
+.kidpick__opt { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover), transform var(--t-press) var(--ease-out); }
+@media (hover: hover) { .kidpick__opt:hover { background: var(--butter); } }
+.kidpick__opt:active { transform: scale(var(--press)); }
 .kidpick__opt input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .kidpick__opt:has(input:checked) { background: var(--sage); }
-.kidpick__opt:has(input:checked)::before { content: "✓ "; white-space: pre; }
+.kidpick__opt:has(input:checked)::before { content: "✓"; display: inline-block; margin-right: 0.3em; }
 .kidpick__opt:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
 
 /* the small „i“ and its bubble: opens on hover, focus or tap */
@@ -134,17 +137,24 @@
 .infotip__bubble {
   position: absolute; z-index: 2; left: 50%; bottom: calc(100% + 10px); translate: -50% 0; width: max-content; max-width: min(260px, 70vw);
   padding: 10px 14px; border-radius: 12px; background: var(--ink); color: var(--white); font: 400 14px/1.4 var(--font-text); text-align: left;
-  visibility: hidden; opacity: 0; transition: opacity var(--t-hover), visibility var(--t-hover);
+  visibility: hidden; opacity: 0; transition: opacity var(--t-hover), visibility var(--t-hover), translate var(--t-hover) var(--ease-out);
 }
-.infotip:hover .infotip__bubble, .infotip:focus-within .infotip__bubble, .infotip[data-open] .infotip__bubble { visibility: visible; opacity: 1; }
-@media (max-width: 520px) { .infotip__bubble { left: auto; right: -12px; translate: 0 0; } }
+/* the bubble rises 4px as it fades in */
+.infotip:not(:focus-within, [data-open]) .infotip__bubble { translate: -50% 4px; }
+.infotip:focus-within .infotip__bubble, .infotip[data-open] .infotip__bubble { visibility: visible; opacity: 1; }
+@media (hover: hover) { .infotip:hover .infotip__bubble { visibility: visible; opacity: 1; translate: -50% 0; } }
+@media (max-width: 520px) {
+  .infotip__bubble, .infotip:hover .infotip__bubble { left: auto; right: -12px; translate: 0 0; }
+  .infotip:not(:focus-within, [data-open]) .infotip__bubble { translate: 0 4px; }
+}
 
 /* diet: quick chips above free text */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { min-height: 40px; padding: 8px 16px; border: 0; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover), color var(--t-hover); }
-.chip:hover { background: var(--ink); color: var(--white); }
+.chip { min-height: 40px; padding: 8px 16px; border: 0; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover), color var(--t-hover), transform var(--t-press) var(--ease-out); }
+@media (hover: hover) { .chip:hover { background: var(--ink); color: var(--white); } }
+.chip:active { transform: scale(var(--press)); }
 .chip[aria-pressed="true"] { background: var(--butter); color: var(--ink); }
-.chip[aria-pressed="true"]::before { content: "✓ "; }
+.chip[aria-pressed="true"]::before { content: "✓"; display: inline-block; margin-right: 0.3em; }
 
 /* the invitation beside the steps */
 .invite { position: sticky; top: calc(var(--nav-h) + 24px); display: grid; gap: 22px; padding: clamp(24px, 3vw, 36px); border-radius: var(--card-radius); background: var(--surface-quiet); }
@@ -155,8 +165,7 @@
 .invite__facts div { display: grid; gap: 2px; }
 .invite__facts dt { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
 .invite__facts dd { margin: 0; color: var(--ink-soft); }
-.invite__link { justify-self: start; padding: 4px 0; font-weight: 500; text-decoration: none; border-bottom: 2px solid var(--ink); }
-.invite__link:hover { border-bottom-color: var(--apricot); }
+.invite__link { justify-self: start; }
 @media (max-width: 900px) { .invite { position: static; } }
 
 /* the answer arrived: the road ends at a drawing */
@@ -168,8 +177,7 @@
 .reply-end h2:focus { outline: none; }
 .reply-end__cal { display: flex; flex-wrap: wrap; gap: 10px; }
 .reply-end__links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
-.reply-end__links a { display: inline-block; padding: 6px 0; font-weight: 500; text-decoration: none; border-bottom: 2px solid var(--ink); }
-.reply-end__links a:hover { border-bottom-color: var(--apricot); }
+.reply-end__links a { display: inline-block; padding: 6px 0; }
 
 /* ===== shared form fields (RSVP page and /admin) ===== */
 .field { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -193,8 +201,9 @@
 .field__error { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
 .field__error::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--apricot); }
 .choices { display: flex; flex-wrap: wrap; gap: 12px; }
-.choice { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 12px 20px; border-radius: var(--btn-radius); background: var(--surface-quiet); font-weight: 500; cursor: pointer; transition: background-color var(--t-hover); }
-.choice:hover { background: var(--butter); }
+.choice { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 12px 20px; border-radius: var(--btn-radius); background: var(--surface-quiet); font-weight: 500; cursor: pointer; transition: background-color var(--t-hover), transform var(--t-press) var(--ease-out); }
+@media (hover: hover) { .choice:hover { background: var(--butter); } }
+.choice:active { transform: scale(var(--press)); }
 .choice:has(input:checked) { background: var(--sage); }
 .choice:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
 .choice input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
@@ -204,7 +213,3 @@
 .notice { padding: 18px 22px; border-radius: var(--card-radius); background: var(--butter); }
 .notice:focus { outline: none; }
 
-@media (prefers-reduced-motion: reduce) {
-  .choice, .field input, .field textarea, .step input, .step textarea, .tile, .chip, .kidpick__opt, .infotip__bubble, .stepper__btn, .step::before { transition: none; }
-  .party__row:not(.party__row--you) { animation: none; }
-}

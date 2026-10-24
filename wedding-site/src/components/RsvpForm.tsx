@@ -256,7 +256,7 @@ function FormSteps({ state, pending }: { state: RsvpState; pending: boolean }) {
           <label htmlFor="company">Firma</label>
           <input id="company" name="company" tabIndex={-1} autoComplete="off" />
         </div>
-        <button className="btn btn--solid btn--send" type="submit" disabled={pending}>
+        <button className="btn btn--solid btn--send" type="submit" disabled={pending} data-pending={pending || undefined}>
           {pending ? "Odosielam…" : "Odoslať odpoveď"}
         </button>
         <p className="field__hint">Vaše údaje použijeme len na prípravu svadby.</p>
@@ -322,12 +322,20 @@ export function RsvpForm({ contact, calendarUrl }: RsvpFormProps) {
         <p className="reply-end__links">
           {coming ? (
             <>
-              <Link href="/#program">Pozrieť program</Link>
-              <Link href="/#ubytovanie">Kde prespať</Link>
-              <Link href="/#otazky">Časté otázky</Link>
+              <Link className="link" href="/#program">
+                Pozrieť program
+              </Link>
+              <Link className="link" href="/#ubytovanie">
+                Kde prespať
+              </Link>
+              <Link className="link" href="/#otazky">
+                Časté otázky
+              </Link>
             </>
           ) : (
-            <Link href="/">Späť na pozvánku</Link>
+            <Link className="link" href="/">
+              Späť na pozvánku
+            </Link>
           )}
         </p>
         <p className="field__hint">

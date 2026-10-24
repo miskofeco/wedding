@@ -79,7 +79,7 @@ export default function RsvpPage() {
                 <dd>{until ? `do ${until}, jedna za domácnosť` : "jedna za domácnosť"}</dd>
               </div>
             </dl>
-            <Link className="invite__link" href="/#program">
+            <Link className="link invite__link" href="/#program">
               Pozrieť program dňa
             </Link>
           </aside>
