@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barbora & Michal · 29. 05. 2027</title>
+<meta name="description" content="Svadba Barbory a Michala, 29. mája 2027. Obrad v kostole v Hlinnom, oslava v Stodole Zlatník.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=DM+Sans:opsz,wght@9..40,400..600&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js');if(location.search.includes('static'))document.documentElement.classList.add('static');</script>
+<style>
+/* ================= tokens ================= */
+:root{
+  --white:#FFFFFF; --ivory:#F6F2EA; --sage:#93A17F; --peony:#D8A0A6; --apricot:#D98962; --butter:#E4C765; --linen:#C7B69A; --black:#111111; --black-soft:#4A4A4A;
+  --ground:var(--white); --ink:var(--black); --ink-soft:var(--black-soft);
+  --font-display:"Fraunces",Georgia,serif; --font-text:"DM Sans",system-ui,sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1); --t-press:140ms; --t-hover:180ms; --t-reveal:700ms;
+  --gutter:clamp(16px,4vw,64px); --content:1200px; --measure:62ch;
+  --line:2px;
+  --nav-h:68px;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(var(--nav-h) + 12px)}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-text);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+::selection{background:var(--butter);color:var(--ink)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:4px}
+h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:-.025em;line-height:.96;margin:0;text-wrap:balance}
+h2{font-size:clamp(2.4rem,1.4rem + 4vw,5rem)}
+h3{font-size:clamp(1.4rem,1.1rem + 1.2vw,2rem);line-height:1.05;letter-spacing:-.015em}
+p{margin:0}
+.wrap{max-width:var(--content);margin:0 auto;padding:0 var(--gutter)}
+.lead{font-size:clamp(1.1rem,1rem + .5vw,1.35rem);max-width:46ch}
+.soft{color:var(--ink-soft)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* second-outline grammar: a black line on top of a colour copy offset down-right */
+.dup{position:relative;display:inline-block}
+.dup img{position:relative;z-index:1}
+/* riso tint: a loose colour fill under the black line, like a hand-tinted print */
+.tint{position:relative;display:inline-block}
+.tint img{position:relative;z-index:1}
+.tint::before,.tint::after{content:"";position:absolute;z-index:0;background:var(--c,var(--peony));border-radius:58% 42% 55% 45% / 50% 60% 40% 50%;transition:transform 600ms var(--ease-out)}
+.tint::before{left:18%;top:22%;width:62%;height:64%}
+.tint::after{background:var(--c2,var(--butter));left:8%;bottom:6%;width:30%;height:24%;border-radius:45% 55% 50% 50% / 55% 45% 55% 45%}
+.tint:hover::before{transform:rotate(-4deg) scale(1.04)}
+
+/* outlined controls and cards with a coloured offset shadow */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:14px 26px;border-radius:999px;font:500 16px/1 var(--font-text);text-decoration:none;color:var(--ink);background:var(--c,var(--ivory));transition:transform var(--t-press) var(--ease-out),background var(--t-hover),color var(--t-hover)}
+.btn:hover{background:var(--ink);color:var(--white)}
+.btn:active{transform:scale(.97)}
+.btn.solid{background:var(--ink);color:var(--white)}
+.btn.solid:hover{background:#000}
+.card{background:var(--white);border-radius:20px;padding:24px 26px;transition:transform var(--t-hover) var(--ease-out)}
+.card:hover{transform:translateY(-3px)}
+
+/* ================= nav ================= */
+.nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:saturate(1.2) blur(6px);height:var(--nav-h);display:flex;align-items:center}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%}
+.nav .mark{font-family:var(--font-display);font-weight:600;font-size:22px;text-decoration:none;letter-spacing:-.01em}
+.nav ul{display:flex;gap:clamp(14px,2vw,28px);list-style:none;margin:0;padding:0}
+.nav ul a{text-decoration:none;font-size:15px;padding:8px 0;position:relative}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:3px;background:var(--apricot);transform:scaleX(0);transform-origin:left;transition:transform var(--t-hover) var(--ease-out)}
+.nav ul a:hover::after,.nav ul a:focus-visible::after,.nav ul a[aria-current]::after{transform:scaleX(1)}
+.nav .btn{min-height:42px;padding:10px 18px;font-size:15px;--c:var(--peony)}
+.nav .menu{display:none;border:var(--line) solid var(--ink);background:var(--white);border-radius:999px;font:500 15px var(--font-text);color:inherit;padding:10px 16px;cursor:pointer}
+@media (max-width:760px){.nav ul,.nav .btn{display:none}.nav .menu{display:inline-block}}
+.menu-panel{display:none}
+.menu-panel.open{display:block;position:fixed;inset:var(--nav-h) 0 auto 0;background:var(--white);border-bottom:var(--line) solid var(--ink);padding:16px var(--gutter) 24px;z-index:49}
+.menu-panel a{display:block;padding:14px 0;font-size:20px;text-decoration:none;font-family:var(--font-display);font-weight:500;border-bottom:1px solid #eee}
+
+/* ================= hero ================= */
+.hero{position:relative;text-align:center;padding:clamp(24px,4vw,56px) var(--gutter) 0;display:grid;justify-items:center;overflow:hidden}
+.hero .art{width:clamp(220px,26vw,360px);aspect-ratio:1}
+.hero .art img{width:100%;aspect-ratio:1;object-fit:contain}
+.hero .bloom{position:absolute;width:clamp(120px,16vw,250px);aspect-ratio:1}
+.hero .bloom img{width:100%;aspect-ratio:1;object-fit:contain}
+.hero .bloom.a{left:calc(50% - clamp(260px,32vw,470px));top:clamp(30px,5vw,80px);transform:scaleX(-1) rotate(8deg)}
+.hero .bloom.b{left:calc(50% + clamp(150px,18vw,250px));top:clamp(120px,14vw,220px);width:clamp(100px,13vw,200px);transform:rotate(-6deg)}
+.hero .bloom::before{left:26%;top:30%;width:48%;height:46%} .hero .bloom::after{left:14%;bottom:14%;width:24%;height:20%}
+@media (max-width:760px){.hero .bloom.a{left:-6%;top:40px;width:120px}.hero .bloom.b{left:auto;right:-5%;top:200px;width:96px}}
+.sprig{display:block;width:clamp(96px,10vw,140px);aspect-ratio:3/1;object-fit:cover;object-position:center;margin-top:6px}
+.corner{position:absolute;width:clamp(180px,22vw,340px);aspect-ratio:1;pointer-events:none}
+.hero h1{font-size:clamp(3.1rem,1.4rem + 8.2vw,9rem);margin:clamp(8px,1.5vw,20px) 0 .18em;max-width:12ch}
+.hero h1 .amp{font-style:italic;font-weight:300}
+.hero .date{font-family:var(--font-display);font-weight:500;font-size:clamp(1.5rem,1rem + 2.2vw,2.8rem);line-height:1.05;font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin:0 0 .45em}
+.hero .where{color:var(--ink-soft);margin:0 0 1.1em;font-size:clamp(.95rem,.9rem + .3vw,1.1rem)}
+.hero .intro{max-width:40ch;margin:0 0 1.5em;font-size:clamp(1.05rem,1rem + .45vw,1.3rem);text-wrap:pretty}
+.hero .actions{display:flex;flex-wrap:wrap;gap:14px 18px;justify-content:center}
+.hero .road-start{width:2.5px;height:clamp(72px,9vw,120px);margin-top:clamp(32px,4vw,56px);background:repeating-linear-gradient(to bottom,var(--ink) 0 7px,transparent 7px 16px)}
+
+/* ================= programme ================= */
+.prog{padding:clamp(8px,2vw,24px) var(--gutter) clamp(56px,8vw,120px)}
+.prog header{text-align:center;max-width:46ch;margin:0 auto clamp(32px,5vw,72px);display:grid;gap:14px;justify-items:center}
+.tl{position:relative;list-style:none;margin:0 auto;padding:0;max-width:1100px}
+.tl svg.route{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.route .line{fill:none;stroke:var(--ink);stroke-width:2.5;stroke-dasharray:7 9;stroke-linecap:round}
+.ev{position:relative;display:grid;grid-template-columns:1fr 300px 1fr;gap:0 clamp(16px,3vw,48px);align-items:center;padding:clamp(18px,3vw,34px) 0}
+.ev .mark{grid-column:2;display:grid;place-items:center}
+.ev .disc{width:clamp(190px,21vw,260px);aspect-ratio:1;border-radius:50%;background:var(--white);display:grid;place-items:center;transition:transform 500ms var(--ease-out)}
+.ev .disc:hover{transform:rotate(-3deg) scale(1.03)}
+.ev .disc .tint{width:100%}
+.ev .disc img{width:100%;aspect-ratio:1;object-fit:contain}
+.ev .tint::before{left:20%;top:24%;width:60%;height:60%}
+.ev .tint::after{left:10%;bottom:10%;width:28%;height:22%}
+.ev:nth-child(even) .tint::before{left:auto;right:18%;border-radius:45% 55% 40% 60% / 60% 40% 60% 40%}
+.ev:nth-child(even) .tint::after{left:auto;right:8%;bottom:auto;top:12%}
+.ev:nth-child(odd) .mark{transform:translateX(-30px)} .ev:nth-child(even) .mark{transform:translateX(30px)}
+.ev .txt{grid-row:1;max-width:34ch}
+.ev:nth-child(odd) .txt{grid-column:1;text-align:right;justify-self:end}
+.ev:nth-child(even) .txt{grid-column:3;text-align:left;justify-self:start}
+.ev .time{font-weight:600;font-variant-numeric:tabular-nums;margin:.35em 0 .25em}
+.ev .time.pending{color:var(--ink-soft);font-weight:500}
+.ev .place{color:var(--ink-soft);font-size:15px;margin-bottom:.4em}
+.ev .d{font-size:16px}
+@media (max-width:760px){
+  .ev{grid-template-columns:104px 1fr;gap:0 16px;padding:20px 0;align-items:start}
+  .ev .mark{grid-column:1;grid-row:1;align-self:start}
+  .ev:nth-child(odd) .mark,.ev:nth-child(even) .mark{transform:none}
+  .ev .disc{width:104px}
+  .ev .disc .tint{width:100%}
+  .ev .txt,.ev:nth-child(odd) .txt,.ev:nth-child(even) .txt{grid-column:2;grid-row:1;text-align:left;justify-self:start;max-width:none}
+}
+
+/* ================= places: triptych, oversized cropped drawings ================= */
+.trip{display:grid;grid-template-columns:1fr 1.1fr 1fr;min-height:620px}
+.panel{position:relative;overflow:hidden;padding:clamp(28px,4vw,56px);display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.panel.ivory{background:var(--ivory)} .panel.apricot{background:var(--apricot)} .panel.sage{background:var(--sage)}
+.panel h3{font-size:clamp(2rem,1.2rem + 2.6vw,3.6rem);line-height:.94;letter-spacing:-.025em}
+.panel .sub{max-width:30ch;margin-top:12px}
+.panel .big{position:absolute;right:-18%;bottom:-30%;width:min(84%,480px);aspect-ratio:1;object-fit:contain;pointer-events:none}
+.panel .foot span{background:var(--white);border-radius:999px;padding:8px 14px;font-weight:500}
+.panel .foot{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;font-size:14px}
+.panel .foot .btn{min-height:46px;padding:12px 20px;font-size:15px}
+.panel.mid{align-items:center;justify-content:center;text-align:center}
+.panel.mid .big{position:absolute;right:auto;left:50%;bottom:-18%;transform:translateX(-50%);width:min(118%,640px)}
+.panel.mid .say{position:relative;z-index:1;font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,1rem + 1.6vw,2.4rem);line-height:1.1;letter-spacing:-.02em;max-width:16ch;text-wrap:balance;margin-top:auto}
+@media (max-width:900px){
+  .trip{grid-template-columns:1fr}
+  .panel{min-height:0;gap:18px}
+  .panel .big,.panel.mid .big{position:static;transform:none;width:min(60%,240px);margin:4px auto 0}
+  .panel.mid .big{width:min(70%,300px)}
+  .panel.mid .say{margin-top:0}
+}
+
+/* ================= palette ================= */
+.pal{padding:clamp(64px,9vw,140px) 0;overflow:hidden}
+.pal .wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,4vw,64px);align-items:center}
+.pal .wrap{grid-template-columns:1fr;position:relative}
+.pal .copy{max-width:60ch}
+.story{list-style:none;margin:clamp(24px,4vw,56px) 0 0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(14px,2.5vw,36px)}
+.dab{display:grid;gap:10px;align-content:start}
+.dab .shape{display:block;width:100%;aspect-ratio:1;background:var(--c);transition:transform 500ms var(--ease-out)}
+.dab:hover .shape{transform:rotate(-6deg) scale(1.04)}
+.shape.s1{border-radius:62% 38% 55% 45% / 48% 60% 40% 52%}
+.shape.s2{border-radius:40% 60% 45% 55% / 60% 42% 58% 40%;transform:scale(.92)}
+.shape.s3{border-radius:55% 45% 60% 40% / 40% 55% 45% 60%;transform:scale(1.04) rotate(8deg)}
+.shape.s4{border-radius:50% 50% 40% 60% / 55% 45% 55% 45%;transform:scale(.85)}
+.shape.s5{border-radius:45% 55% 50% 50% / 62% 38% 62% 38%;transform:scale(.96) rotate(-10deg)}
+.shape.s6{border-radius:58% 42% 48% 52% / 44% 58% 42% 56%;transform:scale(.9)}
+.dab h3{font-size:clamp(1.05rem,.95rem + .5vw,1.3rem)}
+.dab p{font-size:14.5px;color:var(--ink-soft);max-width:18ch}
+.dab:nth-child(even){margin-top:clamp(16px,3vw,44px)}
+.pal-flower{position:absolute;right:var(--gutter);top:-10px;width:clamp(110px,13vw,190px);transform:rotate(10deg)}
+.pal .copy{display:grid;gap:18px;align-content:center}
+@media (max-width:900px){.story{grid-template-columns:repeat(3,1fr)}.pal-flower{display:none}}
+@media (max-width:520px){.story{grid-template-columns:repeat(3,1fr);gap:12px}.dab:nth-child(even){margin-top:14px}.dab h3{font-size:1rem}.dab p{font-size:12.5px}}
+@media (max-width:760px){.rsvp .corner{display:none}.close .corner{display:none}}
+
+/* ================= photos ================= */
+.photos{background:var(--ivory);padding:clamp(64px,9vw,140px) 0;overflow:hidden;position:relative}
+.photos .wrap{display:grid;gap:clamp(24px,4vw,48px)}
+.photos .row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(18px,3vw,36px)}
+.photos figure{margin:0;position:relative}
+.photos .row img{position:relative;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:18px;background:#ddd;transition:transform 600ms var(--ease-out)}
+.photos figure:hover img{transform:scale(1.02)}
+.photos figure:nth-child(2){margin-top:clamp(24px,4vw,64px)}
+.photos figcaption{position:relative;font-size:14px;color:var(--ink-soft);margin-top:10px}
+.photos .sec-head{max-width:none;grid-template-columns:minmax(0,60ch) auto;align-items:end;gap:14px clamp(24px,4vw,64px)}
+.photos .sec-head h2{grid-column:1} .photos .sec-head .lead{grid-column:1}
+.photos .cam{grid-column:2;grid-row:1/3;width:clamp(120px,15vw,220px);justify-self:end;transform:rotate(6deg)}
+@media (max-width:760px){.photos .sec-head{grid-template-columns:1fr}.photos .cam{grid-column:1;grid-row:auto;justify-self:start;width:110px}}
+@media (max-width:760px){.photos .row{grid-template-columns:1fr 1fr}.photos figure:nth-child(2){margin-top:0}.photos figure:nth-child(3){grid-column:1/-1}.photos figure:nth-child(3) img{aspect-ratio:16/10}}
+
+/* ================= stay ================= */
+.stay{background:var(--sage);padding:clamp(64px,9vw,140px) 0;position:relative;overflow:hidden}
+.stay-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(32px,6vw,96px);align-items:start}
+.stay-copy{display:grid;gap:18px;align-content:start}
+.stay .lantern{width:clamp(110px,12vw,170px);margin-bottom:8px}
+.stops{list-style:none;margin:0;padding:0 0 0 34px;position:relative;display:grid;gap:clamp(16px,2.5vw,28px)}
+.stops::before{content:"";position:absolute;left:11px;top:8px;bottom:40px;border-left:2.5px dashed var(--ink)}
+.stop{position:relative}
+.stop .pin{position:absolute;left:-34px;top:14px;width:24px;height:24px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 6px var(--sage)}
+.stop > div{background:var(--white);border-radius:20px;padding:22px 26px;display:grid;gap:6px;transition:transform var(--t-hover) var(--ease-out)}
+.stop > div:hover{transform:translateX(4px)}
+.stop .dist{font-weight:600}
+.stop a{font-weight:500;text-underline-offset:4px;text-decoration-thickness:2px}
+.stop.morning .pin{background:var(--white)}
+.stop.morning .m{background:transparent;padding:6px 0 0;display:flex;align-items:center;gap:16px}
+.stop.morning img{width:84px}
+.stop.morning p{font-family:var(--font-display);font-weight:600;font-size:clamp(1.2rem,1rem + .8vw,1.6rem)}
+@media (max-width:900px){.stay-grid{grid-template-columns:1fr}}
+
+/* ================= faq ================= */
+.faq{padding:clamp(64px,9vw,140px) 0}
+.faq .wrap{display:grid;grid-template-columns:1fr 1.4fr;gap:clamp(24px,5vw,80px);align-items:start}
+.faq details{border-radius:18px;background:var(--ivory);margin-bottom:12px;transition:background var(--t-hover)}
+.faq details[open]{background:var(--c,var(--butter))}
+.faq details:nth-child(2n){--c:var(--peony)} .faq details:nth-child(3n){--c:var(--sage)}
+.faq summary{cursor:pointer;list-style:none;padding:18px 22px;font-family:var(--font-display);font-weight:600;font-size:clamp(1.1rem,1rem + .5vw,1.4rem);display:flex;justify-content:space-between;gap:16px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--font-text);font-weight:400;font-size:28px;line-height:1;transition:transform var(--t-hover) var(--ease-out)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 22px 20px;max-width:56ch}
+@media (max-width:900px){.faq .wrap{grid-template-columns:1fr}}
+
+/* ================= rsvp ================= */
+.rsvp{background:var(--peony);padding:clamp(72px,10vw,160px) 0;position:relative;overflow:hidden}
+.rsvp .big{position:absolute;right:-8%;bottom:-18%;width:clamp(260px,36vw,560px);aspect-ratio:1;object-fit:contain;transform:rotate(-8deg);pointer-events:none}
+.rsvp .wrap{position:relative;display:grid;gap:22px;max-width:900px;justify-items:start}
+.rsvp h2{font-size:clamp(3rem,1.6rem + 6vw,7.5rem)}
+.rsvp .btn.solid{background:var(--ink)}
+@media (max-width:760px){.rsvp .big{width:240px;right:-70px;bottom:-60px;transform:rotate(-8deg)}.rsvp{padding-bottom:220px}}
+
+/* ================= closing ================= */
+.close{position:relative;overflow:hidden;background:var(--sage);border-top:var(--line) solid var(--ink);padding:clamp(56px,9vw,130px) var(--gutter) 40px;text-align:center;display:grid;justify-items:center;gap:10px}
+.close .garland{width:clamp(160px,22vw,300px)}
+.close .thanks{font-family:var(--font-display);font-weight:500;font-size:clamp(1.3rem,1rem + 1.4vw,2rem)}
+.close .names{font-family:var(--font-display);font-weight:600;font-size:clamp(2.8rem,1rem + 10vw,11rem);line-height:.9;letter-spacing:-.03em;text-wrap:balance}
+.close .date{font-family:var(--font-display);font-weight:500;font-size:clamp(1.3rem,1rem + 1.6vw,2.4rem);margin-bottom:28px}
+.close .fine{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;font-size:14px}
+.close .fine a{text-decoration:none;border-bottom:2px solid var(--ink)}
+
+/* ================= sections rhythm ================= */
+section{scroll-margin-top:var(--nav-h)}
+.sec-head{display:grid;gap:14px;max-width:60ch}
+
+/* ================= motion ================= */
+.rv{--d:0ms}
+html.js .rv{opacity:0;transform:translateY(22px);transition:opacity var(--t-reveal) var(--ease-out) var(--d),transform var(--t-reveal) var(--ease-out) var(--d)}
+html.js .rv.in{opacity:1;transform:none}
+html.js .hero > *{animation:rise 800ms var(--ease-out) both}
+html.js .hero > :nth-child(1){animation-delay:0ms} html.js .hero > :nth-child(2){animation-delay:80ms} html.js .hero > :nth-child(3){animation-delay:140ms}
+html.js .hero > :nth-child(4){animation-delay:220ms} html.js .hero > :nth-child(5){animation-delay:300ms} html.js .hero > :nth-child(6){animation-delay:380ms}
+html.js .hero > :nth-child(7){animation-delay:460ms} html.js .hero > :nth-child(8){animation-delay:540ms} html.js .hero > :nth-child(9){animation-delay:620ms}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .tl .route .line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw linear both;animation-timeline:view();animation-range:cover 0% cover 60%}
+  }
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+html.static .tl .route .line{animation:none!important;stroke-dashoffset:0!important;stroke-dasharray:7 9!important}
+html.static .rv{opacity:1!important;transform:none!important}
+html.static .hero > *{animation:none!important}
+@media (prefers-reduced-motion:reduce){
+  html.js .rv{opacity:1;transform:none;transition:none}
+  html.js .hero > *{animation:none}
+  .tint::before,.btn,.card,.sw,.ev .disc,.photos .row img{transition:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Hlavná navigácia">
+  <div class="wrap">
+    <a class="mark" href="#top">B &amp; M</a>
+    <ul>
+      <li><a href="#program">Program</a></li>
+      <li><a href="#miesta">Miesta</a></li>
+      <li><a href="#farby">Farby</a></li>
+      <li><a href="#ubytovanie">Ubytovanie</a></li>
+      <li><a href="#otazky">Otázky</a></li>
+    </ul>
+    <a class="btn" href="#rsvp">Potvrdiť účasť</a>
+    <button class="menu" aria-expanded="false" aria-controls="menu-panel">Menu</button>
+  </div>
+</nav>
+<div class="menu-panel" id="menu-panel">
+  <a href="#program">Program</a><a href="#miesta">Miesta</a><a href="#farby">Farby</a><a href="#ubytovanie">Ubytovanie</a><a href="#otazky">Otázky</a><a href="#rsvp">Potvrdiť účasť</a>
+</div>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="names">
+  <span class="tint bloom a" style="--c:var(--apricot);--c2:var(--butter)"><img src="../direction-board/assets/black/rose-corner.svg" alt=""></span>
+  <span class="tint art" style="--c:var(--peony);--c2:var(--butter)"><img src="../direction-board/assets/black/couple-walking.svg" alt="Kreslený pár kráčajúci spolu"></span>
+  <span class="tint bloom b" style="--c:var(--sage);--c2:var(--peony)"><img src="../direction-board/assets/black/rose-corner.svg" alt=""></span>
+  <h1 id="names">Barbora <span class="amp">&amp;</span> Michal</h1>
+  <p class="date">29. 05. 2027</p>
+  <p class="where">sobota · kostol v Hlinnom · Stodola Zlatník</p>
+  <p class="intro">Pozývame vás zdieľať s nami deň, na ktorý sa budeme pamätať celý život.</p>
+  <div class="actions"><a class="btn solid" href="#program">Pozrieť program</a><a class="btn" href="#rsvp" style="--c:var(--sage)">Potvrdiť účasť</a></div>
+  <div class="road-start" aria-hidden="true"></div>
+</section>
+
+<!-- PROGRAMME -->
+<section class="prog" id="program" aria-labelledby="prog-h">
+  <header class="rv">
+    <h2 id="prog-h">Chvíle nášho dňa</h2><img class="sprig" src="../direction-board/assets/black/rose-border.svg" alt="">
+    <p class="lead">Jedna cesta, jeden deň: z kostola v Hlinnom do záhrady v Zlatníku. Časy doplníme, len čo budú isté.</p>
+  </header>
+  <ol class="tl" data-route>
+    <svg class="route" aria-hidden="true"><path class="line" d=""/></svg>
+    <li class="ev rv"><div class="txt"><h3>Sobáš</h3><p class="time pending">Čas upresníme</p><p class="place">Kostol v Hlinnom · názov upresníme</p><p class="d">Obrad, pri ktorom si povieme svoje áno.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--apricot);--c2:var(--butter)"><img src="../direction-board/assets/black/church.svg" alt=""></span></div></div></li>
+    <li class="ev rv"><div class="txt"><h3>Cesta do Zlatníka</h3><p class="time pending">Po obrade</p><p class="place">Hlinné → Stodola Zlatník</p><p class="d">Z kostola sa presunieme do Zlatníka. Informácie o doprave a parkovaní doplníme.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--sage);--c2:var(--butter)"><img src="../direction-board/assets/black/car-vintage.svg" alt=""></span></div></div></li>
+    <li class="ev rv"><div class="txt"><h3>Prípitok v záhrade</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník · záhrada</p><p class="d">Privítanie, gratulácie a prvý spoločný prípitok.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--butter);--c2:var(--peony)"><img src="../direction-board/assets/black/champagne-toast.svg" alt=""></span></div></div></li>
+    <li class="ev rv"><div class="txt"><h3>Večera</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník · stodola</p><p class="d">Spoločná večera pri jednom dlhom stole.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--peony);--c2:var(--sage)"><img src="../direction-board/assets/black/dinner-table.svg" alt=""></span></div></div></li>
+    <li class="ev rv"><div class="txt"><h3>Prvý tanec</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Otvoríme parket. Potom je rad na vás.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--sage);--c2:var(--peony)"><img src="../direction-board/assets/black/dance-twirl.svg" alt=""></span></div></div></li>
+    <li class="ev rv"><div class="txt"><h3>Torta</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Sladká chvíľa pre všetkých.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--peony);--c2:var(--butter)"><img src="../direction-board/assets/black/cake-1.svg" alt=""></span></div></div></li>
+    <li class="ev rv"><div class="txt"><h3>Zábava do noci</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Hudba, tanec a chvíle, ktoré si zapamätáme.</p></div><div class="mark"><div class="disc"><span class="tint lm" style="--c:var(--apricot);--c2:var(--sage)"><img src="../direction-board/assets/black/music-notes.svg" alt=""></span></div></div></li>
+  </ol>
+</section>
+
+<!-- PLACES -->
+<section class="trip" id="miesta" aria-label="Miesta">
+  <div class="panel ivory rv">
+    <div><h3>Sobáš<br>v Hlinnom</h3><p class="sub">[Názov kostola] · Čas upresníme</p></div>
+    <img class="big" src="../direction-board/assets/apricot/church.svg" alt="">
+    <div class="foot"><a class="btn" href="#" style="--c:var(--white)">Otvoriť mapu</a><span>Hlinné</span></div>
+  </div>
+  <div class="panel apricot mid rv" style="--d:120ms">
+    <img class="big" src="../direction-board/assets/ivory/couple-kiss.svg" alt="">
+    </div>
+  <div class="panel ivory rv" style="--d:240ms">
+    <div><h3>Oslava<br>v Zlatníku</h3><p class="sub">Stodola Zlatník · [adresa] · od [čas]</p></div>
+    <img class="big" src="../direction-board/assets/sage/barn.svg" alt="">
+    <div class="foot"><a class="btn" href="#" style="--c:var(--white)">Otvoriť mapu</a><span>Zlatník</span></div>
+  </div>
+</section>
+
+<!-- PALETTE -->
+<section class="pal" id="farby" aria-labelledby="pal-h">
+  <div class="wrap">
+    <div class="copy rv">
+      <h2 id="pal-h">Farby nášho dňa</h2>
+      <p class="lead">Volá sa Májová záhrada. Každá farba v nej má na svadbe svoje miesto. Ak sa chcete zladiť, budeme radi. Podmienka to nie je.</p>
+      <p class="soft">[Potvrdiť: dress code, či ide o odporúčanie pre hostí alebo len o farby výzdoby. Priradenia farieb k prvkom sú návrh.]</p>
+    </div>
+    <ol class="story rv" style="--d:120ms">
+      <li class="dab" style="--c:var(--sage)"><span class="shape s1"></span><h3>Šalviová</h3><p>Zeleň záhrady a obrúsky na stoloch.</p></li>
+      <li class="dab" style="--c:var(--peony)"><span class="shape s2"></span><h3>Pivonková</h3><p>Kvety v kyticiach a na stoloch.</p></li>
+      <li class="dab" style="--c:var(--apricot)"><span class="shape s3"></span><h3>Marhuľová</h3><p>Fasáda kostola v Hlinnom.</p></li>
+      <li class="dab" style="--c:var(--butter)"><span class="shape s4"></span><h3>Masložltá</h3><p>Májové slnko a lúčne kvety.</p></li>
+      <li class="dab" style="--c:var(--linen)"><span class="shape s5"></span><h3>Prírodný ľan</h3><p>Drevo stodoly a ľanové obrusy.</p></li>
+      <li class="dab" style="--c:var(--ivory)"><span class="shape s6"></span><h3>Slonovina</h3><p>Papier pozvánok a menoviek.</p></li>
+    </ol>
+    <img class="pal-flower" src="../direction-board/assets/black/daisy-bouquet.svg" alt="">
+  </div>
+</section>
+
+<!-- PHOTOS -->
+<section class="photos" id="fotky" aria-labelledby="ph-h">
+  <div class="wrap">
+    <div class="sec-head rv" style="position:relative">
+      <h2 id="ph-h">Naše chvíle doteraz</h2><img class="sprig" src="../direction-board/assets/black/rose-border.svg" alt="">
+      <p class="lead">Pár momentov z cesty, ktorá nás priviedla až sem.</p>
+      <img class="cam" src="../direction-board/assets/black/camera.svg" alt="">
+    </div>
+    <div class="row">
+      <figure class="rv"><img src="../direction-board/photos/IMG_4884.jpg" alt="Barbora a Michal, jesenná selfie"><figcaption>[popis fotky]</figcaption></figure>
+      <figure class="rv" style="--d:120ms"><img src="../direction-board/photos/IMG_0376.jpg" alt="Topánky na lavičke a zásnubný prsteň"><figcaption>[popis fotky]</figcaption></figure>
+      <figure class="rv" style="--d:240ms"><img src="../direction-board/photos/IMG_9388.jpg" alt="Barbora a Michal v kvetinovej záhrade"><figcaption>[popis fotky]</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- STAY -->
+<section class="stay" id="ubytovanie" aria-labelledby="stay-h">
+  <div class="wrap stay-grid">
+    <div class="stay-copy rv">
+      <img class="lantern" src="../direction-board/assets/white/lantern.svg" alt="">
+      <h2 id="stay-h">Cesta domov môže počkať</h2>
+      <p class="lead">Zábava potrvá do noci, a tak sme pre vás vybrali zopár miest na prespanie blízko stodoly. Ráno sa potom nikam neponáhľajte.</p>
+      <p class="soft">[Zoznam, vzdialenosti a kontakty doplníme a potvrdíme.]</p>
+    </div>
+    <ol class="stops rv" style="--d:120ms">
+      <li class="stop"><span class="pin"></span><div><h3>[Ubytovanie 1]</h3><p class="dist">[x] km od Stodoly Zlatník</p><p>[Krátka poznámka: typ, cena, kontakt]</p><a href="#">Webová stránka</a></div></li>
+      <li class="stop"><span class="pin"></span><div><h3>[Ubytovanie 2]</h3><p class="dist">[x] km od Stodoly Zlatník</p><p>[Krátka poznámka]</p><a href="#">Webová stránka</a></div></li>
+      <li class="stop"><span class="pin"></span><div><h3>[Ubytovanie 3]</h3><p class="dist">[x] km od Stodoly Zlatník</p><p>[Krátka poznámka]</p><a href="#">Webová stránka</a></div></li>
+      <li class="stop morning"><span class="pin"></span><div class="m"><img src="../direction-board/assets/white/coffee.svg" alt=""><p>Ráno bez ponáhľania.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="otazky" aria-labelledby="faq-h">
+  <div class="wrap">
+    <div class="sec-head rv"><h2 id="faq-h">Časté otázky</h2><img class="sprig" src="../direction-board/assets/black/rose-border.svg" alt=""><p class="lead">Ak tu odpoveď nenájdete, napíšte nám. Radi odpovieme.</p><p><a class="btn" href="#rsvp" style="--c:var(--peony)">Napísať nám</a></p></div>
+    <div class="rv" style="--d:120ms">
+      <details><summary>Kedy mám prísť do kostola?</summary><p>[Doplníme: odporúčaný príchod pred obradom.]</p></details>
+      <details><summary>Kde zaparkujem?</summary><p>[Doplníme: parkovanie pri kostole a pri stodole.]</p></details>
+      <details><summary>Môžem prísť s deťmi?</summary><p>[Doplníme.]</p></details>
+      <details><summary>Čo si obliecť?</summary><p>[Doplníme. Farby nájdete vyššie.]</p></details>
+      <details><summary>Čo s darmi?</summary><p>[Doplníme.]</p></details>
+      <details><summary>Kam poslať fotky z oslavy?</summary><p>[Doplníme: zdieľaný album.]</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- RSVP CTA -->
+<section class="rsvp" id="rsvp" aria-labelledby="rsvp-h">
+  <img class="corner" src="../direction-board/assets/white/rose-corner.svg" alt="" style="left:-6%;top:-8%;transform:scaleX(-1) rotate(10deg)">
+  <img class="big" src="../direction-board/assets/white/sealed-envelope.svg" alt="">
+  <div class="wrap">
+    <h2 id="rsvp-h" class="rv">Prídete?</h2>
+    <p class="lead rv" style="--d:100ms">Dajte nám, prosím, vedieť do [dátum]. Potvrdenie zaberie minútu.</p>
+    <p class="rv" style="--d:200ms"><a class="btn solid" href="rsvp.html">Potvrdiť účasť</a></p>
+    <p class="soft rv" style="--d:300ms">[Stránka RSVP: polia a cieľ odpovedí upresníme.]</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="close">
+  <img class="corner" src="../direction-board/assets/white/rose-corner.svg" alt="" style="right:-5%;top:4%;transform:rotate(-8deg)">
+  <img class="garland" src="../direction-board/assets/white/garland.svg" alt="">
+  <p class="thanks">Tešíme sa na vás.</p>
+  <p class="names" role="heading" aria-level="2">Barbora <span style="font-style:italic;font-weight:300">&amp;</span> Michal</p>
+  <p class="date">29. 05. 2027 · Hlinné · Zlatník</p>
+  <p class="fine"><a href="#program">Program</a><a href="#miesta">Miesta</a><a href="#ubytovanie">Ubytovanie</a><a href="#otazky">Otázky</a><a href="#rsvp">Potvrdiť účasť</a></p>
+</footer>
+
+<script>
+// sticker renderer: silhouette body in colour, thick darker outline, white line art on top
+(async function stickers(){
+  const imgs=[...document.querySelectorAll('img[data-sticker]')]; if(!imgs.length)return;
+  const S=640, GAP=5, OUT=22; // gap closing radius, outline thickness (in 640px space)
+  const shade=(hex,k)=>{const n=parseInt(hex.slice(1),16);const f=v=>Math.max(0,Math.min(255,Math.round(v*k)));return `rgb(${f(n>>16)},${f((n>>8)&255)},${f(n&255)})`;};
+  const cv=()=>{const c=document.createElement('canvas');c.width=c.height=S;return c;};
+  const load=src=>new Promise((ok,err)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=err;i.src=src;});
+  const tinted=(srcCanvas,color)=>{const c=cv(),x=c.getContext('2d');x.drawImage(srcCanvas,0,0);x.globalCompositeOperation='source-in';x.fillStyle=color;x.fillRect(0,0,S,S);return c;};
+  const dilate=(srcCanvas,r)=>{const c=cv(),x=c.getContext('2d');for(let k=0;k<32;k++){const a=k/32*Math.PI*2;x.drawImage(srcCanvas,Math.cos(a)*r,Math.sin(a)*r);}for(let k=0;k<16;k++){const a=k/16*Math.PI*2;x.drawImage(srcCanvas,Math.cos(a)*r*.55,Math.sin(a)*r*.55);}x.drawImage(srcCanvas,0,0);return c;};
+  const cache={};
+  for(const img of imgs){
+    const src=img.getAttribute('src'), color=img.dataset.sticker, key=src+color;
+    try{
+      if(!cache[key]){
+        const im=await load(src);
+        const lines=cv(); lines.getContext('2d').drawImage(im,0,0,S,S);
+        const closed=dilate(lines,GAP);                       // close small gaps so interiors stay enclosed
+        const d=closed.getContext('2d').getImageData(0,0,S,S).data;
+        const ext=new Uint8Array(S*S); const q=new Int32Array(S*S); let h=0,t=0;
+        const push=i=>{if(!ext[i]&&d[i*4+3]<40){ext[i]=1;q[t++]=i;}};
+        for(let i=0;i<S;i++){push(i);push((S-1)*S+i);push(i*S);push(i*S+S-1);}
+        while(h<t){const i=q[h++],x=i%S,y=(i/S)|0;if(x>0)push(i-1);if(x<S-1)push(i+1);if(y>0)push(i-S);if(y<S-1)push(i+S);}
+        const body=cv(),bx=body.getContext('2d'),bd=bx.createImageData(S,S);
+        for(let i=0;i<S*S;i++){if(!ext[i]){bd.data[i*4+3]=255;}}
+        bx.putImageData(bd,0,0);
+        const out=cv(),ox=out.getContext('2d');
+        ox.drawImage(tinted(dilate(body,OUT),shade(color,.78)),0,0);  // thick darker outline
+        ox.drawImage(tinted(dilate(body,6),color),0,0);              // colour body
+        ox.drawImage(tinted(lines,'#FFFFFF'),0,0);                    // white line art
+        cache[key]=out.toDataURL('image/png');
+      }
+      img.src=cache[key];
+    }catch(e){ /* keep the black drawing */ }
+  }
+})();
+// route geometry from real landmark centres
+function drawRoutes(){
+  document.querySelectorAll('[data-route]').forEach(tl=>{
+    const svg=tl.querySelector('svg.route'); const r=tl.getBoundingClientRect();
+    svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);
+    const pts=[...tl.querySelectorAll('.ev .disc')].map(el=>{const b=el.getBoundingClientRect();return {x:b.left-r.left+b.width/2,y:b.top-r.top+b.height/2};});
+    if(pts.length<2)return;
+    const mobile=r.width<760, f=n=>Math.round(n*10)/10;
+    let d=`M ${f(pts[0].x)} ${f(pts[0].y-(mobile?40:110))} L ${f(pts[0].x)} ${f(pts[0].y)}`;
+    for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],k=(b.y-a.y)*0.5;d+=` C ${f(a.x)} ${f(a.y+k)}, ${f(b.x)} ${f(b.y-k)}, ${f(b.x)} ${f(b.y)}`;}
+    d+=` L ${f(pts.at(-1).x)} ${f(pts.at(-1).y+(mobile?40:110))}`;
+    svg.querySelectorAll('path').forEach(p=>{p.setAttribute('d',d);p.setAttribute('pathLength','1');});
+  });
+}
+document.fonts.ready.then(drawRoutes); window.addEventListener('load',drawRoutes);
+new ResizeObserver(()=>drawRoutes()).observe(document.body);
+// reveals, once, in reading order
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -10% 0px',threshold:.15});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+// mobile menu
+const mb=document.querySelector('.nav .menu'), mp=document.getElementById('menu-panel');
+mb.addEventListener('click',()=>{const o=mp.classList.toggle('open');mb.setAttribute('aria-expanded',o);mb.textContent=o?'Zavrieť':'Menu';});
+mp.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{mp.classList.remove('open');mb.setAttribute('aria-expanded','false');mb.textContent='Menu';}));
+// current section in nav
+const links=[...document.querySelectorAll('.nav ul a')];
+const so=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.removeAttribute('aria-current'));const l=links.find(l=>l.getAttribute('href')==='#'+e.target.id);if(l)l.setAttribute('aria-current','true');}}),{rootMargin:'-40% 0px -55% 0px'});
+document.querySelectorAll('section[id]').forEach(s=>so.observe(s));
+</script>
+</body>
+</html>

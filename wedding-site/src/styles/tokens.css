@@ -1,0 +1,71 @@
+/* Tokens. See DESIGN.md. Primitive → semantic → component. */
+:root {
+  /* White outline on black drawings (hero, programme). Off: none. On: url(#sticker) / url(#sticker-lg). */
+  --sticker: url(#sticker);
+  --sticker-lg: url(#sticker-lg);
+
+  /* primitive: palette „Májová záhrada“ */
+  --white: #ffffff;
+  --ivory: #f6f2ea;
+  --sage: #93a17f;
+  --peony: #d8a0a6;
+  --apricot: #d98962;
+  --butter: #e4c765;
+  --linen: #c7b69a;
+  --blue: #7c9cbc; /* palette section only; oklch(0.68 0.06 250), sage's lightness and softness in blue */
+  --olive: #46513d;
+  --black: #111111;
+  --black-soft: #4a4a4a;
+
+  /* semantic */
+  --ground: var(--white);
+  --ink: var(--black);
+  --ink-soft: var(--black-soft); /* only on white and ivory */
+  --surface-quiet: var(--ivory);
+  --accent-underline: var(--apricot);
+  --selection: var(--butter);
+
+  /* type (families come from next/font variables set on <html>) */
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-text: var(--font-dm-sans), system-ui, sans-serif;
+  --text-body: 17px;
+  --text-small: 15px;
+  --text-lead: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  --text-h2: clamp(2.4rem, 1.4rem + 4vw, 5rem);
+  --text-h3: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+
+  /* space and layout */
+  --gutter: clamp(16px, 4vw, 64px);
+  --content: 1200px;
+  --section-pad: clamp(64px, 9vw, 140px);
+  --nav-h: 68px;
+
+  /* component */
+  --btn-h: 52px;
+  --btn-radius: 999px;
+  --card-radius: 20px;
+  --photo-radius: 18px;
+  --route-width: 2.5px;
+  --route-dash: 7 9;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --t-press: 140ms;
+  --t-hover: 180ms;
+  --t-reveal: 700ms;
+  --ease-stamp: cubic-bezier(0.2, 0.9, 0.3, 1.08); /* stamps and pin drops: a hair of overshoot */
+  --ease-settle: cubic-bezier(0.3, 0.7, 0.2, 1); /* riso fills sliding into register */
+  --t-stamp: 600ms;
+  --t-settle: 700ms;
+  --rv-y: 22px; /* rise distance */
+  --rv-x: 16px; /* directional slide */
+  --t-nudge: 450ms; /* hover on drawings, cards and pins: slower than colour, like paper moving */
+  --t-sweep: 260ms; /* underlines drawing from the left */
+  --press: 0.97; /* buttons and pills while pressed */
+  --press-card: 0.985; /* cards, tiles and rows */
+  --press-small: 0.94; /* round and small controls */
+}
+/* phones: half the distance, a little quicker */
+@media (max-width: 760px) {
+  :root { --rv-y: 12px; --t-reveal: 550ms; --t-stamp: 550ms; --t-settle: 600ms; }
+}

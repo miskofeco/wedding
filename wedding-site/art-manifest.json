@@ -1,0 +1,307 @@
+{
+  "$comment": "Curated drawings from the whimsical pack. Source paths are relative to ../doodles/whimsical. Run `npm run art` to regenerate public/art. Licence record for the pack: pending (see README).",
+  "inks": {
+    "black": "#111111",
+    "white": "#FFFFFF",
+    "ivory": "#F6F2EA",
+    "apricot": "#D98962",
+    "sage": "#93A17F"
+  },
+  "drawings": [
+    {
+      "name": "couple-cool",
+      "source": "26- 50 (Couple Together & Poses)/SVG/B_Cool Bride and Groom Portrait.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Hero"
+    },
+    {
+      "name": "rose-corner",
+      "source": "76-100 (Floral Arrangements , Bouqets & Arch)/SVG/D_Diagonal Rose Corner Spray.svg",
+      "inks": [
+        "black",
+        "white"
+      ],
+      "role": "Hero: left spray; RSVP and closing corners"
+    },
+    {
+      "name": "ranunculus-bouquet",
+      "source": "76-100 (Floral Arrangements , Bouqets & Arch)/SVG/D_ranunculus bouquet.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Hero: right flower"
+    },
+    {
+      "name": "rose-border",
+      "source": "76-100 (Floral Arrangements , Bouqets & Arch)/SVG/D_Rose Floral Border.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Sprig under section titles"
+    },
+    {
+      "name": "church",
+      "source": "151-175 (Invitation & Venue)/SVG/F_church.svg",
+      "inks": [
+        "black",
+        "apricot"
+      ],
+      "role": "Programme: Sobáš; Places: Hlinné"
+    },
+    {
+      "name": "car-vintage",
+      "source": "26- 50 (Couple Together & Poses)/SVG/B-25.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Programme: Cesta do Zlatníka; map: the car that drives the road"
+    },
+    {
+      "name": "champagne-toast",
+      "source": "51-75 ( Food , Cake & Beverages)/SVG/C_Champagne Toast.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Programme: Prípitok"
+    },
+    {
+      "name": "dinner-table",
+      "source": "101-125 (Wedding Decor & Reception Objects)/SVG/E_Reception Dinner Table.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Programme: Večera"
+    },
+    {
+      "name": "dance-twirl",
+      "source": "26- 50 (Couple Together & Poses)/SVG/B_Twirling Wedding Dance.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Programme: Prvý tanec"
+    },
+    {
+      "name": "cake",
+      "source": "51-75 ( Food , Cake & Beverages)/SVG/C_Tiered Wedding Cake.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Programme: Torta"
+    },
+    {
+      "name": "music-notes",
+      "source": "176-200 (Celebration & Transport)/SVG/G_music notes.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Programme: Zábava"
+    },
+    {
+      "name": "couple-kiss",
+      "source": "26- 50 (Couple Together & Poses)/SVG/B_Bouquet Kiss Portrait.svg",
+      "inks": [
+        "ivory"
+      ],
+      "role": "Places: centre panel"
+    },
+    {
+      "name": "barn",
+      "source": "151-175 (Invitation & Venue)/SVG/F_Rustic Wedding Barn.svg",
+      "inks": [
+        "sage",
+        "black"
+      ],
+      "role": "Places: Zlatník (sage); map (black)"
+    },
+    {
+      "name": "daisy-bouquet",
+      "source": "76-100 (Floral Arrangements , Bouqets & Arch)/SVG/D_Daisy Bouquet.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Palette accent"
+    },
+    {
+      "name": "groom-walk",
+      "source": "1-25 (Bride, Groom & Bridesmaid)/SVG/A_Full Groom Illustration.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Palette: the suit figure (fill mask in public/fills)",
+      "crop": {
+        "box": [
+          355,
+          20,
+          370,
+          1045
+        ]
+      }
+    },
+    {
+      "name": "bride-bouquet",
+      "source": "1-25 (Bride, Groom & Bridesmaid)/SVG/A_Full-Length Bride with Bouquet.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Palette: the dress figure (fill mask in public/fills)",
+      "crop": {
+        "box": [
+          60,
+          15,
+          960,
+          1060
+        ]
+      }
+    },
+    {
+      "name": "groom-dance",
+      "source": "26- 50 (Couple Together & Poses)/SVG/B_Bride and Groom Celebration Dance.svg",
+      "crop": {
+        "box": [
+          70,
+          100,
+          415,
+          870
+        ]
+      },
+      "inks": [
+        "black"
+      ],
+      "role": "Palette: the groom from the dance, cut at the joined hands"
+    },
+    {
+      "name": "groom-portrait",
+      "source": "1-25 (Bride, Groom & Bridesmaid)/SVG/A_Groom Potrait.svg",
+      "crop": {
+        "box": [
+          175,
+          45,
+          730,
+          989
+        ]
+      },
+      "inks": [
+        "black"
+      ],
+      "role": "Palette: the groom with a buttonhole"
+    },
+    {
+      "name": "bride-champagne",
+      "source": "1-25 (Bride, Groom & Bridesmaid)/SVG/A_Bride holding a champagne flute.svg",
+      "crop": {
+        "box": [
+          150,
+          50,
+          775,
+          986
+        ]
+      },
+      "inks": [
+        "black"
+      ],
+      "role": "Palette: the bride raising a glass"
+    },
+    {
+      "name": "bride-stand",
+      "source": "26- 50 (Couple Together & Poses)/SVG/B-02.svg",
+      "crop": {
+        "box": [
+          215,
+          75,
+          497,
+          960
+        ],
+        "clip": [
+          [
+            215,
+            75
+          ],
+          [
+            640,
+            75
+          ],
+          [
+            640,
+            490
+          ],
+          [
+            678,
+            490
+          ],
+          [
+            678,
+            600
+          ],
+          [
+            702,
+            600
+          ],
+          [
+            702,
+            1035
+          ],
+          [
+            215,
+            1035
+          ]
+        ]
+      },
+      "inks": [
+        "black"
+      ],
+      "role": "Palette: the bride from the standing couple, cut away from the groom"
+    },
+    {
+      "name": "camera",
+      "source": "176-200 (Celebration & Transport)/SVG/G_camera.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Photos accent"
+    },
+    {
+      "name": "lantern",
+      "source": "101-125 (Wedding Decor & Reception Objects)/SVG/E_Candle Lantern.svg",
+      "inks": [
+        "white",
+        "black"
+      ],
+      "role": "Stay (white); map: places to sleep (black)"
+    },
+    {
+      "name": "coffee",
+      "source": "51-75 ( Food , Cake & Beverages)/SVG/C_Coffee and Croissant8.svg",
+      "inks": [
+        "white"
+      ],
+      "role": "Stay: morning"
+    },
+    {
+      "name": "sealed-envelope",
+      "source": "151-175 (Invitation & Venue)/SVG/F_Sealed Wedding Envelope.svg",
+      "inks": [
+        "white",
+        "black"
+      ],
+      "role": "RSVP band; RSVP page"
+    },
+    {
+      "name": "garland",
+      "source": "101-125 (Wedding Decor & Reception Objects)/SVG/E_Love Pennant Garland.svg",
+      "inks": [
+        "white"
+      ],
+      "role": "Closing"
+    },
+    {
+      "name": "save-the-date",
+      "source": "126-150 (Romance & Love )/SVG/F_save the date calender.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Countdown milestone"
+    }
+  ]
+}

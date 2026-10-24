@@ -1,0 +1,58 @@
+/* Tint: soft risograph-like colour under a black line drawing. --c large blob, --c2 small blob. */
+.tint { position: relative; display: inline-block; }
+.tint img { position: relative; z-index: 1; width: 100%; aspect-ratio: 1; object-fit: contain; }
+.tint::before, .tint::after {
+  content: ""; position: absolute; z-index: 0;
+  background: var(--c, var(--peony));
+  border-radius: 58% 42% 55% 45% / 50% 60% 40% 50%;
+  transition: transform var(--t-nudge) var(--ease-out);
+}
+.tint::before { left: 18%; top: 22%; width: 62%; height: 64%; }
+.tint::after { background: var(--c2, var(--butter)); left: 8%; bottom: 6%; width: 30%; height: 24%; border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%; }
+/* hover: the colour slips off register under the ink (also when the card that holds it is hovered) */
+@media (hover: hover) {
+  .tint:hover::before, .tile:hover .tint::before { transform: rotate(-4deg) scale(1.04); }
+  .tint:hover::after, .tile:hover .tint::after { transform: translate(-3px, 3px) rotate(6deg); }
+}
+
+/* Button: flat pill, no border. Hover inverts to ink. */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: var(--btn-h); padding: 14px 26px; border: 0; border-radius: var(--btn-radius);
+  font: 500 16px/1 var(--font-text); text-decoration: none; cursor: pointer;
+  color: var(--ink); background: var(--c, var(--ivory));
+  transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover), color var(--t-hover);
+}
+.btn--solid { background: var(--ink); color: var(--white); }
+/* hover inverts on a mouse; on touch the press inverts instead, so nothing stays inverted after a tap */
+@media (hover: hover) {
+  .btn:hover { background: var(--ink); color: var(--white); }
+  .btn--solid:hover { background: #000; }
+}
+@media (hover: none) {
+  .btn:not([disabled], [aria-disabled="true"]):active { background: var(--ink); color: var(--white); }
+}
+.btn:active { transform: scale(var(--press)); }
+.btn[disabled], .btn[aria-disabled="true"] { cursor: default; opacity: 0.6; transform: none; }
+/* Text link: a 2px underline in the text colour; on hover a second one draws over it from the left
+   in --sweep (apricot by default; set it per section where apricot is weak). */
+.link {
+  padding: 4px 0; font-weight: 500; text-decoration: none;
+  background: linear-gradient(var(--sweep, var(--accent-underline)) 0 0) left bottom / 0 2px no-repeat,
+    linear-gradient(currentColor 0 0) left bottom / 100% 2px no-repeat;
+  transition: background-size var(--t-sweep) var(--ease-out);
+}
+@media (hover: hover) { .link:hover { background-size: 100% 2px, 100% 2px; } }
+.link:active, .link:focus-visible { background-size: 100% 2px, 100% 2px; }
+
+.pill { display: inline-flex; align-items: center; min-height: 40px; background: var(--white); border-radius: var(--btn-radius); padding: 8px 14px; font-weight: 500; }
+
+/* Sprig: cropped rose border under a section title. */
+.sprig { display: block; width: clamp(96px, 10vw, 140px); aspect-ratio: 3 / 1; object-fit: cover; object-position: center; margin-top: 6px; }
+.corner { position: absolute; width: clamp(180px, 22vw, 340px); aspect-ratio: 1; pointer-events: none; }
+@media (max-width: 760px) { .corner { display: none; } }
+
+/* Sticker: thin white outline around black line drawings on white (filters live in layout.tsx).
+   Off by default. To turn it on, set --sticker / --sticker-lg in tokens.css. */
+.sticker img { filter: var(--sticker); }
+@media (min-width: 900px) { .sticker img { filter: var(--sticker-lg); } }

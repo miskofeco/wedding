@@ -1,0 +1,246 @@
+/* Motion. See DESIGN.md (Motion) and planning/MOTION-PROPOSAL.md.
+   The boot script (app/layout.tsx) sets html.js (JavaScript runs), html.mo (motion allowed: no ?static, no
+   reduced-motion preference) and html.land (the page opened below the top). Every hidden "from" state lives
+   under html.mo, so no JavaScript, reduced motion and ?static all show everything in place.
+   Three verbs: drawings stamp, riso colour settles into register, the road draws with scroll. Text rises. */
+
+/* ===== reveals: RevealObserver adds .in once ===== */
+/* .rv rise · .rv--left / .rv--right slide in from that side · .rv--stamp a drawing lands
+   .rv--settle (every Tint) the ink stamps, its colour settles 120 ms later · .rv--draw grows down from its top
+   Reveals move with translate/scale/rotate, so an element's own transform (hover, tilt) is left alone.
+   --delay = --g (a group's place in a stagger, set by RevealObserver) + --d (the element's own delay);
+   children inherit it already resolved. data-rv-done clears it once the reveal is over. */
+html.js :is(.rv, [data-rv-group], .map__fade, .map__stamp, .map__drop) { --delay: calc(var(--g, 0ms) + var(--d, 0ms)); }
+html.js [data-rv-done] { --delay: 0ms; }
+html.js .rv { transition: opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
+html.mo:not(.land) .rv:not(.in) { opacity: 0; translate: 0 var(--rv-y); }
+html.mo:not(.land) .rv--left:not(.in) { translate: calc(-1 * var(--rv-x)) 0; }
+html.mo:not(.land) .rv--right:not(.in) { translate: var(--rv-x) 0; }
+
+html.js .rv--stamp { transition: opacity var(--t-stamp) var(--ease-out) var(--delay, 0ms), scale var(--t-stamp) var(--ease-stamp) var(--delay, 0ms), rotate var(--t-stamp) var(--ease-stamp) var(--delay, 0ms); }
+html.mo:not(.land) .rv--stamp:not(.in) { translate: none; scale: 1.04; rotate: -2deg; }
+
+html.js .rv--draw { transform-origin: top; transition: scale var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
+html.mo:not(.land) .rv--draw:not(.in) { opacity: 1; translate: none; scale: 1 0; }
+
+/* Tint: the wrapper stays put (it may carry its own mirror or tilt); the drawing stamps, the blobs settle. */
+html.js .rv--settle { transition: none; }
+html.mo:not(.land) .rv--settle:not(.in) { opacity: 1; translate: none; }
+html.js .rv--settle img { transition: opacity var(--t-stamp) var(--ease-out) var(--delay, 0ms), scale var(--t-stamp) var(--ease-stamp) var(--delay, 0ms), rotate var(--t-stamp) var(--ease-stamp) var(--delay, 0ms); }
+html.js .rv--settle::before, html.js .rv--settle::after {
+  transition: transform 600ms var(--ease-out), opacity var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms),
+    translate var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms), scale var(--t-settle) var(--ease-settle) calc(var(--delay, 0ms) + 120ms);
+}
+html.mo:not(.land) .rv--settle:not(.in) img { opacity: 0; scale: 1.04; rotate: -2deg; }
+html.mo:not(.land) .rv--settle:not(.in)::before { opacity: 0; translate: 6px -5px; scale: 0.92; }
+html.mo:not(.land) .rv--settle:not(.in)::after { opacity: 0; translate: -5px 6px; scale: 0.92; }
+
+@keyframes rise { from { opacity: 0; translate: 0 var(--rv-y); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes stamp { from { opacity: 0; scale: 1.04; rotate: -2deg; } }
+@keyframes settle { from { opacity: 0; translate: 6px -5px; scale: 0.92; } }
+@keyframes draw-down { from { scale: 1 0; } }
+
+/* ===== nav: the phone menu slides open, links follow 30 ms apart ===== */
+html.mo .menu-panel { transition: opacity 160ms var(--ease-out), translate 160ms var(--ease-out), display 160ms allow-discrete; }
+html.mo .menu-panel:not([hidden]) { transition-duration: 220ms; }
+html.mo .menu-panel[hidden] { opacity: 0; translate: 0 -8px; }
+html.mo .menu-panel a { transition: opacity 220ms var(--ease-out) calc(40ms + var(--i, 0) * 30ms), translate 220ms var(--ease-out) calc(40ms + var(--i, 0) * 30ms); }
+@starting-style {
+  html.mo .menu-panel:not([hidden]) { opacity: 0; translate: 0 -8px; }
+  html.mo .menu-panel:not([hidden]) a { opacity: 0; translate: 0 -6px; }
+}
+
+/* ===== hero: four beats, 1.4 s ===== */
+/* 1 names and date · 2 the couple stamps, blooms after it, each tint settles 120 ms behind its ink
+   3 where, intro, buttons · 4 the road draws down, then marches until the first scroll */
+html.mo .hero > :is(h1, .hero__date, .hero__where, .hero__intro, .hero__actions) { animation: rise 800ms var(--ease-out) both; }
+html.mo .hero > .hero__date { animation-delay: 60ms; }
+html.mo .hero > .hero__where { animation-delay: 420ms; }
+html.mo .hero > .hero__intro { animation-delay: 480ms; }
+html.mo .hero > .hero__actions { animation-delay: 540ms; }
+.hero__art { --sd: 120ms; }
+.hero__bloom--left { --sd: 200ms; }
+.hero__bloom--right { --sd: 320ms; }
+html.mo .hero .tint img { animation: stamp var(--t-stamp) var(--ease-stamp) var(--sd) both; }
+html.mo .hero .tint::before, html.mo .hero .tint::after { animation: settle var(--t-settle) var(--ease-settle) calc(var(--sd) + 120ms) both; }
+html.mo .hero__road { transform-origin: top; animation: draw-down 600ms var(--ease-out) 700ms both, march 1.6s linear 1300ms infinite; }
+html.mo.scrolled .hero__road { animation-play-state: running, paused; }
+@keyframes march { to { background-position: 0 16px; } }
+/* once the march has stopped, the hero's colour breathes: never two loops in the first screen */
+html.mo.scrolled .hero .tint::before, html.mo.scrolled .hero .tint::after {
+  animation: settle var(--t-settle) var(--ease-settle) calc(var(--sd) + 120ms) both, breathe 7s ease-in-out infinite alternate;
+}
+@keyframes breathe { from { scale: 1; } to { scale: 1.03; } }
+
+/* ===== the road draws with scroll ===== */
+@supports (animation-timeline: view()) {
+  /* milestone: continues the hero road; each piece draws as it enters, done by 70 % of the viewport */
+  html.mo .milestone::before, html.mo .milestone::after { transform-origin: top; animation: draw-down linear both; animation-timeline: view(); animation-range: entry 0% cover calc(30vh + 44px); }
+  /* programme: the drawn end stays at 70 % of the viewport */
+  html.mo .route { animation: draw linear both; animation-timeline: view(); animation-range: cover 30vh exit 30vh; }
+
+  /* hero depth on desktop: the couple lags the text, the blooms lead it */
+  @media (min-width: 900px) {
+    html.mo .hero { view-timeline: --hero block; }
+    html.mo .hero :is(.hero__art, .hero__bloom) { animation: drift linear both; animation-timeline: --hero; animation-range: exit; }
+    .hero__art { --drift: 32px; }
+    .hero__bloom--left { --drift: -20px; }
+    .hero__bloom--right { --drift: -48px; }
+  }
+}
+@keyframes draw { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes drift { to { translate: 0 var(--drift); } }
+
+/* ===== milestone: the number counts up (Countdown); „Dnes“ and „Svoji“ stamp instead ===== */
+html.js .milestone__num--word { transition: scale var(--t-stamp) var(--ease-stamp), rotate var(--t-stamp) var(--ease-stamp); }
+html.mo:not(.land) .milestone__count:not(.in):has(.milestone__num--word) { translate: none; }
+html.mo:not(.land) .milestone__count:not(.in) .milestone__num--word { scale: 1.06; rotate: -2deg; }
+
+/* ===== programme: text slides in from its side; on phones everything comes from the right ===== */
+@media (max-width: 760px) {
+  html.mo:not(.land) .ev .rv--left:not(.in) { translate: var(--rv-x) 0; }
+}
+
+/* ===== map: labels fade, landmarks stamp in order; the road and car follow scroll (MapCar) ===== */
+html.js .map__fade { transition: opacity 500ms var(--ease-out) var(--delay, 0ms); }
+html.js .map__stamp { transform-box: fill-box; transform-origin: 50% 100%; }
+html.js .map__stamp, html.js .map__drop {
+  transition: transform 400ms var(--ease-out), opacity var(--t-stamp) var(--ease-out) var(--delay, 0ms),
+    scale var(--t-stamp) var(--ease-stamp) var(--delay, 0ms), rotate var(--t-stamp) var(--ease-stamp) var(--delay, 0ms);
+}
+html.js .map__drop { transform-box: fill-box; transform-origin: center; }
+html.mo:not(.land) .journey__map:not(.in) .map__fade { opacity: 0; }
+html.mo:not(.land) .journey__map:not(.in) .map__stamp { opacity: 0; scale: 1.08; rotate: -3deg; }
+html.mo:not(.land) .journey__map:not(.in) .map__drop { opacity: 0; scale: 0; }
+/* arrival at the barn, once */
+.map__pulse { fill: none; stroke: var(--ink); stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; }
+html.mo .map.arrived .map__pulse { animation: pulse 700ms var(--ease-out); }
+html.mo .map.arrived .map__lm--barn { animation: lift 900ms var(--ease-out); }
+@keyframes pulse { from { opacity: 0.9; scale: 1; } to { opacity: 0; scale: 2.2; } }
+@keyframes lift { 40% { transform: translateY(-8px) rotate(-2deg); } }
+
+/* ===== FAQ: rows open and close with height (where ::details-content exists; elsewhere instantly) ===== */
+html.js .faq details.rv { transition: background-color var(--t-hover), opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
+@supports selector(::details-content) {
+  html.mo .faq__list { interpolate-size: allow-keywords; }
+  html.mo .faq details::details-content { height: 0; opacity: 0; overflow: clip; transition: height 300ms var(--ease-out), opacity 300ms var(--ease-out), content-visibility 300ms allow-discrete; }
+  html.mo .faq details[open]::details-content { height: auto; opacity: 1; }
+}
+
+/* ===== places: text rises, the cropped drawing is pushed into frame from the edge that crops it ===== */
+@property --px { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --lift { syntax: "<length>"; inherits: false; initial-value: 0px; }
+html.js .panel__art.rv {
+  transition: opacity 900ms var(--ease-out) calc(var(--delay, 0ms) + 120ms), translate 900ms var(--ease-out) calc(var(--delay, 0ms) + 120ms),
+    --lift 400ms var(--ease-out);
+}
+html.mo:not(.land) .panel__art.rv:not(.in) { translate: 48px 32px; }
+html.mo:not(.land) .panel--mid .panel__art.rv:not(.in) { translate: 0 56px; }
+@media (hover: hover) { .panel:hover .panel__art { --lift: -8px; } }
+
+/* ===== palette: the colour pours into the garment; a picked dab squashes once ===== */
+html.mo .fit__fill { clip-path: inset(0); transition: clip-path 520ms var(--ease-out) var(--delay, 0ms); }
+/* the outgoing figure keeps its colour while it fades, then empties */
+html.mo .fit__fig:not([data-on]) .fit__fill { clip-path: inset(0 0 100% 0); transition-duration: 0s; transition-delay: 450ms; }
+html.mo:not(.land) .fit:not(.in) .fit__fill { clip-path: inset(0 0 100% 0); }
+html.mo .dab[data-picked] .dab__shape { animation: squash 360ms var(--ease-out); }
+@keyframes squash { 45% { transform: rotate(-6deg) scale(0.98); } }
+
+/* ===== stay: the road draws with scroll (below), each pin drops as it arrives, the lantern sways ===== */
+html.js .stop__pin.rv { transition: opacity 200ms var(--ease-out) var(--delay, 0ms), scale 420ms var(--ease-stamp) var(--delay, 0ms); }
+html.mo:not(.land) .stop__pin.rv:not(.in) { translate: none; scale: 0; }
+html.js .stop__card.rv { transition: transform var(--t-hover) var(--ease-out), opacity var(--t-reveal) var(--ease-out) var(--delay, 0ms), translate var(--t-reveal) var(--ease-out) var(--delay, 0ms); }
+html.mo .stay__lantern { transform-origin: 50% 0; animation: sway 4.5s ease-in-out infinite alternate; }
+@keyframes sway { from { rotate: -2deg; } to { rotate: 2deg; } }
+
+/* ===== photos: the cards land like prints dropped on a table, the middle one last ===== */
+html.js .photos figure.rv {
+  transition: opacity 400ms var(--ease-out) var(--delay, 0ms), translate 700ms var(--ease-stamp) var(--delay, 0ms),
+    scale 700ms var(--ease-stamp) var(--delay, 0ms), rotate 700ms var(--ease-stamp) var(--delay, 0ms);
+}
+html.js .photos figure.rv[data-rv-done] { transition: rotate 500ms var(--ease-out); }
+html.mo:not(.land) .photos figure.rv:not(.in) { translate: 0 -6px; scale: 1.04; }
+html.mo:not(.land) .photos figure.rv:nth-child(1):not(.in) { rotate: -5deg; }
+html.mo:not(.land) .photos figure.rv:nth-child(2):not(.in) { rotate: 4.5deg; }
+html.mo:not(.land) .photos figure.rv:nth-child(3):not(.in) { rotate: -4deg; }
+
+/* ===== RSVP band: the envelope slides in from its cropped corner, the rose follows ===== */
+html.js .rsvp__envelope.rv { transition: opacity 500ms var(--ease-out) var(--delay, 0ms), translate 900ms var(--ease-out) var(--delay, 0ms), rotate 900ms var(--ease-out) var(--delay, 0ms); }
+html.mo:not(.land) .rsvp__envelope.rv:not(.in) { translate: 48px 48px; rotate: -6deg; }
+.rsvp .corner { --d: 200ms; }
+html.mo:not(.land) .rv--fade:not(.in) { translate: none; }
+
+/* ===== scroll drift on the oversized cropped drawings, desktop only ===== */
+@supports (animation-timeline: view()) {
+  html.mo .stops::before { transform-origin: top; animation: draw-down linear both; animation-timeline: view(); animation-range: cover 30vh exit 30vh; }
+  @media (min-width: 900px) {
+    html.mo .trip { view-timeline: --trip block; }
+    html.mo .panel__art { animation: drift-px linear both; animation-timeline: --trip; animation-range: cover; --drift-from: 20px; --drift-to: -20px; }
+    html.mo .rsvp { view-timeline: --rsvp block; }
+    html.mo .rsvp__envelope { animation: drift-px linear both; animation-timeline: --rsvp; animation-range: cover; --drift-from: 24px; --drift-to: -24px; }
+  }
+}
+@keyframes drift-px { from { --px: var(--drift-from); } to { --px: var(--drift-to); } }
+
+/* ===== RSVP page ===== */
+/* cover: the text rises, envelope and rose stamp with their colour settling, the road draws down into the form */
+html.mo .reply__intro > * { animation: rise 800ms var(--ease-out) both; }
+html.mo .reply__intro > :nth-child(2) { animation-delay: 70ms; }
+html.mo .reply__intro > :nth-child(3) { animation-delay: 150ms; }
+html.mo .reply__intro > :nth-child(4) { animation-delay: 230ms; }
+html.mo .reply__intro::after { transform-origin: top; animation: draw-down 600ms var(--ease-out) 450ms both; }
+.reply__envelope { --sd: 150ms; }
+.reply__bloom { --sd: 260ms; }
+html.mo .reply__art .tint img { animation: stamp var(--t-stamp) var(--ease-stamp) var(--sd) both; }
+html.mo .reply__art .tint::before, html.mo .reply__art .tint::after { animation: settle var(--t-settle) var(--ease-settle) calc(var(--sd) + 120ms) both; }
+
+/* a stop pops as it turns sage; the check lands in the chosen tile */
+html.mo .step:has(#name:valid)::before, html.mo .step:has(input[name="attending"]:checked)::before { animation: pop 360ms var(--ease-stamp); }
+@keyframes pop { 50% { scale: 1.12; } }
+html.mo .tile:has(input:checked)::after { animation: check-in 240ms var(--ease-stamp); }
+@keyframes check-in { from { scale: 0.6; } }
+
+/* „Nie“ folds the guest and diet stops away and the road closes up; „Áno“ unfolds them */
+html.mo .steps { interpolate-size: allow-keywords; }
+html.mo .step--coming {
+  transition: opacity 220ms var(--ease-out), translate 220ms var(--ease-out), height 260ms var(--ease-out),
+    margin-top 260ms var(--ease-out), display 260ms allow-discrete;
+}
+html.mo .rsvp-form:has(#attending-no:checked) .step--coming { opacity: 0; translate: 0 -8px; height: 0; margin-top: calc(-1 * var(--steps-gap)); overflow: clip; }
+@starting-style {
+  html.mo .rsvp-form:has(#attending-yes:checked) .step--coming { opacity: 0; translate: 0 -8px; height: 0; margin-top: calc(-1 * var(--steps-gap)); overflow: clip; }
+}
+
+/* the answer arrived: the last road segment draws, the peony pin drops, the drawing stamps, the words rise */
+html.mo .reply-end::before { transform-origin: top; animation: draw-down 400ms var(--ease-out) both; }
+html.mo .reply-end::after { animation: drop 420ms var(--ease-stamp) 400ms both; }
+@keyframes drop { from { opacity: 0; scale: 0; } }
+html.mo .reply-end .tint img { animation: stamp var(--t-stamp) var(--ease-stamp) 650ms both; }
+html.mo .reply-end .tint::before, html.mo .reply-end .tint::after { animation: settle var(--t-settle) var(--ease-settle) 770ms both; }
+html.mo .reply-end > :not(.tint) { animation: rise 700ms var(--ease-out) 800ms both; }
+html.mo .reply-end > :nth-child(3) { animation-delay: 860ms; }
+html.mo .reply-end > :nth-child(4) { animation-delay: 920ms; }
+html.mo .reply-end > :nth-child(5) { animation-delay: 980ms; }
+html.mo .reply-end > :nth-child(6) { animation-delay: 1040ms; }
+
+/* ===== nav: one underline slides to the current section (Nav sets --bar-*); hover keeps its own ===== */
+html.mo .nav__links::after {
+  content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 3px; background: var(--accent-underline);
+  transform-origin: left; transform: translate(var(--bar-x, 0px), var(--bar-y, 0px)) scaleX(var(--bar-w, 0));
+  opacity: 0; pointer-events: none; transition: transform 260ms var(--ease-out), opacity var(--t-hover);
+}
+html.mo .nav__links[data-bar]::after { opacity: 1; }
+html.mo .nav__links a[aria-current]:not(:hover, :focus-visible)::after { transform: scaleX(0); }
+
+/* ===== route change: home ↔ /rsvp crossfades, the nav stays ===== */
+::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation-duration: 240ms; }
+html:not(.mo)::view-transition-group(*), html:not(.mo)::view-transition-old(*), html:not(.mo)::view-transition-new(*) { animation: none; }
+
+/* ===== reduced motion: hover and state changes snap ===== */
+@media (prefers-reduced-motion: reduce) {
+  .tint::before, .btn, .ev__disc, .dab__shape, .fit__fig, .photos__frame img, .stop__card, .faq summary::after { transition: none; }
+  html.js .rv--settle::before, html.js .rv--settle::after, html.js .map__stamp, html.js .faq details.rv, html.js .stop__card.rv, html.js .photos figure.rv, html.js .panel__art.rv { transition: none; }
+  .map__lm, .map__hit, .cal__toggle::after { transition: none; }
+  .cal[open] .cal__menu, .cal[open] .cal__other { animation: none; }
+}

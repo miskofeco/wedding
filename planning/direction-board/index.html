@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction board v2 · Barbora & Michal · 29. 05. 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=DM+Sans:opsz,wght@9..40,400..600&display=swap" rel="stylesheet">
+<style>
+/* ---------- primitive tokens (Májová záhrada) ---------- */
+:root{
+  --white:#FFFFFF; --ivory:#F6F2EA; --sage:#93A17F; --peony:#D8A0A6; --apricot:#D98962;
+  --butter:#E4C765; --linen:#C7B69A; --olive:#46513D; --black:#111111; --black-soft:#4A4A4A;
+  /* semantic */
+  --ground:var(--white); --ink:var(--black); --ink-soft:var(--black-soft);
+  --field-church:var(--apricot); --field-barn:var(--sage); --field-photos:var(--ivory); --field-close:var(--sage);
+  --route:var(--black);
+  --font-display:"Fraunces", Georgia, serif; --font-text:"DM Sans", system-ui, sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1); --t-press:140ms; --t-hover:180ms; --t-reveal:700ms;
+  --radius-pill:999px;
+  --gutter:clamp(16px,3vw,48px);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-text);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+::selection{background:var(--peony);color:var(--ink)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:4px}
+
+/* ---------- board chrome (annotation layer) ---------- */
+.board{padding:0 var(--gutter) 120px}
+.board-head{padding:56px 0 24px;max-width:1100px}
+.board-head h1{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,4vw,3.5rem);line-height:1;letter-spacing:-.02em;margin:0 0 16px}
+.board-head p{max-width:62ch;margin:0 0 8px}
+.legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin:20px 0 0;font-size:14px;color:var(--ink-soft)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+.legend .l-supplied::before{background:var(--black)} .legend .l-proposal::before{background:var(--sage)} .legend .l-ph::before{background:var(--apricot)}
+.study{margin:72px 0 0}
+.study > h2{font-family:var(--font-text);font-weight:600;font-size:14px;color:var(--ink-soft);margin:0 0 14px;padding-top:14px;border-top:3px solid var(--black)}
+.study > .lead{font-size:clamp(1.25rem,1.1rem + .7vw,1.6rem);line-height:1.35;max-width:44ch;margin:0 0 28px;font-family:var(--font-display);font-weight:400}
+.note{font-size:14px;color:var(--ink-soft);max-width:70ch}
+.tag{display:inline-block;font-size:12px;padding:3px 9px;border-radius:999px;background:var(--ivory);color:var(--ink-soft);margin-left:8px;vertical-align:middle}
+.tag.ph{background:#F8E7DD;color:#8a4a24}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #E6E6E6;vertical-align:top}
+th{font-weight:600;color:var(--ink-soft)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--ivory);padding:1px 5px;border-radius:3px}
+.decisions{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.decisions li{padding-left:20px;position:relative}
+.decisions li::before{content:"";position:absolute;left:0;top:.6em;width:9px;height:9px;border-radius:50%;background:var(--black)}
+.decisions b{font-weight:600}
+.pal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+@media (max-width:900px){.pal{grid-template-columns:repeat(4,1fr)}}
+.sw{aspect-ratio:1/1.15;border-radius:6px;padding:12px;font-size:12px;line-height:1.3;display:flex;flex-direction:column;justify-content:space-between;border:1px solid #ECECEC}
+.sw img{width:44%;aspect-ratio:1;object-fit:contain}
+.sw b{display:block;font-size:12px}
+.sw small{opacity:.85}
+.pal-bar{display:flex;height:22px;border-radius:999px;overflow:hidden;margin:18px 0 8px;border:1px solid #ECECEC}
+.set{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:18px 12px}
+.set figure{margin:0;text-align:center}
+.set img{width:100%;aspect-ratio:1;object-fit:contain}
+.set figcaption{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.3}
+.set figcaption b{display:block;color:var(--ink);font-weight:600}
+
+/* ---------- WEBSITE STUDIES ---------- */
+.frame{container-type:inline-size;background:var(--ground);border:1px solid #E6E6E6;border-radius:10px;overflow:hidden;position:relative}
+.frame.mobile{width:390px;max-width:100%;margin:0 auto}
+.frame-label{position:absolute;top:10px;right:12px;font-size:11px;color:var(--ink-soft);background:var(--white);padding:2px 8px;border-radius:999px;border:1px solid #E6E6E6;z-index:5}
+.frames{display:grid;grid-template-columns:1fr 390px;gap:28px;align-items:start}
+@media (max-width:1200px){.frames{grid-template-columns:1fr}}
+.site{font-family:var(--font-text);color:var(--ink)}
+
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(16px,4cqi,56px)}
+.nav .mark{font-family:var(--font-display);font-variation-settings:"opsz" 48;font-size:22px;letter-spacing:-.01em;text-decoration:none;white-space:nowrap}
+.nav ul{display:flex;gap:clamp(14px,2cqi,28px);list-style:none;margin:0;padding:0}
+.nav a{text-decoration:none;font-size:15px;padding:8px 0;position:relative}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform var(--t-hover) var(--ease-out)}
+.nav ul a:hover::after,.nav ul a:focus-visible::after{transform:scaleX(1)}
+.nav .menu{display:none;border:0;background:none;font:inherit;color:inherit;padding:10px 0;cursor:pointer}
+@container (max-width:640px){.nav ul{display:none}.nav .menu{display:inline-block}}
+
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--white);text-decoration:none;font-weight:500;font-size:16px;padding:14px 22px;border-radius:var(--radius-pill);min-height:48px;transition:transform var(--t-press) var(--ease-out),background var(--t-hover)}
+.btn:hover{background:#000}.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.btn.ghost:hover{background:rgba(0,0,0,.05)}
+
+/* hero: centred, minimal, the road begins here */
+.hero{display:grid;justify-items:center;text-align:center;padding:clamp(16px,4cqi,48px) clamp(16px,4cqi,56px) 0}
+.hero .art{width:clamp(200px,24cqi,340px);aspect-ratio:1;object-fit:contain;margin-bottom:clamp(8px,1.5cqi,20px)}
+.hero h1{font-family:var(--font-display);font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 1;font-weight:600;font-size:clamp(3rem,1.4rem + 7.4cqi,8.4rem);line-height:.92;letter-spacing:-.028em;margin:0 0 .2em;text-wrap:balance;max-width:14ch}
+.hero h1 .amp{font-style:italic;font-weight:300}
+.hero .date{font-family:var(--font-display);font-size:clamp(1.5rem,1rem + 2.2cqi,2.7rem);line-height:1.05;margin:0 0 .5em;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .where{margin:0 0 1.2em;color:var(--ink-soft);font-size:clamp(.95rem,.9rem + .3cqi,1.1rem)}
+.hero p.intro{font-size:clamp(1.05rem,1rem + .45cqi,1.3rem);max-width:40ch;margin:0 0 1.5em;text-wrap:pretty}
+.hero .actions{display:flex;flex-wrap:wrap;gap:12px 18px;justify-content:center}
+.hero .stub{width:2.5px;height:clamp(64px,10cqi,130px);margin-top:clamp(28px,4cqi,56px);background:repeating-linear-gradient(to bottom,var(--route) 0 7px,transparent 7px 16px);border-radius:2px}
+@container (max-width:640px){.hero{padding-top:8px}.hero h1{font-size:clamp(2.9rem,13cqi,3.6rem)}}
+
+/* timeline: ivory panel, black dashed road, landmarks as palette-coloured sticker drawings */
+.tl-sec{background:var(--ivory);padding:clamp(32px,5cqi,72px) clamp(16px,4cqi,56px) clamp(40px,6cqi,96px)}
+.tl-sec h2{font-family:var(--font-display);font-weight:600;font-size:clamp(2.2rem,1rem + 4.2cqi,4.5rem);line-height:.98;letter-spacing:-.025em;margin:0 0 .35em;text-wrap:balance;text-align:center}
+.tl-sec .lead{font-size:clamp(1.05rem,1rem + .5cqi,1.3rem);max-width:44ch;margin:0 auto clamp(32px,5cqi,72px);text-align:center}
+.tl{position:relative;list-style:none;margin:0;padding:0}
+.tl svg.route{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.route .line{fill:none;stroke:var(--route);stroke-width:2.5;stroke-dasharray:7 9;stroke-linecap:round}
+.ev{position:relative;display:grid;grid-template-columns:1fr 300px 1fr;gap:0 clamp(16px,3cqi,40px);align-items:center;padding:clamp(18px,3cqi,30px) 0}
+.ev .mark{grid-column:2;display:grid;place-items:center;position:relative}
+.ev .disc{width:clamp(160px,20cqi,230px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--ivory)}
+.ev .disc img{width:84%;aspect-ratio:1;object-fit:contain;filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff)}
+.ev:nth-child(odd) .mark{transform:translateX(-30px)} .ev:nth-child(even) .mark{transform:translateX(30px)}
+.ev .txt{grid-row:1;max-width:36ch}
+.ev:nth-child(odd) .txt{grid-column:1;text-align:right;justify-self:end}
+.ev:nth-child(even) .txt{grid-column:3;text-align:left;justify-self:start}
+.ev h3{font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,1.1rem + 1.6cqi,2.2rem);line-height:1.05;letter-spacing:-.015em;margin:0 0 .3em}
+.ev .time{font-weight:600;font-variant-numeric:tabular-nums;margin:0 0 .35em}
+.ev .time.pending{color:var(--ink-soft);font-weight:500}
+.ev .place{margin:0 0 .4em;color:var(--ink-soft);font-size:15px}
+.ev p.d{margin:0;font-size:16px}
+@container (max-width:640px){
+  .ev{grid-template-columns:84px 1fr;gap:0 16px;padding:22px 0;align-items:start}
+  .ev .mark{grid-column:1;grid-row:1;align-self:start}
+  .ev:nth-child(odd) .mark,.ev:nth-child(even) .mark{transform:none}
+  .ev .disc{width:84px}
+  .ev .disc img{width:100%;filter:drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff)}
+  .ev .txt,.ev:nth-child(odd) .txt,.ev:nth-child(even) .txt{grid-column:2;grid-row:1;text-align:left;justify-self:start;max-width:none}
+  .ev h3{font-size:1.45rem}
+}
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .tl .route .line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw linear both;animation-timeline:view();animation-range:cover 0% cover 55%}
+  }
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+html.static .tl .route .line{animation:none!important;stroke-dashoffset:0!important;stroke-dasharray:7 9!important}
+
+/* places: triptych of flat two-tone panels (ivory + colour drawing · colour + ivory drawing · ivory + colour drawing) */
+.trip{display:grid;grid-template-columns:1fr 1fr 1fr;min-height:560px}
+.panel{padding:clamp(24px,3.5cqi,48px);display:flex;flex-direction:column;justify-content:space-between;gap:20px}
+.panel.ivory{background:var(--ivory)} .panel.apricot{background:var(--apricot)} .panel.sage{background:var(--sage)}
+.panel h3{font-family:var(--font-display);font-weight:600;font-size:clamp(1.9rem,1rem + 2.8cqi,3.4rem);line-height:.96;letter-spacing:-.025em;margin:0 0 .35em;text-wrap:balance}
+.panel .sub{margin:0;font-size:16px;max-width:30ch}
+.panel img{width:min(100%,300px);aspect-ratio:1;object-fit:contain;align-self:center}
+.panel .foot{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+.panel .foot a{text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px;font-weight:500}
+.panel.mid{text-align:center;align-items:center;justify-content:center;gap:28px}
+.panel.mid p.say{font-family:var(--font-display);font-weight:500;font-size:clamp(1.3rem,1rem + 1.3cqi,2rem);line-height:1.15;margin:0;max-width:18ch;text-wrap:balance}
+.panel.mid img{width:min(100%,340px)}
+@container (max-width:640px){.trip{grid-template-columns:1fr}.panel{min-height:380px}}
+
+/* photos: ivory field */
+.photos{background:var(--field-photos);padding:clamp(40px,6cqi,96px) clamp(16px,4cqi,56px)}
+.photos h2{font-family:var(--font-display);font-weight:600;font-size:clamp(2rem,1rem + 3.6cqi,3.8rem);line-height:.98;letter-spacing:-.02em;margin:0 0 .3em}
+.photos p{max-width:46ch;margin:0 0 clamp(20px,3cqi,40px)}
+.photos .row{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(10px,1.5cqi,20px)}
+.photos .row img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.photos .row img:nth-child(2){margin-top:clamp(20px,4cqi,56px)}
+@container (max-width:640px){.photos .row{grid-template-columns:1fr 1fr}.photos .row img:nth-child(2){margin-top:0}.photos .row img:nth-child(3){grid-column:1/-1;aspect-ratio:16/10}}
+
+/* closing: sage field, black names, white garland */
+.close{background:var(--field-close);padding:clamp(56px,10cqi,140px) clamp(16px,4cqi,56px) clamp(32px,5cqi,64px);text-align:center}
+.close img{width:clamp(140px,20cqi,260px);margin:0 auto clamp(12px,2cqi,28px)}
+.close .thanks{font-family:var(--font-display);font-size:clamp(1.3rem,1rem + 1.4cqi,2rem);margin:0 0 .4em}
+.close .names{font-family:var(--font-display);font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 1;font-weight:600;font-size:clamp(3rem,13cqi,12rem);line-height:.9;letter-spacing:-.03em;margin:0;white-space:nowrap}
+.close .date{font-family:var(--font-display);font-size:clamp(1.3rem,1rem + 1.6cqi,2.4rem);margin:.4em 0 1.2em}
+.close .fine{font-size:14px;margin:40px 0 0;display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+@container (max-width:640px){.close .names{white-space:normal;font-size:clamp(2.6rem,15cqi,3.6rem);text-wrap:balance}}
+</style>
+</head>
+<body>
+<div class="board">
+
+<header class="board-head">
+  <h1>Direction board v2 · Barbora &amp; Michal</h1>
+  <p>29. 05. 2027 · kostol v Hlinnom → Stodola Zlatník. Revised after your notes: black ink for text and drawings, palette colours as section fields with white drawings on them, a centred minimal hero where the road begins. Version 1 is kept at <code>v1.html</code>.</p>
+  <p class="legend"><span class="l-supplied">Supplied artwork (whimsical pack, recoloured black or white)</span><span class="l-proposal">Proposal artwork (road, layout, type, colour fields)</span><span class="l-ph">Placeholder facts to confirm</span></p>
+</header>
+
+<section class="study" id="concept">
+  <h2>1 · What changed in the system</h2>
+  <ul class="decisions">
+    <li><b>Ink:</b> black #111111 for all text, controls and drawings on white. Dark olive leaves the website system (kept for print only if you want it).</li>
+    <li><b>Colour fields:</b> whole sections take a palette colour: church field in apricot, barn field in sage, photos on ivory, closing on sage. Drawings on a field are white; text on a field stays black (contrast 7.6:1 on sage, 8.2:1 on apricot, 9.6:1 on peony, 12:1 on butter).</li>
+    <li><b>Sticker treatment:</b> on ivory panels, drawings may take a palette colour with a thin white die-cut outline (programme landmarks). On white, drawings are black.</li>
+    <li><b>The road</b> is now a black dashed hand-drawn line. It starts under the hero illustration, runs through the programme and ends at the closing.</li>
+    <li><b>Hero:</b> centred and minimal: one drawing, names, date, places, one sentence, one action. The start of the story.</li>
+    <li><b>Panel grammar (from your “Love Doodles” references):</b> every section is a flat panel with one ground and one ink. White + black, ivory + a palette colour, or a palette colour + ivory. Headings are bold and set in the panel’s ink; one big drawing per panel; triptychs where two places or three facts sit side by side.</li>
+    <li>Unchanged: one illustration family (whimsical), Fraunces + DM Sans, white as the dominant ground (now about 70 % of surfaces, the rest palette fields), one signature motion.</li>
+  </ul>
+</section>
+
+<section class="study" id="palette">
+  <h2>2 · Palette roles v2</h2>
+  <div class="pal">
+    <div class="sw" style="background:#FFFFFF"><img src="assets/black/church.svg" alt=""><div><b>Biela</b><small>ground ~70 % · black text and drawings</small></div></div>
+    <div class="sw" style="background:#111111;color:#fff"><img src="assets/white/sunglasses.svg" alt=""><div><b>Čierna #111111</b><small>ink, controls, road, drawings on white</small></div></div>
+    <div class="sw" style="background:#D98962"><img src="assets/white/church.svg" alt=""><div><b>Marhuľová</b><small>church field · white drawing, black text</small></div></div>
+    <div class="sw" style="background:#93A17F"><img src="assets/white/barn.svg" alt=""><div><b>Šalviová</b><small>barn field, closing field, landmark discs</small></div></div>
+    <div class="sw" style="background:#D8A0A6"><img src="assets/white/dance-twirl.svg" alt=""><div><b>Pivonková</b><small>landmark disc · selection colour</small></div></div>
+    <div class="sw" style="background:#E4C765"><img src="assets/white/dinner-table.svg" alt=""><div><b>Masložltá</b><small>landmark disc</small></div></div>
+    <div class="sw" style="background:#F6F2EA"><img src="assets/black/camera.svg" alt=""><div><b>Slonovina · Ľan</b><small>photo field · linen as landmark disc</small></div></div>
+  </div>
+  <div class="pal-bar" aria-hidden="true"><span style="flex:70;background:#fff"></span><span style="flex:8;background:#F6F2EA"></span><span style="flex:10;background:#93A17F"></span><span style="flex:5;background:#D98962"></span><span style="flex:3;background:#D8A0A6"></span><span style="flex:2;background:#E4C765"></span><span style="flex:2;background:#C7B69A"></span></div>
+  <p class="note">Rule of thumb: black drawings on white; ivory or white drawings on a colour panel; palette-coloured sticker drawings on ivory. Text is always black. Pastels carry panels and drawings, never text.</p>
+</section>
+
+<section class="study" id="hero-study">
+  <h2>3 · Hero: centred, minimal, the road begins here</h2>
+  <div class="frames">
+    <div class="frame"><span class="frame-label">desktop · fluid</span>
+      <div class="site">
+        <nav class="nav" aria-label="Hlavná navigácia"><a class="mark" href="#">B &amp; M</a><ul><li><a href="#">Program</a></li><li><a href="#">Miesta</a></li><li><a href="#">Fotky</a></li><li><a href="#">Informácie</a></li></ul><button class="menu" aria-expanded="false">Menu</button></nav>
+        <div class="hero">
+          <img class="art" src="assets/black/couple-walking.svg" alt="Kreslený pár kráčajúci spolu">
+          <h1>Barbora <span class="amp">&amp;</span> Michal</h1>
+          <p class="date">29. 05. 2027</p>
+          <p class="where">sobota · kostol v Hlinnom · Stodola Zlatník</p>
+          <p class="intro">Pozývame vás zdieľať s nami deň, na ktorý sa budeme pamätať celý život.</p>
+          <div class="actions"><a class="btn" href="#program">Pozrieť program</a></div>
+          <div class="stub" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+    <div class="frame mobile"><span class="frame-label">390 px</span>
+      <div class="site">
+        <nav class="nav" aria-label="Hlavná navigácia"><a class="mark" href="#">B &amp; M</a><ul><li><a href="#">Program</a></li></ul><button class="menu" aria-expanded="false">Menu</button></nav>
+        <div class="hero">
+          <img class="art" src="assets/black/couple-walking.svg" alt="Kreslený pár kráčajúci spolu">
+          <h1>Barbora <span class="amp">&amp;</span> Michal</h1>
+          <p class="date">29. 05. 2027</p>
+          <p class="where">sobota · Hlinné · Stodola Zlatník</p>
+          <p class="intro">Pozývame vás zdieľať s nami deň, na ktorý sa budeme pamätať celý život.</p>
+          <div class="actions"><a class="btn" href="#program">Pozrieť program</a></div>
+          <div class="stub" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:16px">The couple walking is the first landmark; the dashed stub under the button is the road leaving the hero and continuing into the programme on the real page. Alternative hero drawings available in the same pack: the church (start at the place), the sealed envelope (start with the invitation), the rings. Say the word and I swap it.</p>
+</section>
+
+<section class="study" id="timeline-study">
+  <h2>4 · Programme on an ivory panel: black road, palette-coloured sticker landmarks <span class="tag ph">order and times are a proposal</span></h2>
+  <div class="frames">
+    <div class="frame"><span class="frame-label">desktop · alternating</span>
+      <div class="site">
+        <section class="tl-sec" id="program">
+          <h2>Chvíle nášho dňa</h2>
+          <p class="lead">Jedna cesta, jeden deň: z kostola v Hlinnom do záhrady v Zlatníku. Časy doplníme, len čo budú isté.</p>
+          <ol class="tl" data-route>
+            <svg class="route" aria-hidden="true"><path class="line" d=""/></svg>
+            <li class="ev"><div class="txt"><h3>Sobáš</h3><p class="time pending">Čas upresníme</p><p class="place">Kostol v Hlinnom · názov kostola upresníme</p><p class="d">Obrad, pri ktorom si povieme svoje áno.</p></div><div class="mark"><div class="disc"><img src="assets/apricot/church.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Cesta do Zlatníka</h3><p class="time pending">Po obrade</p><p class="place">Hlinné → Stodola Zlatník</p><p class="d">Z kostola sa presunieme do Zlatníka. Informácie o doprave a parkovaní doplníme.</p></div><div class="mark"><div class="disc"><img src="assets/sage/car-vintage.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Prípitok v záhrade</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník · záhrada</p><p class="d">Privítanie, gratulácie a prvý spoločný prípitok.</p></div><div class="mark"><div class="disc"><img src="assets/peony/champagne-toast.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Večera</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník · stodola</p><p class="d">Spoločná večera pri jednom dlhom stole.</p></div><div class="mark"><div class="disc"><img src="assets/black/dinner-table.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Prvý tanec</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Otvoríme parket. Potom je rad na vás.</p></div><div class="mark"><div class="disc"><img src="assets/sage/dance-twirl.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Torta</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Sladká chvíľa pre všetkých.</p></div><div class="mark"><div class="disc"><img src="assets/apricot/cake-1.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Zábava do noci</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Hudba, tanec a chvíle, ktoré si zapamätáme.</p></div><div class="mark"><div class="disc"><img src="assets/peony/music-notes.svg" alt=""></div></div></li>
+          </ol>
+        </section>
+      </div>
+    </div>
+    <div class="frame mobile"><span class="frame-label">390 px · one column</span>
+      <div class="site">
+        <section class="tl-sec">
+          <h2>Chvíle nášho dňa</h2>
+          <p class="lead">Z kostola v Hlinnom do záhrady v Zlatníku.</p>
+          <ol class="tl" data-route>
+            <svg class="route" aria-hidden="true"><path class="line" d=""/></svg>
+            <li class="ev"><div class="txt"><h3>Sobáš</h3><p class="time pending">Čas upresníme</p><p class="place">Kostol v Hlinnom</p><p class="d">Obrad, pri ktorom si povieme svoje áno.</p></div><div class="mark"><div class="disc"><img src="assets/apricot/church.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Cesta do Zlatníka</h3><p class="time pending">Po obrade</p><p class="place">Hlinné → Stodola Zlatník</p><p class="d">Informácie o doprave doplníme.</p></div><div class="mark"><div class="disc"><img src="assets/sage/car-vintage.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Prípitok v záhrade</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Privítanie a prvý spoločný prípitok.</p></div><div class="mark"><div class="disc"><img src="assets/peony/champagne-toast.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Večera</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Spoločná večera.</p></div><div class="mark"><div class="disc"><img src="assets/black/dinner-table.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Prvý tanec</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Otvoríme parket.</p></div><div class="mark"><div class="disc"><img src="assets/sage/dance-twirl.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Torta</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Sladká chvíľa pre všetkých.</p></div><div class="mark"><div class="disc"><img src="assets/apricot/cake-1.svg" alt=""></div></div></li>
+            <li class="ev"><div class="txt"><h3>Zábava do noci</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Hudba, tanec a chvíle, ktoré si zapamätáme.</p></div><div class="mark"><div class="disc"><img src="assets/peony/music-notes.svg" alt=""></div></div></li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:16px">Landmarks are the drawings themselves, each in one palette colour (apricot church, sage car, peony toast, black table, sage dance, apricot cake, peony music) with a thin white die-cut outline, the sticker treatment from your references. The road is a 2.5 px black dashed line computed from the real landmark centres; an ivory disc behind each drawing keeps the road from running through it.</p>
+</section>
+
+<section class="study" id="places-study">
+  <h2>5 · Places as a triptych of two-tone panels <span class="tag ph">addresses and names to confirm</span></h2>
+  <p class="lead">The “Love Doodles” grammar you sent, in our palette: a flat panel, one ground, one ink, a bold heading and one big drawing. Ivory panels carry a coloured drawing; the coloured panel carries an ivory drawing.</p>
+  <div class="frame"><span class="frame-label">desktop</span>
+    <div class="site"><div class="trip" id="miesta">
+      <div class="panel ivory"><div><h3>Sobáš<br>v Hlinnom</h3><p class="sub">[Názov kostola] · Čas upresníme</p></div><img src="assets/apricot/church.svg" alt=""><div class="foot"><a href="#">Otvoriť mapu</a><span>Hlinné</span></div></div>
+      <div class="panel apricot mid"><img src="assets/ivory/couple-kiss.svg" alt=""><p class="say">Z kostola do záhrady. Jedna cesta, jeden deň.</p></div>
+      <div class="panel ivory"><div><h3>Oslava<br>v Zlatníku</h3><p class="sub">Stodola Zlatník · [adresa] · od [čas]</p></div><img src="assets/sage/barn.svg" alt=""><div class="foot"><a href="#">Otvoriť mapu</a><span>Zlatník</span></div></div>
+    </div></div>
+  </div>
+  <div class="frame mobile" style="margin-top:24px"><span class="frame-label">390 px · panels stack</span>
+    <div class="site"><div class="trip">
+      <div class="panel ivory"><div><h3>Sobáš v Hlinnom</h3><p class="sub">[Názov kostola] · Čas upresníme</p></div><img src="assets/apricot/church.svg" alt="" style="width:200px"><div class="foot"><a href="#">Otvoriť mapu</a><span>Hlinné</span></div></div>
+      <div class="panel apricot mid"><img src="assets/ivory/couple-kiss.svg" alt="" style="width:220px"><p class="say">Z kostola do záhrady. Jedna cesta, jeden deň.</p></div>
+      <div class="panel ivory"><div><h3>Oslava v Zlatníku</h3><p class="sub">Stodola Zlatník · [adresa]</p></div><img src="assets/sage/barn.svg" alt="" style="width:200px"><div class="foot"><a href="#">Otvoriť mapu</a><span>Zlatník</span></div></div>
+    </div></div>
+  </div>
+</section>
+
+<section class="study" id="photos-study">
+  <h2>6 · Photo moment on the ivory field <span class="tag">three of your photos, preview crops</span></h2>
+  <div class="frame"><span class="frame-label">desktop</span>
+    <div class="site"><section class="photos" id="fotky">
+      <h2>Naše chvíle doteraz</h2>
+      <p>Pár momentov z cesty, ktorá nás priviedla až sem.</p>
+      <div class="row"><img src="photos/IMG_4884.jpg" alt="Barbora a Michal, jesenná selfie"><img src="photos/IMG_0376.jpg" alt="Topánky na lavičke a zásnubný prsteň"><img src="photos/IMG_9388.jpg" alt="Barbora a Michal v kvetinovej záhrade"></div>
+    </section></div>
+  </div>
+</section>
+
+<section class="study" id="closing-study">
+  <h2>7 · Closing on the sage field</h2>
+  <div class="frames">
+    <div class="frame"><span class="frame-label">desktop</span>
+      <div class="site"><section class="close">
+        <img src="assets/ivory/garland.svg" alt="">
+        <p class="thanks">Tešíme sa na vás.</p>
+        <p class="names">Barbora <span style="font-style:italic;font-weight:300">&amp;</span> Michal</p>
+        <p class="date">29. 05. 2027 · Hlinné · Zlatník</p>
+        <p class="fine"><span>Otázky? Napíšte nám: [e-mail / telefón]</span><span>Program</span><span>Miesta</span><span>Informácie</span></p>
+      </section></div>
+    </div>
+    <div class="frame mobile"><span class="frame-label">390 px</span>
+      <div class="site"><section class="close">
+        <img src="assets/ivory/garland.svg" alt="">
+        <p class="thanks">Tešíme sa na vás.</p>
+        <p class="names">Barbora <span style="font-style:italic;font-weight:300">&amp;</span> Michal</p>
+        <p class="date">29. 05. 2027</p>
+      </section></div>
+    </div>
+  </div>
+</section>
+
+<section class="study" id="set">
+  <h2>8 · Selected drawings in the three treatments (supplied artwork recoloured)</h2>
+  <div class="set">
+    <figure><img src="assets/black/couple-walking.svg" alt=""><figcaption><b>Hero</b>B_Newlywed Walking Together</figcaption></figure>
+    <figure style="background:#D98962"><img src="assets/white/church.svg" alt=""><figcaption style="color:#111"><b>Sobáš</b>F_church</figcaption></figure>
+    <figure style="background:#C7B69A"><img src="assets/white/car-vintage.svg" alt=""><figcaption style="color:#111"><b>Presun</b>B_Wedding Vintage Car</figcaption></figure>
+    <figure style="background:#93A17F"><img src="assets/white/barn.svg" alt=""><figcaption style="color:#111"><b>Stodola</b>F_Rustic Wedding Barn</figcaption></figure>
+    <figure style="background:#93A17F"><img src="assets/white/champagne-toast.svg" alt=""><figcaption style="color:#111"><b>Prípitok</b>C_Champagne Toast</figcaption></figure>
+    <figure style="background:#E4C765"><img src="assets/white/dinner-table.svg" alt=""><figcaption style="color:#111"><b>Večera</b>E_Reception Dinner Table</figcaption></figure>
+    <figure style="background:#D8A0A6"><img src="assets/white/dance-twirl.svg" alt=""><figcaption style="color:#111"><b>Prvý tanec</b>B_Twirling Wedding Dance</figcaption></figure>
+    <figure style="background:#F6F2EA"><img src="assets/black/cake-1.svg" alt=""><figcaption><b>Torta</b>C_Tiered Wedding Cake</figcaption></figure>
+    <figure style="background:#93A17F"><img src="assets/white/music-notes.svg" alt=""><figcaption style="color:#111"><b>Zábava</b>G_music notes</figcaption></figure>
+    <figure><img src="assets/black/camera.svg" alt=""><figcaption><b>Fotky</b>G_camera</figcaption></figure>
+    <figure><img src="assets/black/envelope.svg" alt=""><figcaption><b>Kontakt / RSVP</b>F_Love Letter Envelope</figcaption></figure>
+    <figure style="background:#93A17F"><img src="assets/ivory/garland.svg" alt=""><figcaption style="color:#111"><b>Closing</b>E_Love Pennant Garland</figcaption></figure>
+    <figure><img src="assets/black/sunglasses.svg" alt=""><figcaption><b>Personal wink</b>G_sunglasses</figcaption></figure>
+    <figure><img src="assets/black/rings.svg" alt=""><figcaption><b>Reserved</b>F_Wedding Rings</figcaption></figure>
+  </div>
+</section>
+
+</div>
+
+<script>
+if(location.search.includes('static'))document.documentElement.classList.add('static');
+function drawRoutes(){
+  document.querySelectorAll('[data-route]').forEach(tl=>{
+    const svg=tl.querySelector('svg.route'); const r=tl.getBoundingClientRect();
+    svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);
+    const pts=[...tl.querySelectorAll('.ev .disc')].map(el=>{const b=el.getBoundingClientRect();return {x:b.left-r.left+b.width/2,y:b.top-r.top+b.height/2};});
+    if(pts.length<2)return;
+    const mobile=r.width<640, f=n=>Math.round(n*10)/10;
+    let d=`M ${f(pts[0].x)} ${f(pts[0].y-(mobile?40:90))} L ${f(pts[0].x)} ${f(pts[0].y)}`;
+    for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],k=(b.y-a.y)*0.5;d+=` C ${f(a.x)} ${f(a.y+k)}, ${f(b.x)} ${f(b.y-k)}, ${f(b.x)} ${f(b.y)}`;}
+    d+=` L ${f(pts.at(-1).x)} ${f(pts.at(-1).y+(mobile?40:90))}`;
+    svg.querySelectorAll('path').forEach(p=>{p.setAttribute('d',d);p.setAttribute('pathLength','1');});
+  });
+}
+document.fonts.ready.then(drawRoutes);
+window.addEventListener('load',drawRoutes);
+new ResizeObserver(()=>drawRoutes()).observe(document.body);
+</script>
+</body>
+</html>

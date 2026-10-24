@@ -1,0 +1,76 @@
+import type { ProgrammeEvent } from "./types";
+
+// The order of the day is a proposal until the couple sends the programme.
+// Keep it chronological: the route on the page follows this array.
+export const events: ProgrammeEvent[] = [
+  {
+    id: "sobas",
+    title: "Sobáš",
+    time: null,
+    place: "Kostol v Hlinnom",
+    description: "Obrad, pri ktorom si povieme svoje áno.",
+    drawing: "church",
+    tint: ["apricot", "butter"],
+  },
+  {
+    id: "cesta",
+    title: "Cesta do Zlatníka",
+    time: null,
+    relativeTime: "Po obrade",
+    place: "Hlinné → Stodola Zlatník",
+    description: "Z kostola sa presunieme do Zlatníka. Informácie o doprave a parkovaní doplníme.",
+    drawing: "car-vintage",
+    tint: ["sage", "butter"],
+  },
+  {
+    id: "pripitok",
+    title: "Prípitok v záhrade",
+    time: null,
+    place: "Stodola Zlatník · záhrada",
+    description: "Privítanie, gratulácie a prvý spoločný prípitok.",
+    drawing: "champagne-toast",
+    tint: ["butter", "peony"],
+  },
+  {
+    id: "vecera",
+    title: "Večera",
+    time: null,
+    place: "Stodola Zlatník · stodola",
+    description: "Spoločná večera pri jednom dlhom stole.",
+    drawing: "dinner-table",
+    tint: ["peony", "sage"],
+  },
+  {
+    id: "tanec",
+    title: "Prvý tanec",
+    time: null,
+    place: "Stodola Zlatník",
+    description: "Otvoríme parket. Potom je rad na vás.",
+    drawing: "dance-twirl",
+    tint: ["sage", "peony"],
+  },
+  {
+    id: "torta",
+    title: "Torta",
+    time: null,
+    place: "Stodola Zlatník",
+    description: "Sladká chvíľa pre všetkých.",
+    drawing: "cake",
+    tint: ["peony", "butter"],
+  },
+  {
+    id: "zabava",
+    title: "Zábava do noci",
+    time: null,
+    place: "Stodola Zlatník",
+    description: "Hudba, tanec a chvíle, ktoré si zapamätáme.",
+    drawing: "music-notes",
+    tint: ["apricot", "sage"],
+    playlist: {
+      title: "Spoločný playlist",
+      note: "Ktorá pesnička vás vytiahne na parket? Pridajte ju do nášho playlistu na Spotify.",
+      label: "Pridať pesničky",
+      url: "https://open.spotify.com/playlist/5gzxRvlK0BKZJCDywEUEDM?si=9KNTQEsVQ3SAiqjC8qCF6Q&pt=139f1946eb622b0301e891b69f9ecfb9",
+    },
+  },
+];

@@ -1,0 +1,210 @@
+/* ===== RSVP page: the last stop on the road =====
+   Cover (title, tinted envelope) → the road runs down into numbered steps → the answer.
+   The invitation card sits beside the steps on desktop and follows them on phones. */
+.reply {
+  --reply-cols: minmax(0, 1fr) minmax(260px, 380px);
+  --reply-gap: clamp(32px, 6vw, 112px);
+  --pin: 40px;
+  --indent: calc(var(--pin) + 24px);
+  --road-x: calc(var(--pin) / 2 - var(--route-width) / 2);
+  --road: repeating-linear-gradient(to bottom, var(--ink) 0 7px, transparent 7px 16px);
+}
+@media (max-width: 520px) { .reply { --pin: 34px; --indent: calc(var(--pin) + 16px); } }
+
+/* cover */
+.reply__cover { display: grid; grid-template-columns: var(--reply-cols); gap: 0 var(--reply-gap); align-items: end; padding-top: clamp(32px, 6vw, 96px); }
+.reply__intro { display: grid; justify-items: start; gap: 18px; }
+.reply__intro::after { content: ""; width: var(--route-width); height: clamp(56px, 8vw, 112px); margin: 10px 0 0 var(--road-x); background: var(--road); }
+.reply__kicker { font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(1.1rem, 1rem + 0.6vw, 1.5rem); }
+.reply h1 { font-size: clamp(3.4rem, 1.4rem + 8vw, 9rem); margin-left: -0.04em; }
+.reply__intro .lead { max-width: 42ch; }
+.reply__until { display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: var(--btn-radius); background: var(--butter); font-weight: 500; font-size: var(--text-small); }
+.reply__art { position: relative; align-self: center; justify-self: center; width: 100%; max-width: 360px; margin-bottom: clamp(24px, 4vw, 64px); }
+.reply__envelope { width: 100%; rotate: -6deg; }
+.reply__bloom { position: absolute; width: 50%; left: -20%; top: -16%; transform: scaleX(-1) rotate(12deg); }
+.reply__bloom::before { left: 26%; top: 30%; width: 48%; height: 46%; }
+.reply__bloom::after { left: 14%; bottom: 14%; width: 24%; height: 20%; }
+
+/* body: steps beside the invitation */
+.reply__body { display: grid; grid-template-columns: var(--reply-cols); gap: 48px var(--reply-gap); align-items: start; padding-bottom: var(--section-pad); }
+.reply__main { max-width: 680px; }
+
+@media (max-width: 900px) {
+  .reply__cover, .reply__body { grid-template-columns: minmax(0, 1fr); }
+  .reply__cover { position: relative; }
+  .reply__art { position: absolute; top: clamp(8px, 3vw, 32px); right: var(--gutter); width: clamp(120px, 30vw, 220px); margin: 0; }
+  .reply__intro { padding-top: clamp(96px, 22vw, 160px); }
+  .reply__main { max-width: none; }
+}
+
+/* the road: one dashed line down the left of the form, a numbered stop per step */
+.rsvp-form { position: relative; padding-left: var(--indent); }
+.rsvp-form::before { content: ""; position: absolute; left: var(--road-x); top: 0; bottom: 0; width: var(--route-width); background: var(--road); }
+.rsvp-form .notice { margin-bottom: 36px; }
+.steps { --steps-gap: clamp(40px, 5vw, 60px); counter-reset: step; display: grid; gap: var(--steps-gap); list-style: none; }
+.step { counter-increment: step; position: relative; display: grid; gap: 12px; min-width: 0; }
+.step::before {
+  content: counter(step); position: absolute; z-index: 1; left: calc(-1 * var(--indent)); top: -4px;
+  display: grid; place-items: center; width: var(--pin); height: var(--pin); border-radius: 50%;
+  background: var(--ink); color: var(--white); box-shadow: 0 0 0 8px var(--ground);
+  font: 600 calc(var(--pin) * 0.45) / 1 var(--font-display); font-variant-numeric: lining-nums;
+  transition: background-color var(--t-hover), color var(--t-hover);
+}
+/* a stop turns sage once its required answer is given */
+.step:has(#name:valid)::before, .step:has(input[name="attending"]:checked)::before { background: var(--sage); color: var(--ink); }
+.step__title { display: block; padding: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
+.step__set { min-width: 0; margin: 0; padding: 0; border: 0; }
+.step__set legend { margin-bottom: 14px; }
+.step .field__hint { margin-top: -6px; }
+.rsvp-form:has(#attending-no:checked) .step--coming { display: none; }
+/* the road ends at the button: a peony stop, nothing below it */
+.step--send { justify-items: start; }
+.step--send::before { content: ""; top: 6px; background: var(--peony); box-shadow: inset 0 0 0 3px var(--ink), 0 0 0 8px var(--ground); }
+.step--send::after { content: ""; position: absolute; left: calc(-1 * var(--indent)); top: calc(6px + var(--pin)); bottom: -2px; width: var(--pin); background: var(--ground); }
+.btn--send { --btn-h: 60px; padding-inline: 36px; font-size: 17px; }
+
+/* yes / no as two picture cards */
+.tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.tile {
+  position: relative; display: grid; align-content: start; gap: 4px; padding: 16px 20px 22px;
+  border-radius: var(--card-radius); background: var(--surface-quiet); cursor: pointer;
+  transition: background-color var(--t-hover), transform var(--t-press) var(--ease-out);
+}
+.tile:hover { background: color-mix(in srgb, var(--linen) 35%, var(--ivory)); }
+.tile:active { transform: scale(0.98); }
+.tile input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.tile:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
+.tile__art { width: clamp(72px, 9vw, 112px); margin: -4px 0 6px -8px; }
+.tile__title { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.45rem); line-height: 1.1; }
+.tile__note { color: var(--ink-soft); font-size: var(--text-small); line-height: 1.35; }
+.tile::after { content: ""; position: absolute; top: 16px; right: 16px; width: 26px; height: 26px; border-radius: 50%; background: var(--white); box-shadow: inset 0 0 0 2px var(--ink); }
+.tile:has(input:checked)::after {
+  background: var(--ink) center / 14px no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2.5 7.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.tile--yes:has(input:checked) { background: var(--sage); }
+.tile--no:has(input:checked) { background: var(--peony); }
+.tile:has(input:checked) .tile__note { color: var(--ink); }
+@media (max-width: 520px) {
+  .tiles { gap: 10px; }
+  .tile { padding: 14px 14px 18px; }
+  .tile::after { top: 12px; right: 12px; width: 22px; height: 22px; }
+}
+
+/* guests: − number + */
+.stepper { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.stepper__btn {
+  display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--surface-quiet); font: 400 26px/1 var(--font-text); cursor: pointer;
+  transition: background-color var(--t-hover), color var(--t-hover), transform var(--t-press) var(--ease-out);
+}
+.stepper__btn:hover:not(:disabled) { background: var(--ink); color: var(--white); }
+.stepper__btn:active:not(:disabled) { transform: scale(0.94); }
+.stepper__btn:disabled { cursor: default; opacity: 0.35; }
+.step .stepper input[type="number"] { width: 88px; text-align: center; font: 600 1.6rem/1 var(--font-display); font-variant-numeric: tabular-nums lining-nums; -moz-appearance: textfield; appearance: textfield; }
+.stepper input::-webkit-inner-spin-button, .stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.stepper__unit { margin-left: 4px; color: var(--ink-soft); font-size: var(--text-small); }
+
+/* guest names: one numbered place per guest, the first is the respondent */
+.party { counter-reset: none; display: grid; gap: 10px; margin-top: 6px; list-style: none; }
+.party__row { display: grid; grid-template-columns: 36px minmax(0, 1fr); align-items: start; gap: 12px; }
+.party__num { display: grid; place-items: center; width: 36px; height: 36px; margin-top: 8px; border-radius: 50%; background: var(--butter); font: 600 16px/1 var(--font-display); font-variant-numeric: lining-nums; }
+.party__row--you .party__num { margin-top: 0; background: var(--sage); }
+.party__you { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 36px; font-weight: 500; }
+.party__tag { padding: 2px 10px; border-radius: var(--btn-radius); background: var(--surface-quiet); color: var(--ink-soft); font-size: 13px; font-weight: 500; }
+.party__field { display: grid; gap: 8px; min-width: 0; }
+.party__row:not(.party__row--you) { animation: party-in 260ms var(--ease-out); }
+@keyframes party-in { from { opacity: 0; translate: 0 -6px; } to { opacity: 1; translate: 0 0; } }
+.party__field:has(input:valid) .field__error { display: none; }
+.step .party input:valid { box-shadow: inset 0 -2px 0 var(--ink); }
+
+/* adult / child: two small pills under a guest's name */
+.kidpick { display: flex; flex-wrap: wrap; gap: 8px; }
+.kidpick__opt { position: relative; display: inline-flex; align-items: center; min-height: 40px; padding: 8px 16px; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover); }
+.kidpick__opt:hover { background: var(--butter); }
+.kidpick__opt input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.kidpick__opt:has(input:checked) { background: var(--sage); }
+.kidpick__opt:has(input:checked)::before { content: "✓ "; white-space: pre; }
+.kidpick__opt:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+/* the small „i“ and its bubble: opens on hover, focus or tap */
+.infotip { position: relative; display: inline-block; vertical-align: middle; }
+.infotip__btn { display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: var(--white); font: italic 600 14px/1 var(--font-display); cursor: pointer; }
+.infotip__btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.infotip__bubble {
+  position: absolute; z-index: 2; left: 50%; bottom: calc(100% + 10px); translate: -50% 0; width: max-content; max-width: min(260px, 70vw);
+  padding: 10px 14px; border-radius: 12px; background: var(--ink); color: var(--white); font: 400 14px/1.4 var(--font-text); text-align: left;
+  visibility: hidden; opacity: 0; transition: opacity var(--t-hover), visibility var(--t-hover);
+}
+.infotip:hover .infotip__bubble, .infotip:focus-within .infotip__bubble, .infotip[data-open] .infotip__bubble { visibility: visible; opacity: 1; }
+@media (max-width: 520px) { .infotip__bubble { left: auto; right: -12px; translate: 0 0; } }
+
+/* diet: quick chips above free text */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 40px; padding: 8px 16px; border: 0; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover), color var(--t-hover); }
+.chip:hover { background: var(--ink); color: var(--white); }
+.chip[aria-pressed="true"] { background: var(--butter); color: var(--ink); }
+.chip[aria-pressed="true"]::before { content: "✓ "; }
+
+/* the invitation beside the steps */
+.invite { position: sticky; top: calc(var(--nav-h) + 24px); display: grid; gap: 22px; padding: clamp(24px, 3vw, 36px); border-radius: var(--card-radius); background: var(--surface-quiet); }
+.invite__date { display: grid; gap: 4px; font-family: var(--font-display); }
+.invite__date span { font-weight: 500; font-size: 1.1rem; }
+.invite__date time { font-weight: 600; font-size: clamp(2rem, 1.5rem + 1.6vw, 2.8rem); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
+.invite__facts { display: grid; gap: 18px; margin: 0; }
+.invite__facts div { display: grid; gap: 2px; }
+.invite__facts dt { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; }
+.invite__facts dd { margin: 0; color: var(--ink-soft); }
+.invite__link { justify-self: start; padding: 4px 0; font-weight: 500; text-decoration: none; border-bottom: 2px solid var(--ink); }
+.invite__link:hover { border-bottom-color: var(--apricot); }
+@media (max-width: 900px) { .invite { position: static; } }
+
+/* the answer arrived: the road ends at a drawing */
+.reply-end { position: relative; display: grid; justify-items: start; gap: 18px; padding-left: var(--indent); }
+.reply-end::before { content: ""; position: absolute; left: var(--road-x); top: 0; height: 44px; width: var(--route-width); background: var(--road); }
+.reply-end::after { content: ""; position: absolute; left: 0; top: 44px; width: var(--pin); height: var(--pin); border-radius: 50%; background: var(--peony); box-shadow: inset 0 0 0 3px var(--ink); }
+.reply-end__art { width: clamp(140px, 16vw, 210px); margin: -8px 0 -4px -12px; }
+.reply-end h2 { font-size: clamp(2.2rem, 1.4rem + 3vw, 3.8rem); }
+.reply-end h2:focus { outline: none; }
+.reply-end__cal { display: flex; flex-wrap: wrap; gap: 10px; }
+.reply-end__links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.reply-end__links a { display: inline-block; padding: 6px 0; font-weight: 500; text-decoration: none; border-bottom: 2px solid var(--ink); }
+.reply-end__links a:hover { border-bottom-color: var(--apricot); }
+
+/* ===== shared form fields (RSVP page and /admin) ===== */
+.field { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.field label, .field legend { padding: 0; font-weight: 600; }
+.field legend { margin-bottom: 8px; }
+.field input:not([type="radio"]), .field textarea, .step input:not([type="radio"]), .step textarea {
+  width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: 14px 14px 4px 4px;
+  background: var(--surface-quiet); box-shadow: inset 0 -2px 0 var(--ink);
+  font-size: 17px; line-height: 1.4; transition: background-color var(--t-hover);
+}
+.field textarea, .step textarea { resize: vertical; }
+.field input:focus-visible, .field textarea:focus-visible, .step input:focus-visible, .step textarea:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; background: var(--white); }
+.field--short input { max-width: 140px; }
+.field [aria-invalid="true"], .step input[aria-invalid="true"], .step textarea[aria-invalid="true"] { box-shadow: inset 0 -4px 0 var(--apricot); }
+.tiles[aria-invalid="true"] .tile { box-shadow: inset 0 -4px 0 var(--apricot); }
+/* an error clears as soon as the step is answered, without waiting for the next submit */
+.step:has(#name:valid) .field__error, .step:has(input[name="attending"]:checked) .field__error { display: none; }
+.step #name:valid { box-shadow: inset 0 -2px 0 var(--ink); }
+.tiles:has(input:checked) .tile { box-shadow: none; }
+.field__hint { color: var(--ink-soft); font-size: 14px; }
+.field__error { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+.field__error::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--apricot); }
+.choices { display: flex; flex-wrap: wrap; gap: 12px; }
+.choice { display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 12px 20px; border-radius: var(--btn-radius); background: var(--surface-quiet); font-weight: 500; cursor: pointer; transition: background-color var(--t-hover); }
+.choice:hover { background: var(--butter); }
+.choice:has(input:checked) { background: var(--sage); }
+.choice:has(input:focus-visible) { outline: 3px solid var(--ink); outline-offset: 3px; }
+.choice input { width: 20px; height: 20px; margin: 0; accent-color: var(--ink); }
+.choice input:focus-visible { outline: none; }
+.if-coming { display: grid; gap: 28px; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.notice { padding: 18px 22px; border-radius: var(--card-radius); background: var(--butter); }
+.notice:focus { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .choice, .field input, .field textarea, .step input, .step textarea, .tile, .chip, .kidpick__opt, .infotip__bubble, .stepper__btn, .step::before { transition: none; }
+  .party__row:not(.party__row--you) { animation: none; }
+}

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Direction board · Svadba 29. 05. 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=DM+Sans:opsz,wght@9..40,400..600&family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400..600&family=Young+Serif&family=Figtree:wght@400..600&display=swap" rel="stylesheet">
+<style>
+/* ---------- primitive tokens (Májová záhrada) ---------- */
+:root{
+  --white:#FFFFFF; --ivory:#F6F2EA; --sage:#93A17F; --peony:#D8A0A6; --apricot:#D98962;
+  --butter:#E4C765; --linen:#C7B69A; --olive:#46513D;
+  --sage-tint:#E9EDE3; --olive-soft:#6B7561;
+  /* semantic */
+  --ground:var(--white); --ground-warm:var(--ivory); --ink:var(--olive); --ink-soft:var(--olive-soft);
+  --accent:var(--sage); --accent-tint:var(--sage-tint); --flower:var(--peony); --place-church:var(--apricot); --place-barn:var(--sage);
+  --font-display:"Fraunces", Georgia, serif; --font-text:"DM Sans", system-ui, sans-serif;
+  --ease-out:cubic-bezier(.22,1,.36,1); --t-press:140ms; --t-hover:180ms; --t-reveal:700ms;
+  --radius-pill:999px;
+  --gutter:clamp(16px,3vw,48px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--font-text);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+::selection{background:var(--accent-tint);color:var(--ink)}
+:focus-visible{outline:3px solid var(--olive);outline-offset:3px;border-radius:4px}
+
+/* ---------- board chrome (annotation layer, not the website) ---------- */
+.board{padding:0 var(--gutter) 120px}
+.board-head{padding:56px 0 24px;max-width:1100px}
+.board-head h1{font-family:var(--font-display);font-weight:400;font-size:clamp(2rem,4vw,3.5rem);line-height:1;letter-spacing:-.02em;margin:0 0 16px}
+.board-head p{max-width:62ch;margin:0 0 8px}
+.legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin:20px 0 0;font-size:14px;color:var(--ink-soft)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+.legend .l-supplied::before{background:var(--olive)} .legend .l-proposal::before{background:var(--sage)} .legend .l-ph::before{background:var(--apricot)}
+.study{margin:72px 0 0}
+.study > h2{font-family:var(--font-text);font-weight:600;font-size:14px;color:var(--ink-soft);margin:0 0 14px;padding-top:14px;border-top:3px solid var(--sage)}
+.study > .lead{font-size:clamp(1.25rem,1.1rem + .7vw,1.6rem);line-height:1.35;max-width:40ch;margin:0 0 28px;font-family:var(--font-display);font-weight:400}
+.note{font-size:14px;color:var(--ink-soft);max-width:70ch}
+.tag{display:inline-block;font-size:12px;padding:3px 9px;border-radius:999px;background:var(--ivory);color:var(--ink-soft);margin-left:8px;vertical-align:middle}
+.tag.ph{background:#F8E7DD;color:#8a4a24}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px}
+@media (max-width:900px){.two,.three{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #E6E8E1;vertical-align:top}
+th{font-weight:600;color:var(--ink-soft)}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;background:var(--ivory);padding:1px 5px;border-radius:3px}
+
+/* ---------- concept ---------- */
+.concept{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:start}
+@media (max-width:900px){.concept{grid-template-columns:1fr}}
+.message{font-family:var(--font-display);font-size:clamp(2rem,1.2rem + 3vw,3.6rem);line-height:1.02;letter-spacing:-.02em;font-weight:400;margin:0 0 24px;text-wrap:balance;max-width:16ch}
+.decisions{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.decisions li{padding-left:20px;position:relative}
+.decisions li::before{content:"";position:absolute;left:0;top:.6em;width:9px;height:9px;border-radius:50%;background:var(--sage)}
+.decisions b{font-weight:600}
+
+/* ---------- palette ---------- */
+.pal{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+@media (max-width:900px){.pal{grid-template-columns:repeat(4,1fr)}}
+.sw{aspect-ratio:1/1.1;border-radius:6px;padding:10px;font-size:12px;line-height:1.3;display:flex;flex-direction:column;justify-content:flex-end;border:1px solid #ECEDE8}
+.sw b{display:block;font-size:12px}
+.sw small{opacity:.8}
+.pal-bar{display:flex;height:22px;border-radius:999px;overflow:hidden;margin:18px 0 8px;border:1px solid #ECEDE8}
+
+/* ---------- compare ---------- */
+.cmp{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cmp figure{margin:0;border:1px solid #ECEDE8;border-radius:8px;padding:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end;position:relative}
+.cmp figure img{width:100%;aspect-ratio:1;object-fit:contain}
+.cmp figcaption{grid-column:1/-1;font-size:12px;color:var(--ink-soft);margin-top:6px}
+.cmp .big img{height:150px}
+.set{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:18px 12px}
+.set figure{margin:0;text-align:center}
+.set img{width:100%;aspect-ratio:1;object-fit:contain}
+.set figcaption{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.3}
+.set figcaption b{display:block;color:var(--ink);font-weight:600}
+
+/* ---------- type ---------- */
+.spec .names{font-family:var(--font-display);font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 1;font-weight:400;font-size:clamp(3rem,2rem + 5vw,7rem);line-height:.92;letter-spacing:-.025em;margin:0 0 .25em;text-wrap:balance}
+.spec .date{font-family:var(--font-display);font-size:clamp(1.6rem,1.2rem + 1.6vw,2.6rem);font-weight:400;line-height:1;margin:0 0 .6em;font-variant-numeric:tabular-nums}
+.spec .h3{font-family:var(--font-display);font-weight:500;font-size:clamp(1.5rem,1.2rem + 1.4vw,2.25rem);line-height:1.08;letter-spacing:-.01em;margin:1em 0 .4em}
+.spec p{max-width:48ch;margin:0 0 .6em}
+.spec .meta{color:var(--ink-soft);font-size:15px;font-variant-numeric:tabular-nums}
+.alt-spec{display:grid;gap:10px}
+.alt-spec .n{line-height:.95;letter-spacing:-.02em;font-size:44px;margin:0}
+.alt-spec .b{margin:0;font-size:16px}
+.ab .n{font-family:"Instrument Serif"} .ab .b{font-family:"Instrument Sans"}
+.ac .n{font-family:"Young Serif";font-size:38px} .ac .b{font-family:Figtree}
+.glyphs{font-size:26px;margin:.4em 0 0}
+
+/* ---------- WEBSITE STUDIES (real components inside frames) ---------- */
+.frame{container-type:inline-size;background:var(--ground);border:1px solid #E6E8E1;border-radius:10px;overflow:hidden;position:relative}
+.frame.mobile{width:390px;max-width:100%;margin:0 auto}
+.frame-label{position:absolute;top:10px;right:12px;font-size:11px;color:var(--ink-soft);background:var(--white);padding:2px 8px;border-radius:999px;border:1px solid #E6E8E1;z-index:5}
+.frames{display:grid;grid-template-columns:1fr 390px;gap:28px;align-items:start}
+@media (max-width:1200px){.frames{grid-template-columns:1fr}}
+
+/* site-level */
+.site{font-family:var(--font-text);color:var(--ink)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px clamp(16px,4cqi,56px)}
+.nav .mark{font-family:var(--font-display);font-variation-settings:"opsz" 48;font-size:22px;letter-spacing:-.01em;text-decoration:none;white-space:nowrap}
+.nav ul{display:flex;gap:clamp(14px,2cqi,28px);list-style:none;margin:0;padding:0}
+.nav a{text-decoration:none;font-size:15px;padding:8px 0;position:relative}
+.nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:2px;height:2px;background:var(--sage);transform:scaleX(0);transform-origin:left;transition:transform var(--t-hover) var(--ease-out)}
+.nav ul a:hover::after,.nav ul a:focus-visible::after{transform:scaleX(1)}
+.nav .menu{display:none;border:0;background:none;font:inherit;color:inherit;padding:10px 0;cursor:pointer}
+@container (max-width:640px){.nav ul{display:none}.nav .menu{display:inline-block}}
+
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--olive);color:var(--white);text-decoration:none;font-weight:500;font-size:16px;padding:14px 22px;border-radius:var(--radius-pill);min-height:48px;transition:transform var(--t-press) var(--ease-out),background var(--t-hover)}
+.btn:hover{background:#3A4432}.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--olive)}
+.btn.ghost:hover{background:var(--ivory)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);min-height:620px}
+.hero-copy{padding:clamp(24px,5cqi,72px) clamp(16px,4cqi,56px) clamp(32px,6cqi,80px);display:flex;flex-direction:column;justify-content:center}
+.hero h1{font-family:var(--font-display);font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 1;font-weight:400;font-size:clamp(3.1rem,1.2rem + 7.2cqi,8.2rem);line-height:.92;letter-spacing:-.028em;margin:0 0 .22em -.04em;text-wrap:balance}
+.hero h1 .amp{font-style:italic;font-weight:300}
+.hero .date{font-family:var(--font-display);font-size:clamp(1.5rem,.9rem + 2.4cqi,2.8rem);line-height:1.05;margin:0 0 .9em;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.hero .date small{display:block;font-family:var(--font-text);font-size:16px;color:var(--ink-soft);margin-top:.5em;letter-spacing:0}
+.hero p.intro{font-size:clamp(1.05rem,1rem + .4cqi,1.25rem);max-width:38ch;margin:0 0 1.6em}
+.hero .actions{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center}
+.hero-art{background:var(--ground-warm);position:relative;display:grid;place-items:center;padding:clamp(24px,4cqi,56px)}
+.hero-art img.main{width:min(86%,560px);aspect-ratio:1;object-fit:contain}
+.hero-art .flower{position:absolute;width:clamp(90px,16cqi,180px);aspect-ratio:1;right:4%;bottom:4%;filter:none}
+.hero-art .wink{position:absolute;left:6%;bottom:6%;width:clamp(72px,9cqi,120px);transform:rotate(-8deg)}
+@container (max-width:640px){
+  .hero{grid-template-columns:1fr;min-height:0}
+  .hero-copy{padding:8px 16px 28px;order:1}
+  .hero-art{order:2;padding:28px 16px 32px}
+  .hero-art img.main{width:72%}
+  .hero h1{font-size:clamp(2.9rem,12cqi,3.5rem)}
+}
+
+/* timeline */
+.tl-sec{padding:clamp(48px,8cqi,120px) clamp(16px,4cqi,56px) clamp(40px,6cqi,96px)}
+.tl-sec h2{font-family:var(--font-display);font-weight:400;font-size:clamp(2.2rem,1rem + 4.2cqi,4.5rem);line-height:.98;letter-spacing:-.025em;margin:0 0 .35em;text-wrap:balance}
+.tl-sec .lead{font-size:clamp(1.05rem,1rem + .5cqi,1.3rem);max-width:44ch;margin:0 0 clamp(32px,5cqi,72px)}
+.tl{position:relative;list-style:none;margin:0;padding:0}
+.tl svg.route{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.route .bed{fill:none;stroke:var(--accent-tint);stroke-width:18;stroke-linecap:round}
+.route .line{fill:none;stroke:var(--sage);stroke-width:2.5;stroke-dasharray:7 9;stroke-linecap:round}
+.ev{position:relative;display:grid;grid-template-columns:1fr 280px 1fr;gap:0 clamp(16px,3cqi,40px);align-items:center;padding:clamp(18px,3cqi,32px) 0}
+.ev .mark{grid-column:2;display:grid;place-items:center;position:relative}
+.ev .mark img{width:clamp(150px,20cqi,230px);aspect-ratio:1;object-fit:contain;position:relative;background:var(--white);border-radius:50%;padding:10px}
+.ev .txt{grid-row:1}
+.ev:nth-child(odd) .txt{grid-column:1;text-align:right;justify-self:end}
+.ev:nth-child(even) .txt{grid-column:3;text-align:left;justify-self:start}
+.ev .txt{max-width:36ch}
+.ev h3{font-family:var(--font-display);font-weight:500;font-size:clamp(1.5rem,1.1rem + 1.6cqi,2.2rem);line-height:1.05;letter-spacing:-.015em;margin:0 0 .3em}
+.ev .time{font-weight:600;font-variant-numeric:tabular-nums;margin:0 0 .35em;color:var(--ink)}
+.ev .time.pending{color:var(--ink-soft);font-weight:500}
+.ev .place{margin:0 0 .4em;color:var(--ink-soft);font-size:15px}
+.ev p.d{margin:0;font-size:16px}
+/* landmarks wander gently left/right so the route becomes a soft S-curve */
+.ev:nth-child(odd) .mark{transform:translateX(-34px)}
+.ev:nth-child(even) .mark{transform:translateX(34px)}
+.ev .flower{display:none}
+@container (max-width:640px){
+  .ev:nth-child(odd) .mark,.ev:nth-child(even) .mark{transform:none}
+  .ev{grid-template-columns:72px 1fr;gap:0 14px;padding:22px 0;align-items:start}
+  .ev .mark{grid-column:1;grid-row:1;align-self:start}
+  .ev .mark img{width:72px;padding:6px}
+  .ev .txt,.ev:nth-child(odd) .txt,.ev:nth-child(even) .txt{grid-column:2;grid-row:1;text-align:left;justify-self:start;max-width:none}
+  .ev h3{font-size:1.45rem}
+  .route .bed{stroke-width:14}
+}
+/* ?static in the URL = documentation screenshots: full route, no reveal */
+html.static .tl .route .line,html.static .tl .route .bed{animation:none!important;stroke-dashoffset:0!important}
+html.static .tl .route .line{stroke-dasharray:7 9!important}
+/* signature motion: scroll-driven route reveal; static when unsupported or reduced motion */
+@supports (animation-timeline: view()){
+  @media (prefers-reduced-motion:no-preference){
+    .tl .route .line,.tl .route .bed{stroke-dasharray:1;stroke-dashoffset:1;animation:draw linear both;animation-timeline:view();animation-range:cover 0% cover 55%}
+  }
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* closing */
+.close{padding:clamp(56px,10cqi,140px) clamp(16px,4cqi,56px) clamp(32px,5cqi,64px);text-align:center}
+.close .thanks{font-family:var(--font-display);font-size:clamp(1.3rem,1rem + 1.4cqi,2rem);margin:0 0 .4em}
+.close .names{font-family:var(--font-display);font-variation-settings:"opsz" 144,"SOFT" 40,"WONK" 1;font-weight:400;font-size:clamp(3rem,14cqi,13rem);line-height:.9;letter-spacing:-.03em;margin:0;white-space:nowrap}
+.close .date{font-family:var(--font-display);font-size:clamp(1.3rem,1rem + 1.6cqi,2.4rem);margin:.4em 0 1.2em}
+.close img{width:clamp(120px,18cqi,220px);margin:0 auto}
+.close .fine{font-size:14px;color:var(--ink-soft);margin:40px 0 0;display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+
+/* alternatives mini-boards */
+.alt{border:1px solid #E6E8E1;border-radius:10px;overflow:hidden;container-type:inline-size}
+.alt .cap{padding:14px 16px;font-size:14px;color:var(--ink-soft);border-top:1px solid #E6E8E1}
+.alt .cap b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.alt1{display:grid;grid-template-columns:1fr 1.2fr 1fr;align-items:end;gap:8px;padding:28px 20px 0;min-height:300px}
+.alt1 .c{text-align:center;align-self:center}
+.alt1 .c h4{font-family:var(--font-display);font-weight:400;font-size:clamp(1.8rem,7cqi,3rem);line-height:.95;letter-spacing:-.02em;margin:0 0 .2em}
+.alt1 .c p{margin:0;font-size:14px}
+.alt1 img{width:100%;aspect-ratio:1;object-fit:contain}
+.alt1 .seg{height:3px;background:var(--sage);margin:12px 0 0;border-radius:3px}
+.alt2{background:var(--ivory);padding:34px 28px;min-height:300px;display:grid;place-items:center}
+.alt2 .card{background:var(--white);padding:26px 26px 22px;width:min(100%,340px);text-align:center;border:1px solid #ECE7DB}
+.alt2 .card img{width:120px;margin:0 auto 10px}
+.alt2 h4{font-family:var(--font-display);font-weight:400;font-size:clamp(1.6rem,6cqi,2.4rem);line-height:.95;letter-spacing:-.02em;margin:0 0 .2em}
+.alt2 p{margin:0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="board">
+
+<header class="board-head">
+  <h1>Direction board · Phase 1</h1>
+  <p>Svadba 29. 05. 2027 · kostol v Hlinnom → Stodola Zlatník. White ground, one illustration family, one typography pairing, one connected programme.</p>
+  <p class="legend"><span class="l-supplied">Supplied artwork (whimsical pack, recoloured only)</span><span class="l-proposal">Proposal artwork (route, layout, type, colour)</span><span class="l-ph">Placeholder facts to confirm</span></p>
+</header>
+
+<!-- 1 CONCEPT -->
+<section class="study" id="concept">
+  <h2>1 · Concept</h2>
+  <div class="concept">
+    <div>
+      <p class="message">Chvíle, ktoré sa oplatí zdieľať.</p>
+      <p class="note" style="font-size:17px;color:var(--ink);max-width:56ch">The couple's own line, <em>„Ľúbime chvíle, ktoré môžeme zdieľať spolu,“</em> becomes the whole page: the wedding day is a sequence of moments, and every guest is being asked to share them. The programme is therefore not a schedule but a walk through the day: from the church in Hlinné along one drawn footpath into the garden at Zlatník, with each moment a landmark on the path.</p>
+      <p class="note" style="font-size:17px;color:var(--ink);max-width:56ch">Working title: <b>„Chvíle“</b> (Moments). Starting hypothesis „Májová cesta“ survives as the path grammar, but the subject is the moments, not the geography.</p>
+    </div>
+    <ul class="decisions">
+      <li><b>Ground:</b> white, 85–90 % of surfaces. One warm ivory field per screen at most (hero art, photo moment).</li>
+      <li><b>Ink:</b> dark olive for all text, controls and drawings. Drawings are recoloured to the ink, never left black.</li>
+      <li><b>Accent:</b> sage carries the route and small identity marks. One floral accent (peony pink) per composition; apricot only where it means the church.</li>
+      <li><b>Illustration:</b> whimsical family only, 14 selected drawings, shown large (150–560 px). No stickers, no icon rows.</li>
+      <li><b>Type:</b> Fraunces (names, headings, times at display size) + DM Sans (body, controls, captions).</li>
+      <li><b>Path grammar:</b> one continuous hand-drawn footpath: a soft sage bed with a dashed sage centre line. It connects landmarks, never overlaps copy, and is redrawn from the real milestone positions.</li>
+      <li><b>Photo treatment:</b> full colour, square corners, same aspect ratio within a group, no filters, one gentle depth drift at most.</li>
+      <li><b>Motion grammar:</b> one signature move (the route reveals on scroll), section entrances in reading order, control feedback 140–180 ms. Reduced motion shows the complete static route.</li>
+      <li><b>Print extension:</b> same ink, same drawings, same type on ivory stock: invitation, programme card (the path in one column) and place cards (one drawing + name).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 2 PALETTE -->
+<section class="study" id="palette">
+  <h2>2 · Palette roles (supplied „Májová záhrada“, web proportions)</h2>
+  <div class="pal">
+    <div class="sw" style="background:#FFFFFF"><b>Biela</b><small>#FFFFFF · ground 85–90 %</small></div>
+    <div class="sw" style="background:#46513D;color:#fff"><b>Tmavá oliva</b><small>#46513D · ink, controls, drawings · 8.38:1</small></div>
+    <div class="sw" style="background:#93A17F"><b>Šalviová</b><small>#93A17F · route, marks · 2.75:1 (decorative only)</small></div>
+    <div class="sw" style="background:#E9EDE3"><b>Šalvia tint</b><small>#E9EDE3 · route bed, hover surfaces (derived)</small></div>
+    <div class="sw" style="background:#F6F2EA"><b>Teplá slonovina</b><small>#F6F2EA · one warm field per screen · 1.12:1</small></div>
+    <div class="sw" style="background:#D8A0A6"><b>Pivonková</b><small>#D8A0A6 · single floral accent · 2.21:1</small></div>
+    <div class="sw" style="background:#D98962"><b>Marhuľová</b><small>#D98962 · “church” colour only · 2.73:1</small></div>
+    <div class="sw" style="background:#C7B69A"><b>Ľan / Masložltá</b><small>#C7B69A · #E4C765 · reserved, print only</small></div>
+  </div>
+  <div class="pal-bar" aria-hidden="true"><span style="flex:87;background:#fff"></span><span style="flex:5;background:#F6F2EA"></span><span style="flex:4;background:#93A17F"></span><span style="flex:2;background:#E9EDE3"></span><span style="flex:1;background:#D8A0A6"></span><span style="flex:1;background:#D98962"></span></div>
+  <p class="note">Website proportions, excluding photographs and drawings: about 87 % white, 5 % ivory, 6 % sage and sage tint, 2 % floral accents. All text is dark olive on white or ivory (8.38:1 / 7.4:1). Pastels never carry text or essential icons. The real church photo shows cream walls with apricot trim, which is why apricot is reserved for “church”.</p>
+</section>
+
+<!-- 3 ILLUSTRATION -->
+<section class="study" id="icons">
+  <h2>3 · Illustration family: comparison at web size, then the selected set</h2>
+  <p class="lead">Whimsical wins: it is the only family whose line is fine enough to sit beside Fraunces, lively enough to feel personal, and complete enough to cover the whole day.</p>
+  <div class="cmp">
+    <figure class="big"><img src="assets/compare/w-church.svg" alt=""><img src="assets/compare/Small-Church-Building.svg" alt=""><div style="aspect-ratio:1"></div><figcaption><b>Church</b> · whimsical · hand-drawn · (outline bundle has none)</figcaption></figure>
+    <figure class="big"><img src="assets/compare/w-dance.svg" alt=""><img src="assets/compare/First-Dance-of-Bride-and-Groom.svg" alt=""><img src="assets/compare/Couple_02.svg" alt=""><figcaption><b>Dance</b> · whimsical · hand-drawn · outline</figcaption></figure>
+    <figure class="big"><img src="assets/compare/w-toast.svg" alt=""><img src="assets/compare/Celebratory-Toasting-Champagne-Flutes.svg" alt=""><img src="assets/compare/cheers_01.svg" alt=""><figcaption><b>Toast</b> · whimsical · hand-drawn · outline</figcaption></figure>
+    <figure class="big"><img src="assets/compare/w-cake.svg" alt=""><img src="assets/compare/Heart-Topped-Three-Tiered-Wedding-Cake.svg" alt=""><img src="assets/compare/party_elements_01.svg" alt=""><figcaption><b>Cake</b> · whimsical · hand-drawn · outline (no cake; bottle shown)</figcaption></figure>
+  </div>
+  <table style="margin:22px 0 40px">
+    <tr><th>Family</th><th>Line & weight</th><th>Reads at 72 px</th><th>Reads at 200 px+</th><th>Coverage for this day</th><th>Verdict</th></tr>
+    <tr><td>Whimsical (203 SVG)</td><td>Fine, lively, slightly irregular line; detailed people, buildings, florals</td><td>Weak: lines thin out, detail muddies</td><td>Excellent: drawings become the page</td><td>Church, barn, toast, dinner, dance, cake, music, car, camera, florals, stationery</td><td><b>Selected</b> · use large, never as small icons</td></tr>
+    <tr><td>Hand-drawn Regular/Outline (115 SVG)</td><td>Bold marker line, compact, uniform</td><td>Strong</td><td>Reads as clip art; heavy against a light serif</td><td>Good practical set, generic church, no barn</td><td>Not used · would need to be the only family</td></tr>
+    <tr><td>Outline-doodles (two bundles)</td><td>Cartoon couples, filled black areas, open decorative lines</td><td>Strong but cartoon</td><td>Charming, but a different humour and no venues</td><td>Couples, cheers, flowers, frames; no church, barn, cake</td><td>Not used · mixing would break the single language</td></tr>
+  </table>
+
+  <p class="note" style="margin-bottom:14px"><b>Selected set (supplied artwork recoloured to #46513D).</b> 14 core drawings plus 5 reserved. Paths are relative to <code>doodles/whimsical/</code>.</p>
+  <div class="set">
+    <figure><img src="assets/couple-walking.svg" alt=""><figcaption><b>Hero</b>26- 50 (Couple Together & Poses)/SVG/B_Newlywed Walking Together.svg</figcaption></figure>
+    <figure><img src="assets/church.svg" alt=""><figcaption><b>Sobáš · Hlinné</b>151-175 (Invitation & Venue)/SVG/F_church.svg</figcaption></figure>
+    <figure><img src="assets/car-vintage.svg" alt=""><figcaption><b>Presun</b>26- 50 (Couple Together & Poses)/SVG/B_Wedding Vintage Car.svg</figcaption></figure>
+    <figure><img src="assets/barn.svg" alt=""><figcaption><b>Stodola Zlatník</b>151-175 (Invitation & Venue)/SVG/F_Rustic Wedding Barn.svg</figcaption></figure>
+    <figure><img src="assets/champagne-toast.svg" alt=""><figcaption><b>Prípitok</b>51-75 ( Food , Cake & Beverages)/SVG/C_Champagne Toast.svg</figcaption></figure>
+    <figure><img src="assets/dinner-table.svg" alt=""><figcaption><b>Večera</b>101-125 (Wedding Decor & Reception Objects)/SVG/E_Reception Dinner Table.svg</figcaption></figure>
+    <figure><img src="assets/dance-twirl.svg" alt=""><figcaption><b>Prvý tanec</b>26- 50 (Couple Together & Poses)/SVG/B_Twirling Wedding Dance.svg</figcaption></figure>
+    <figure><img src="assets/cake-1.svg" alt=""><figcaption><b>Torta</b>51-75 ( Food , Cake & Beverages)/SVG/C_Tiered Wedding Cake.svg</figcaption></figure>
+    <figure><img src="assets/music-notes.svg" alt=""><figcaption><b>Zábava</b>176-200 (Celebration & Transport)/SVG/G_music notes.svg</figcaption></figure>
+    <figure><img src="assets/camera.svg" alt=""><figcaption><b>Fotky</b>176-200 (Celebration & Transport)/SVG/G_camera.svg</figcaption></figure>
+    <figure><img src="assets/envelope.svg" alt=""><figcaption><b>Kontakt / RSVP</b>151-175 (Invitation & Venue)/SVG/F_Love Letter Envelope.svg</figcaption></figure>
+    <figure><img src="assets/daisy-bouquet.svg" alt=""><figcaption><b>Floral accent</b>76-100 (Floral Arrangements , Bouqets & Arch)/SVG/D_Daisy Bouquet.svg</figcaption></figure>
+    <figure><img src="assets/garland.svg" alt=""><figcaption><b>Closing</b>101-125 (Wedding Decor & Reception Objects)/SVG/E_Love Pennant Garland.svg</figcaption></figure>
+    <figure><img src="assets/sunglasses.svg" alt=""><figcaption><b>Personal wink</b>176-200 (Celebration & Transport)/SVG/G_sunglasses.svg</figcaption></figure>
+    <figure style="opacity:.55"><img src="assets/rings.svg" alt=""><figcaption><b>Reserved</b>126-150 (Romance & Love )/SVG/F_Wedding Rings.svg</figcaption></figure>
+    <figure style="opacity:.55"><img src="assets/calendar.svg" alt=""><figcaption><b>Reserved</b>126-150 (Romance & Love )/SVG/F_save the date calender.svg</figcaption></figure>
+    <figure style="opacity:.55"><img src="assets/coffee.svg" alt=""><figcaption><b>Reserved (if programme has it)</b>51-75/SVG/C_Coffee and Croissant8.svg</figcaption></figure>
+    <figure style="opacity:.55"><img src="assets/fireworks.svg" alt=""><figcaption><b>Reserved (only if confirmed)</b>176-200/SVG/G_fireworks.svg</figcaption></figure>
+    <figure style="opacity:.55"><img src="assets/rose-corner.svg" alt=""><figcaption><b>Reserved (print)</b>76-100/SVG/D_Diagonal Rose Corner Spray.svg</figcaption></figure>
+  </div>
+  <p class="note" style="margin-top:18px">Why sunglasses: in five of the nine supplied photographs you both wear them. It is the one drawing in the pack that is about you rather than about weddings, so it earns a small place in the hero and on the place cards.</p>
+</section>
+
+<!-- 4 TYPE -->
+<section class="study" id="type">
+  <h2>4 · Typography: recommended pairing and two alternatives tested</h2>
+  <div class="two">
+    <div class="spec">
+      <p class="names">[Meno]<br><span style="font-style:italic;font-weight:300">&amp;</span> [Meno]</p>
+      <p class="date">29. 05. 2027</p>
+      <p class="h3">Ľúbime chvíle, ktoré môžeme zdieľať spolu.</p>
+      <p>Srdečne vás pozývame na našu svadbu. Obrad v kostole v Hlinnom, oslava v Stodole Zlatník.</p>
+      <p class="meta">Sobáš · Čas upresníme · Prvý tanec · Krájanie torty · Zábava do noci</p>
+      <p class="glyphs" style="font-family:var(--font-display)">Ľľ Šš Čč Ťť Žž Ďď Ňň Ôô Ŕŕ Ĺĺ Áá Éé Íí Óó Úú Ýý Ää</p>
+      <p class="note" style="margin-top:14px"><b>A · Fraunces + DM Sans (recommended).</b> Fraunces at optical size 144 with the SOFT and WONK axes on has the same slightly hand-made warmth as the drawings without imitating them. DM Sans is quiet, has tabular figures for times and renders Slovak diacritics cleanly. Both are SIL Open Font License, served from Google Fonts or self-hosted; glyphs verified in the browser above.</p>
+    </div>
+    <div class="three" style="grid-template-columns:1fr 1fr;gap:28px;align-content:start">
+      <div class="alt-spec ab"><p class="n">[Meno]<br><em>&amp;</em> [Meno]</p><p class="b">29. 05. 2027 · Ľúbime chvíle, ktoré môžeme zdieľať spolu.</p><p class="note"><b>B · Instrument Serif + Instrument Sans.</b> Elegant and editorial, but the condensed high-contrast letter reads cooler than the drawings; it suits a photo-led invitation more than an illustrated one.</p></div>
+      <div class="alt-spec ac"><p class="n">[Meno]<br>&amp; [Meno]</p><p class="b">29. 05. 2027 · Ľúbime chvíle, ktoré môžeme zdieľať spolu.</p><p class="note"><b>C · Young Serif + Figtree.</b> Friendly and sturdy, but its heavy strokes compete with the fine line of the illustrations at the same size.</p></div>
+      <div style="grid-column:1/-1"><p class="note"><b>Roles (pairing A):</b> names and closing wordmark: Fraunces 400, opsz 144, tracking −0.03em, leading 0.92 · section headings: Fraunces 400–500, opsz 72, leading 0.98 · event titles: Fraunces 500 · times: Fraunces or DM Sans 600 tabular · body: DM Sans 400, 17–19 px, leading 1.5 · navigation, buttons: DM Sans 500, 15–16 px · captions: DM Sans 400, 14 px, soft ink. Five sizes in total.</p>
+      <p class="note"><b>Long-name test (A, desktop):</b></p>
+      <p class="names" style="font-family:var(--font-display);font-variation-settings:'opsz' 144,'SOFT' 40,'WONK' 1;font-size:clamp(2.4rem,1.5rem + 3vw,4.6rem);line-height:.92;letter-spacing:-.025em;margin:0">Mária Magdaléna<br><span style="font-style:italic;font-weight:300">&amp;</span> Maximilián Bartolomej</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 HERO STUDY -->
+<section class="study" id="hero-study">
+  <h2>5 · Hero study: desktop and phone <span class="tag ph">names, church name and times are placeholders</span></h2>
+  <div class="frames">
+    <div class="frame"><span class="frame-label">desktop · fluid</span>
+      <div class="site">
+        <nav class="nav" aria-label="Hlavná navigácia"><a class="mark" href="#">[M] &amp; [M]</a><ul><li><a href="#">Program</a></li><li><a href="#">Miesta</a></li><li><a href="#">Fotky</a></li><li><a href="#">Informácie</a></li></ul><button class="menu" aria-expanded="false">Menu</button></nav>
+        <div class="hero">
+          <div class="hero-copy">
+            <h1>[Meno]<br><span class="amp">&amp;</span> [Meno]</h1>
+            <p class="date">29. 05. 2027<small>sobota · kostol v Hlinnom · Stodola Zlatník</small></p>
+            <p class="intro">Pozývame vás zdieľať s nami deň, na ktorý sa budeme pamätať celý život. Obrad v kostole v Hlinnom, oslava v záhrade a stodole v Zlatníku.</p>
+            <div class="actions"><a class="btn" href="#program">Pozrieť program</a><a class="btn ghost" href="#miesta">Kde to bude</a></div>
+          </div>
+          <div class="hero-art">
+            <img class="wink" src="assets/sunglasses.svg" alt="">
+            <img class="main" src="assets/couple-walking.svg" alt="Kreslený pár kráčajúci spolu">
+            <img class="flower" src="assets/daisy-bouquet.svg" alt="" style="filter:none" data-tint="peony">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame mobile"><span class="frame-label">390 px</span>
+      <div class="site">
+        <nav class="nav" aria-label="Hlavná navigácia"><a class="mark" href="#">[M] &amp; [M]</a><ul><li><a href="#">Program</a></li></ul><button class="menu" aria-expanded="false">Menu</button></nav>
+        <div class="hero">
+          <div class="hero-copy">
+            <h1>[Meno]<br><span class="amp">&amp;</span> [Meno]</h1>
+            <p class="date">29. 05. 2027<small>sobota · Hlinné · Stodola Zlatník</small></p>
+            <p class="intro">Pozývame vás zdieľať s nami deň, na ktorý sa budeme pamätať celý život.</p>
+            <div class="actions"><a class="btn" href="#program">Pozrieť program</a></div>
+          </div>
+          <div class="hero-art">
+            <img class="main" src="assets/couple-walking.svg" alt="Kreslený pár kráčajúci spolu">
+            <img class="flower" src="assets/daisy-bouquet.svg" alt="" data-tint="peony">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:16px">Hero logic: names are the headline (two lines everywhere), the date is the second size, the two places sit in the date line so a guest finds them in one glance. One action. The right half is the single warm ivory field on this screen; the drawing is large (up to 560 px) and the daisy bouquet in peony pink is the screen's one floral accent. The sunglasses are the personal wink.</p>
+</section>
+
+<!-- 6 TIMELINE STUDY -->
+<section class="study" id="timeline-study">
+  <h2>6 · Programme study: the connected path, desktop and phone <span class="tag ph">order and times are a proposal, not a confirmed programme</span></h2>
+  <div class="frames">
+    <div class="frame"><span class="frame-label">desktop · alternating · route redrawn from milestones</span>
+      <div class="site">
+        <section class="tl-sec" id="program">
+          <h2>Chvíle nášho dňa</h2>
+          <p class="lead">Jedna cesta, jeden deň: z kostola v Hlinnom do záhrady v Zlatníku. Časy doplníme, len čo budú isté.</p>
+          <ol class="tl" data-route>
+            <svg class="route" aria-hidden="true"><path class="bed" d=""/><path class="line" d=""/></svg>
+            <li class="ev"><div class="txt"><h3>Sobáš</h3><p class="time pending">Čas upresníme</p><p class="place">Kostol v Hlinnom · názov kostola upresníme</p><p class="d">Obrad, pri ktorom si povieme svoje áno. Príďte, prosím, s malou časovou rezervou.</p></div><div class="mark"><img src="assets/church.svg" alt=""></div><img class="flower" src="assets/daisy-bouquet.svg" alt="" data-tint="apricot"></li>
+            <li class="ev"><div class="txt"><h3>Cesta do Zlatníka</h3><p class="time pending">Po obrade</p><p class="place">Hlinné → Stodola Zlatník</p><p class="d">Z kostola sa presunieme do Zlatníka. Informácie o doprave a parkovaní doplníme.</p></div><div class="mark"><img src="assets/car-vintage.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Prípitok v záhrade</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník · záhrada</p><p class="d">Privítanie, gratulácie a prvý spoločný prípitok.</p></div><div class="mark"><img src="assets/champagne-toast.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Večera</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník · stodola</p><p class="d">Spoločná večera pri jednom dlhom stole.</p></div><div class="mark"><img src="assets/dinner-table.svg" alt=""></div><img class="flower" src="assets/daisy-bouquet.svg" alt="" data-tint="peony"></li>
+            <li class="ev"><div class="txt"><h3>Prvý tanec</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Otvoríme parket. Potom je rad na vás.</p></div><div class="mark"><img src="assets/dance-twirl.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Torta</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Sladká chvíľa pre všetkých.</p></div><div class="mark"><img src="assets/cake-1.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Zábava do noci</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Hudba, tanec a chvíle, ktoré si zapamätáme.</p></div><div class="mark"><img src="assets/music-notes.svg" alt=""></div><img class="flower" src="assets/daisy-bouquet.svg" alt="" data-tint="peony"></li>
+          </ol>
+        </section>
+      </div>
+    </div>
+    <div class="frame mobile"><span class="frame-label">390 px · one column · route beside content</span>
+      <div class="site">
+        <section class="tl-sec">
+          <h2>Chvíle nášho dňa</h2>
+          <p class="lead">Z kostola v Hlinnom do záhrady v Zlatníku.</p>
+          <ol class="tl" data-route>
+            <svg class="route" aria-hidden="true"><path class="bed" d=""/><path class="line" d=""/></svg>
+            <li class="ev"><div class="txt"><h3>Sobáš</h3><p class="time pending">Čas upresníme</p><p class="place">Kostol v Hlinnom</p><p class="d">Obrad, pri ktorom si povieme svoje áno.</p></div><div class="mark"><img src="assets/church.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Cesta do Zlatníka</h3><p class="time pending">Po obrade</p><p class="place">Hlinné → Stodola Zlatník</p><p class="d">Informácie o doprave doplníme.</p></div><div class="mark"><img src="assets/car-vintage.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Prípitok v záhrade</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Privítanie a prvý spoločný prípitok.</p></div><div class="mark"><img src="assets/champagne-toast.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Večera</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Spoločná večera.</p></div><div class="mark"><img src="assets/dinner-table.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Prvý tanec</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Otvoríme parket.</p></div><div class="mark"><img src="assets/dance-twirl.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Torta</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Sladká chvíľa pre všetkých.</p></div><div class="mark"><img src="assets/cake-1.svg" alt=""></div></li>
+            <li class="ev"><div class="txt"><h3>Zábava do noci</h3><p class="time pending">Čas upresníme</p><p class="place">Stodola Zlatník</p><p class="d">Hudba, tanec a chvíle, ktoré si zapamätáme.</p></div><div class="mark"><img src="assets/music-notes.svg" alt=""></div></li>
+          </ol>
+        </section>
+      </div>
+    </div>
+  </div>
+  <p class="note" style="margin-top:16px">The list is a semantic <code>&lt;ol&gt;</code> fed by one typed events array (id, title, description, time or pending status, place, illustration). The route is a separate decorative SVG whose geometry is computed from the real milestone positions after layout and on resize, so copy, fonts and viewport can change without clipped loops or overlaps. Desktop alternates text left/right around a central landmark column, reading strictly top to bottom. On phones the route runs down the left beside a single column. The signature motion is the route drawing itself in as you scroll (CSS scroll-driven animation, transform-free); where unsupported or with reduced motion the complete route is simply there.</p>
+</section>
+
+<!-- 7 CLOSING STUDY -->
+<section class="study" id="closing-study">
+  <h2>7 · Closing study</h2>
+  <div class="frame"><span class="frame-label">desktop</span>
+    <div class="site"><section class="close">
+      <p class="thanks">Tešíme sa na vás.</p>
+      <p class="names">[Meno] <span style="font-style:italic;font-weight:300">&amp;</span> [Meno]</p>
+      <p class="date">29. 05. 2027 · Hlinné · Zlatník</p>
+      <img src="assets/garland.svg" alt="">
+      <p class="fine"><span>Otázky? Napíšte nám: [e-mail / telefón]</span><span>Program</span><span>Miesta</span><span>Informácie</span></p>
+    </section></div>
+  </div>
+</section>
+
+<!-- 8 ALTERNATIVES -->
+<section class="study" id="alternatives">
+  <h2>8 · Two genuinely different alternatives</h2>
+  <div class="two">
+    <div class="alt">
+      <div class="alt1">
+        <div><img src="assets/church.svg" alt="" data-tint="apricot"><div class="seg"></div></div>
+        <div class="c"><h4>[Meno]<br>&amp; [Meno]</h4><p>29. 05. 2027</p></div>
+        <div><img src="assets/barn.svg" alt="" data-tint="sage"><div class="seg"></div></div>
+      </div>
+      <div class="cap"><b>Alt 1 · „Dve miesta, jeden deň“</b>The page is built on the two buildings: the church in its real apricot and the barn in sage bracket every screen, and everything in the programme is colour-coded to the place where it happens. Clearest information design, more graphic and less tender than „Chvíle“. Shares the same type, ink and drawings, so switching is cheap.</div>
+    </div>
+    <div class="alt">
+      <div class="alt2"><div class="card"><img src="assets/invitation-card.svg" alt=""><h4>[Meno] &amp; [Meno]</h4><p>29. 05. 2027 · Hlinné · Zlatník</p></div></div>
+      <div class="cap"><b>Alt 2 · „Pozvánka na stole“</b>The website behaves like the printed invitation suite laid on an ivory table: a white card for the invitation, a long programme card with the path, an RSVP card, an envelope for contact. Uses the pack's stationery drawings and makes the print extension literal. The most “invitation-like”, but ivory becomes the dominant ground, which conflicts with the white-first brief unless the cards grow to fill the screen.</div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+if(location.search.includes('static'))document.documentElement.classList.add('static');
+// Tint helper for the study only: recolour supplied drawings by swapping the root fill in a copy.
+(async function tint(){
+  const colors={peony:'#D8A0A6',apricot:'#D98962',sage:'#93A17F'};
+  const cache={};
+  for(const img of document.querySelectorAll('img[data-tint]')){
+    const url=img.getAttribute('src'), c=colors[img.dataset.tint];
+    try{
+      cache[url] ??= await (await fetch(url)).text();
+      const svg=cache[url].replace(/<svg ([^>]*?)fill="#46513D"/,'<svg $1fill="'+c+'"');
+      img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+    }catch(e){}
+  }
+})();
+// Route geometry from real milestone positions (what the implementation will do with ResizeObserver).
+function drawRoutes(){
+  document.querySelectorAll('[data-route]').forEach(tl=>{
+    const svg=tl.querySelector('svg.route'); const r=tl.getBoundingClientRect();
+    svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);
+    const pts=[...tl.querySelectorAll('.ev .mark img')].map(el=>{const b=el.getBoundingClientRect();return {x:b.left-r.left+b.width/2,y:b.top-r.top+b.height/2};});
+    if(pts.length<2)return;
+    const mobile=r.width<640;
+    // one cubic Bézier per segment, vertical tangents at each landmark: a clean S-curve when
+    // landmarks are offset sideways (desktop), a straight line when they are aligned (phone)
+    const f=n=>Math.round(n*10)/10;
+    let d=`M ${f(pts[0].x)} ${f(pts[0].y-(mobile?28:64))} L ${f(pts[0].x)} ${f(pts[0].y)}`;
+    for(let i=1;i<pts.length;i++){
+      const a=pts[i-1],b=pts[i],k=(b.y-a.y)*0.5;
+      d+=` C ${f(a.x)} ${f(a.y+k)}, ${f(b.x)} ${f(b.y-k)}, ${f(b.x)} ${f(b.y)}`;
+    }
+    d+=` L ${f(pts.at(-1).x)} ${f(pts.at(-1).y+(mobile?28:64))}`;
+    svg.querySelectorAll('path').forEach(p=>{p.setAttribute('d',d);p.setAttribute('pathLength','1');});
+  });
+}
+document.fonts.ready.then(drawRoutes);
+window.addEventListener('load',drawRoutes);
+new ResizeObserver(()=>drawRoutes()).observe(document.body);
+</script>
+</body>
+</html>

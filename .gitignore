@@ -1,0 +1,38 @@
+# Dependencies and build output
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+.claude/launch.json
+
+# OS
+.DS_Store
+
+# Binary files stay out of git (company policy): photos, drawings, fonts, PDFs, design sources
+Photos/
+doodles/
+*.png
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.heic
+*.HEIC
+*.webp
+*.avif
+*.gif
+*.eps
+*.ai
+*.pdf
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.wasm
