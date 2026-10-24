@@ -104,6 +104,18 @@ export interface Question {
   answer: Pending<string>;
 }
 
+/** One of the few things we ask of guests, in the order of the day. */
+export interface Request {
+  id: string;
+  /** When in the day it applies, e.g. "Počas obradu". */
+  when: string;
+  title: string;
+  text: string;
+  drawing: DrawingName;
+  /** Large and small tint behind the drawing. */
+  tint: [Colour, Colour];
+}
+
 export interface Rsvp {
   /** ISO date; after it the form closes. */
   deadline: Pending<string>;

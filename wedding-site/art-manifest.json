@@ -302,6 +302,30 @@
         "black"
       ],
       "role": "Countdown milestone"
+    },
+    {
+      "name": "wedding-bells",
+      "source": "101-125 (Wedding Decor & Reception Objects)/SVG/E_Wedding Bells.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Pár prosieb: arrive early"
+    },
+    {
+      "name": "polaroids",
+      "source": "151-175 (Invitation & Venue)/SVG/F_polaroid photos.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Pár prosieb: phones away"
+    },
+    {
+      "name": "confetti",
+      "source": "176-200 (Celebration & Transport)/SVG/G_confetti.svg",
+      "inks": [
+        "black"
+      ],
+      "role": "Pár prosieb: the confetti rule"
     }
   ]
 }

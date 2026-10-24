@@ -112,6 +112,26 @@
   .panel--mid .panel__art { width: min(70%, 300px); }
 }
 
+/* ===== asks: a few requests, in the order of the day ===== */
+.asks { padding: var(--section-pad) 0; background: var(--white); }
+.asks__head { display: grid; justify-items: center; gap: 14px; max-width: 46ch; margin: 0 auto clamp(32px, 5vw, 72px); text-align: center; }
+.asks__list { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 64px); max-width: 1000px; margin: 0 auto; }
+.ask { display: grid; justify-items: center; align-content: start; gap: 10px; text-align: center; }
+/* the middle request sits lower, like the dabs in the palette: an uneven road, not a row */
+.ask:nth-child(2) { margin-top: clamp(24px, 4vw, 64px); }
+.ask__art { width: min(100%, 230px); margin-bottom: 8px; }
+.ask__when { display: inline-flex; align-items: center; min-height: 34px; padding: 6px 14px; border-radius: var(--btn-radius); background: var(--ivory); font-size: 14px; font-weight: 600; }
+.ask h3 { font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem); }
+.ask__text { max-width: 28ch; color: var(--ink-soft); text-wrap: pretty; }
+@media (max-width: 760px) {
+  .asks__list { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .ask { grid-template-columns: 104px minmax(0, 1fr); justify-items: start; column-gap: 16px; row-gap: 6px; text-align: left; }
+  .ask:nth-child(2) { margin-top: 0; }
+  .ask__art { grid-column: 1; grid-row: 1 / span 3; align-self: start; width: 104px; margin: 0; }
+  .ask__when, .ask h3, .ask__text { grid-column: 2; }
+  .ask__text { max-width: none; }
+}
+
 /* ===== palette ===== */
 /* clip, not hidden: hidden would make the section a scroll container and stop the figure sticking (and scroll timelines inside it) */
 .pal { padding: var(--section-pad) 0; overflow: clip; }

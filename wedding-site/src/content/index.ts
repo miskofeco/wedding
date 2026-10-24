@@ -5,5 +5,6 @@ export { palette, paletteIntro } from "./palette";
 export { photos } from "./photos";
 export { stays } from "./stays";
 export { faq } from "./faq";
+export { requests, requestsIntro } from "./requests";
 export { rsvp } from "./rsvp";
 export { churchToBarn, churchToVranov, toplaRiver } from "./routes";

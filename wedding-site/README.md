@@ -26,6 +26,7 @@ Every unconfirmed fact is `null` in `src/content/` and shows a Slovak placeholde
 | Programme and times | `src/content/events.ts` | one entry per moment, `time: "14:00"` |
 | Accommodation | `src/content/stays.ts` | add `{ name, distanceKm, note, url }` |
 | FAQ answers | `src/content/faq.ts` | `answer` |
+| „Pár prosieb“ wording (arrive early, phones, confetti rule) | `src/content/requests.ts` | `requests`, `requestsIntro` |
 | RSVP deadline and direct contact | `src/content/rsvp.ts` | `deadline: "2027-04-30"`, `contact` |
 | Photo captions | `src/content/photos.ts` | `caption` |
 | Palette meanings, dress-code wording | `src/content/palette.ts` | `paletteIntro`, `meaning` |
@@ -94,7 +95,7 @@ src/components/     Nav, RouteTimeline (the road), RevealObserver, Tint, Drawing
 src/lib/            rsvp (validation), sheet (Google Sheet client), auth (admin session), art, format
 google-sheet/       Code.gs (Apps Script) and SETUP.md
 scripts/            sync-art, prepare-photos, sheet-mock
-src/components/sections/  Hero, Programme, Places, Palette, Photos, Stay, Faq, RsvpCta, Closing
+src/components/sections/  Hero, Programme, Places, Requests, Palette, Photos, Stay, Faq, RsvpCta, Closing
 src/content/        all words and facts, typed
 src/styles/         tokens → base → components → sections → rsvp → motion
 ```

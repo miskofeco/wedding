@@ -11,8 +11,8 @@
 .tint::after { background: var(--c2, var(--butter)); left: 8%; bottom: 6%; width: 30%; height: 24%; border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%; }
 /* hover: the colour slips off register under the ink (also when the card that holds it is hovered) */
 @media (hover: hover) {
-  .tint:hover::before, .tile:hover .tint::before { transform: rotate(-4deg) scale(1.04); }
-  .tint:hover::after, .tile:hover .tint::after { transform: translate(-3px, 3px) rotate(6deg); }
+  .tint:hover::before, .tile:hover .tint::before, .ask:hover .tint::before { transform: rotate(-4deg) scale(1.04); }
+  .tint:hover::after, .tile:hover .tint::after, .ask:hover .tint::after { transform: translate(-3px, 3px) rotate(6deg); }
 }
 
 /* Button: flat pill, no border. Hover inverts to ink. */

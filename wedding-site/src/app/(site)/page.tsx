@@ -2,6 +2,7 @@ import { Hero } from "@/components/sections/Hero";
 import { Milestone } from "@/components/sections/Milestone";
 import { Programme } from "@/components/sections/Programme";
 import { Places } from "@/components/sections/Places";
+import { Requests } from "@/components/sections/Requests";
 import { Journey } from "@/components/sections/Journey";
 import { Palette } from "@/components/sections/Palette";
 import { Photos } from "@/components/sections/Photos";
@@ -18,6 +19,7 @@ export default function Home() {
         <Milestone />
         <Programme />
         <Places />
+        <Requests />
         <Journey />
         <Palette />
         <Stay />

@@ -82,5 +82,14 @@ export const drawings = {
   ],
   "save-the-date": [
     "black"
+  ],
+  "wedding-bells": [
+    "black"
+  ],
+  "polaroids": [
+    "black"
+  ],
+  "confetti": [
+    "black"
   ]
 } as const;

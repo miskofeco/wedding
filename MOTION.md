@@ -136,6 +136,7 @@ Everything that moves today. Update this table when you add or change motion.
 | Milestone | The road above and below draws with scroll; the number counts up from n − 24 over 900ms; „Dnes“ and „Svoji“ stamp instead |
 | Programme | The road's drawn end sits at 70% of the viewport; each row reveals as it crosses that line: landmark stamps, text slides in from its side (90ms), playlist card from the other (180ms); phones from the right |
 | Places | Panels 120ms apart; text rises; each cropped drawing is pushed in from the edge that crops it (48px, centre 56px from below, 900ms). Desktop: drawings drift ±20px with scroll |
+| Requests | Each request reveals as one, 110ms after the previous: the drawing stamps and its colour settles, the „when“ pill, title and text rise 90–190ms behind. Hover on a request slips the colour under its drawing |
 | Map | Labels fade; church, barn and lanterns stamp in order; pins drop; north and scale last (750ms). The road draws just ahead of the car; the Vranov road draws in the second half; at the barn the pin pulses once and the barn lifts once. Legend items reveal 90ms apart |
 | Palette | Dabs reveal 60ms apart; a new colour pours into the garment from the top (520ms); auto-cycle every 4s until touched |
 | Photos | The camera stamps; the cards land like prints dropped on a table (from 1.04, 6px higher, 3° more tilt, 700ms stamp easing), the dropped middle one last |
