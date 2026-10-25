@@ -113,7 +113,10 @@ export function setAnswerInvite(id: string, inviteId: string | null) {
   });
 }
 
-/** Marks the answer deleted; the mirror removes it from the Sheet and then from the database. */
+/**
+ * Marks the answer deleted; the mirror removes it from the Sheet and then from
+ * the database, or from the database at once when no Sheet is connected.
+ */
 export function deleteAnswer(id: string) {
   return guarded("delete", async () => {
     const res = await (await db()).execute({
@@ -165,6 +168,13 @@ export async function mirrorAnswer(id: string): Promise<boolean> {
     console.error(`Answer mirror failed: ${err instanceof Error ? err.message : "unknown error"}`);
     return false;
   }
+}
+
+/** Removes every answer marked deleted. Only for when no Sheet is connected, so none waits for one. */
+export async function purgeDeletedAnswers(): Promise<number> {
+  if (!dbConfigured()) return 0;
+  const res = await (await db()).execute("DELETE FROM answers WHERE deleted_at IS NOT NULL");
+  return res.rowsAffected;
 }
 
 export async function pendingAnswerIds(): Promise<string[]> {
