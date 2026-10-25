@@ -30,12 +30,15 @@
 .soon__cal { position: relative; z-index: 2; }
 .soon__cal .cal__drop { position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 2 * var(--gutter)); padding: 12px; border-radius: var(--card-radius); background: var(--ground); }
 
-/* the road runs edge to edge along the bottom; the car (it faces left) parks left of centre, wheels on the line.
+/* the road runs edge to edge along the bottom; the car (it faces left) parks left of centre (far left on
+   desktop), wheels on the line.
    The drawing ends 25.7 % above the bottom of its square artboard, hence the negative margin; --under keeps
    that empty strip of the artboard inside the page, so it never adds a scrollbar. */
 .soon__road { --car: clamp(104px, 11vw, 160px); --under: max(clamp(16px, 2.6svh, 30px), calc(var(--car) * 0.26)); grid-row: -2; position: relative; justify-self: stretch; margin: 0 calc(-1 * var(--gutter)); padding-bottom: var(--under); }
 .soon__road::before { content: ""; position: absolute; left: 0; right: 0; bottom: var(--under); height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
 .soon__car { display: block; width: var(--car); margin-left: calc(40% - var(--car) / 2); margin-bottom: calc(var(--car) * -0.257 + 1px); }
+/* desktop: park well left of centre, clear of the open calendar menu */
+@media (min-width: 760px) { .soon__car { margin-left: calc(22% - var(--car) / 2); } }
 
 /* ===== motion (hidden states only under html.mo; reduced motion snaps through motion.css) ===== */
 html.mo .soon > :is(.soon__kicker, h1, .soon__date, .soon__where, .soon__intro, .soon__cal) { animation: rise 800ms var(--ease-out) both; }
