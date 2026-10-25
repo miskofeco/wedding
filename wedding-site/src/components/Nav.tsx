@@ -54,7 +54,7 @@ export function Nav({ mark }: { mark: string }) {
     return () => resize.disconnect();
   }, [current]);
 
-  // Escape closes the menu and returns focus to its button.
+  // Escape closes the menu and returns focus to its button; a press outside the panel closes it too.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -63,8 +63,16 @@ export function Nav({ mark }: { mark: string }) {
         menuButton.current?.focus();
       }
     };
+    const onDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+      if (!menuButton.current?.contains(target) && !document.getElementById("menu-panel")?.contains(target)) setOpen(false);
+    };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
   }, [open]);
 
   return (

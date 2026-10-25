@@ -296,7 +296,7 @@
 @media (hover: hover) { .cal__btn--apple:hover { background: #2b2b2b; color: #fff; } }
 .cal__logo { flex: none; width: 18px; height: 18px; }
 .cal__btn--apple .cal__logo { width: 17px; height: 20px; translate: 0 -1px; }
-.cal__other { padding: 4px 0; font-size: var(--text-caption); color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
+.cal__other { padding: 4px 0; scroll-margin-bottom: 24px; font-size: var(--text-caption); color: var(--ink-soft); text-decoration: underline; text-underline-offset: 3px; }
 @media (hover: hover) { .cal__other:hover { color: var(--ink); } }
 .cal[open] .cal__menu, .cal[open] .cal__other { animation: cal-open 260ms var(--ease-out); }
 @keyframes cal-open { from { opacity: 0; translate: 0 -6px; } to { opacity: 1; translate: 0 0; } }

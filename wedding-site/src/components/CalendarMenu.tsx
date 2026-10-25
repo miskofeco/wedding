@@ -2,12 +2,13 @@ import type { CSSProperties } from "react";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { getSiteContent } from "@/lib/content";
 import { AppleLogo, GoogleLogo } from "./CalendarLogos";
+import { Disclosure } from "./Disclosure";
 
 /** The butter „Pridať do kalendára“ disclosure: Google, Apple and an .ics for the rest. */
 export async function CalendarMenu({ className, style }: { className?: string; style?: CSSProperties }) {
   const calendarUrl = googleCalendarUrl(await getSiteContent());
   return (
-    <details className={["cal", className].filter(Boolean).join(" ")} style={style}>
+    <Disclosure className={["cal", className].filter(Boolean).join(" ")} style={style}>
       <summary className="btn cal__toggle">Pridať do kalendára</summary>
       <div className="cal__drop">
         <div className="cal__menu">
@@ -24,6 +25,6 @@ export async function CalendarMenu({ className, style }: { className?: string; s
           Outlook a iné kalendáre (.ics)
         </a>
       </div>
-    </details>
+    </Disclosure>
   );
 }
