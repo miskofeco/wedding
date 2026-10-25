@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { places } from "@/content";
+import { getSiteContent } from "@/lib/content";
 import type { Place } from "@/content/types";
 import { art } from "@/lib/art";
 import { Drawing } from "../Drawing";
@@ -46,7 +46,8 @@ function PlacePanel({ place, drawing }: { place: Place; drawing: string }) {
   );
 }
 
-export function Places() {
+export async function Places() {
+  const { places } = await getSiteContent();
   return (
     <section className="trip" id="miesta" aria-label="Miesta" data-rv-stagger="120">
       <PlacePanel place={places.church} drawing={art("church", "apricot")} />

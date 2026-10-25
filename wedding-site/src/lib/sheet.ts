@@ -1,17 +1,10 @@
-// Server-only client for the Google Sheet (google-sheet/Code.gs). Never import
-// this from a client component: it reads the shared secret.
-import type { RsvpAnswer } from "./rsvp";
-
-export interface StoredAnswer extends RsvpAnswer {
-  id: string;
-  submittedAt: string;
-  updatedAt: string;
-  /** "web" from the RSVP form, "admin" when added by hand. */
-  source: string;
-}
+// Server-only client for the Google Sheet mirror (google-sheet/Code.gs). Never
+// import this from a client component: it reads the shared secret.
 
 export type SheetResult<T> = { ok: true; data: T } | { ok: false; error: SheetError };
 export type SheetError = "not_configured" | "unreachable" | "rejected" | "not_found" | "invalid";
+/** The two tabs the script keeps: „Odpovede“ and „Pozvaní“. */
+export type SheetTable = "answers" | "invites";
 
 // Longer than Code.gs waits for its lock (8 s), so a slow write still reports back.
 const TIMEOUT_MS = 15_000;
@@ -61,50 +54,16 @@ async function call<T>(action: string, body: Record<string, unknown>, pick: (r: 
   }
 }
 
-const text = (v: unknown) => (typeof v === "string" ? v : "");
-
-/** One row as the script sent it, checked. A row broken by a hand edit is dropped instead of breaking /admin. */
-export function toStoredAnswer(row: unknown): StoredAnswer | null {
-  if (!row || typeof row !== "object") return null;
-  const r = row as Record<string, unknown>;
-  const id = text(r.id);
-  if (!id) return null;
-  const party = Array.isArray(r.party) ? r.party.map((p) => String(p)) : [];
-  const kids = Array.isArray(r.kids) ? r.kids : [];
-  return {
-    id,
-    submittedAt: text(r.submittedAt),
-    updatedAt: text(r.updatedAt),
-    source: text(r.source),
-    name: text(r.name),
-    attending: r.attending === true,
-    guests: typeof r.guests === "number" && Number.isFinite(r.guests) ? r.guests : 0,
-    party,
-    kids: party.map((_, i) => kids[i] === true),
-    dietary: text(r.dietary),
-    message: text(r.message),
-  };
+/** Writes the row with this id, or appends it. */
+export function sheetUpsert(table: SheetTable, row: { id: string } & Record<string, unknown>) {
+  return call("upsert", { table, row }, () => true);
 }
 
-/**
- * `submission` is the browser's key for this answer: the script stores an answer
- * with a key it has already seen only once, so a retry after a timeout can't
- * add a second row.
- */
-export function createAnswer(answer: RsvpAnswer, source: "web" | "admin" = "web", submission = "") {
-  return call("create", { answer, source, submission }, (r) => String(r.id ?? ""));
+export function sheetDelete(table: SheetTable, id: string) {
+  return call("delete", { table, id }, () => true);
 }
 
-export function listAnswers() {
-  return call("list", {}, (r) =>
-    Array.isArray(r.answers) ? r.answers.map(toStoredAnswer).filter((a): a is StoredAnswer => a !== null) : [],
-  );
-}
-
-export function updateAnswer(id: string, answer: RsvpAnswer) {
-  return call("update", { id, answer }, () => true);
-}
-
-export function deleteAnswer(id: string) {
-  return call("delete", { id }, () => true);
+/** Every row of a tab, as the script read it. Rows are unchecked: validate before use. */
+export function sheetList(table: SheetTable) {
+  return call("list", { table }, (r) => (Array.isArray(r.rows) ? (r.rows as unknown[]) : []));
 }

@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { requests, requestsIntro } from "@/content";
+import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
 import { Drawing } from "../Drawing";
 import { Tint } from "../Tint";
@@ -9,7 +9,8 @@ import { Tint } from "../Tint";
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
 
 /** A few friendly requests, told in the order of the day, between the places and the map that leads to them. */
-export function Requests() {
+export async function Requests() {
+  const { requests, requestsIntro } = await getSiteContent();
   return (
     <section className="asks" id="prosby" aria-labelledby="asks-h">
       <div className="wrap">

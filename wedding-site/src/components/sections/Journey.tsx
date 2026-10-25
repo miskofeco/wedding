@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { churchToBarn, churchToVranov, events, places, stays, toplaRiver } from "@/content";
+import { churchToBarn, churchToVranov, stays, toplaRiver } from "@/content";
+import { getSiteContent } from "@/lib/content";
 import type { Place, Stay } from "@/content/types";
 import { art } from "@/lib/art";
 import { formatKm } from "@/lib/format";
@@ -21,7 +22,8 @@ const SCALE_KM = 1;
  * address and the roads follow the real driving routes (see content/routes.ts).
  * Penzión Škorpión is 250 m from the church, so it gets a leader line.
  */
-export function Journey() {
+export async function Journey() {
+  const { events, places } = await getSiteContent();
   const { church, venue } = places;
   const ceremony = events[0];
   const project = projection(church.at, [428, 427], PX_PER_KM);

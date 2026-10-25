@@ -1,19 +1,22 @@
 "use server";
 
+import { after } from "next/server";
 import { headers } from "next/headers";
-import { rsvp } from "@/content";
+import { createAnswer } from "@/lib/answers";
+import { getSiteContent } from "@/lib/content";
 import { clientIp, createLimiter } from "@/lib/limit";
 import { isPastDeadline, parseRsvp, submissionKey, type RsvpState } from "@/lib/rsvp";
-import { createAnswer } from "@/lib/sheet";
+import { syncPending } from "@/lib/mirror";
 
 // A household sends one answer, maybe a retry or two; ten in ten minutes from one address is a script.
 const sends = createLimiter(10, 10 * 60 * 1000);
 
 /**
- * Validates an RSVP and stores it in the Google Sheet.
- * Reports "sent" only when the sheet confirms the row was written. Never logs the answer.
+ * Validates an RSVP and stores it in the database; a copy goes to the Google Sheet after the reply.
+ * Reports "sent" only when the database confirms the row was written. Never logs the answer.
  */
 export async function submitRsvp(_prev: RsvpState, form: FormData): Promise<RsvpState> {
+  const { rsvp } = await getSiteContent();
   if (isPastDeadline(rsvp.deadline)) return { status: "closed", errors: {}, values: {} };
 
   const parsed = parseRsvp(form);
@@ -33,5 +36,6 @@ export async function submitRsvp(_prev: RsvpState, form: FormData): Promise<Rsvp
   if (!result.ok) {
     return { status: result.error === "not_configured" ? "unavailable" : "failed", errors: {}, values: parsed.values };
   }
+  after(() => syncPending());
   return { status: "sent", errors: {}, values: { attending: parsed.values.attending } };
 }

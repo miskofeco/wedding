@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { places, rsvp, site } from "@/content";
+import { site } from "@/content";
 import { art } from "@/lib/art";
 import { googleCalendarUrl } from "@/lib/calendar";
+import { getSiteContent } from "@/lib/content";
 import { formatDayMonth } from "@/lib/format";
 import { isPastDeadline } from "@/lib/rsvp";
 import { Tint } from "@/components/Tint";
@@ -19,7 +20,9 @@ export const metadata: Metadata = {
 export const revalidate = 3600;
 
 /** The last stop of the invitation's road: a short cover, the answer in steps, the invitation beside it. */
-export default function RsvpPage() {
+export default async function RsvpPage() {
+  const content = await getSiteContent();
+  const { places, rsvp } = content;
   const closed = isPastDeadline(rsvp.deadline);
   const until = rsvp.deadline ? formatDayMonth(rsvp.deadline) : null;
   return (
@@ -51,7 +54,7 @@ export default function RsvpPage() {
                 </p>
               </div>
             ) : (
-              <RsvpForm contact={rsvp.contact} calendarUrl={googleCalendarUrl()} privacy={rsvp.privacy} />
+              <RsvpForm contact={rsvp.contact} calendarUrl={googleCalendarUrl(content)} privacy={rsvp.privacy} />
             )}
           </div>
 

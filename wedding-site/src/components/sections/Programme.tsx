@@ -1,11 +1,13 @@
 import type { CSSProperties } from "react";
-import { events, site } from "@/content";
+import { site } from "@/content";
+import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
 import { Drawing } from "../Drawing";
 import { Tint } from "../Tint";
 import { RouteTimeline } from "../RouteTimeline";
 
-export function Programme() {
+export async function Programme() {
+  const { events } = await getSiteContent();
   return (
     <section className="prog" id="program" aria-labelledby="prog-h">
       <header className="prog__head rv">

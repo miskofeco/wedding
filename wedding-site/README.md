@@ -1,6 +1,6 @@
 # Svadba Barbory a Michala — wedding site
 
-Next.js 16 (App Router, TypeScript) build of the locked design in `../DESIGN.md` (prototype v7). One page in Slovak at `/`, an RSVP form at `/rsvp`, and a private `/admin` for the couple, backed by a Google Sheet.
+Next.js 16 (App Router, TypeScript) build of the locked design in `../DESIGN.md` (prototype v7). One page in Slovak at `/`, an RSVP form at `/rsvp`, and a private `/admin` for the couple. Answers, the guest list and the edited content live in a libSQL database (Turso in production, a git-ignored file locally); answers and the guest list are mirrored to a Google Sheet.
 
 ## Run it
 
@@ -11,7 +11,7 @@ npm run build      # production build (checks the photos and masks exist first)
 npm run start      # serve the build
 npm run lint
 npm run typecheck
-npm test           # validation, session, calendar, Sheet client and Code.gs
+npm test           # validation, session, calendar, guest records and Code.gs
 ```
 
 GitHub Actions runs typecheck, lint and tests on every push (`.github/workflows/ci.yml`). It can't build, because the photos and masks are not in git; see Deploy.
@@ -20,7 +20,7 @@ Add `?static` to any URL to switch off motion (useful for screenshots).
 
 ## Where the facts go
 
-Every unconfirmed fact is `null` in `src/content/` and shows a Slovak placeholder („Čas upresníme“, „Adresu doplníme“). Fill these in as details arrive:
+Every unconfirmed fact is `null` in `src/content/` and shows a Slovak placeholder („Čas upresníme“, „Adresu doplníme“). The programme, „Pár prosieb“, the FAQ, the RSVP deadline and contact, and the ceremony and party times can also be edited in `/admin` → „Obsah webu“; those edits are stored in the database and override the files, which stay as the defaults („Vrátiť na pôvodný obsah“ goes back to them). Fill the rest in as details arrive:
 
 | What | File | Field |
 | --- | --- | --- |
@@ -43,23 +43,30 @@ Only add a `mapUrl` you have opened and checked. Hlinné has three churches, so 
 - **Add to calendar:** a Google Calendar link and `/svadba.ics` for Apple, Outlook and others, both built from `src/lib/calendar.ts`. The event is all-day until the ceremony time is set in `src/content/events.ts`, then it runs from the ceremony to 23:59. It includes both addresses and a reminder a week before. Set `NEXT_PUBLIC_SITE_URL` to add the site link to the description.
 - **Map:** `src/components/sections/Journey.tsx`. It's drawn and not to scale, but oriented from the real village coordinates. Its links use `mapUrl` from `src/content/places.ts`. Accommodation is linked to its section until places to stay are confirmed.
 
-## RSVP, Google Sheet and admin
+## RSVP, database, Google Sheet and admin
 
-Answers are stored in a Google Sheet through a small Apps Script (`google-sheet/Code.gs`). Follow `google-sheet/SETUP.md` once to create it and connect it.
+The **database** is the record: RSVP answers, the guest list („Pozvaní“) and the content edited in `/admin` (`src/lib/db.ts` creates the tables on first use). In production it is a Turso database added from the Vercel Marketplace (Storage → Turso), which sets `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`; traffic is TLS and Turso encrypts it at rest. Locally, with no `TURSO_DATABASE_URL`, the same SQL runs on `.data/svadba.db`, which is git-ignored; delete the folder to start over.
 
-- **Guests** answer at `/rsvp`. The server validates the answer and writes a row to the Sheet. The guest sees „Ďakujeme“ only when the Sheet confirms the row was written. If the Sheet isn't connected, the form says plainly that the answer was not received. On an error it keeps what they typed.
-- **You** sign in at `/admin` with `ADMIN_PASSWORD`. The page shows totals, households coming and not coming, number of guests, and a list for the kitchen with diets and allergies. It also has search, filters, edit and delete with a confirm step, and „Pridať odpoveď“ for answers received by phone. Every change goes straight to the Sheet, and edits made in the Sheet show up in `/admin` on reload.
-- **No duplicates:** the browser gives each answer a random key, and `Code.gs` stores an answer with a key it has already seen only once. A retry after a timeout returns the stored row instead of adding a second one.
-- **E-mail:** set the script property `NOTIFY_EMAIL` and every answer from the website sends a short e-mail (name, yes/no, number of guests). The details stay in the Sheet.
-- **Security:** the Sheet secret and admin password live only in server environment variables. `ADMIN_PASSWORD` must be at least 12 characters; use a random passphrase. The login cookie is HttpOnly, signed, limited to `/admin` and valid for a week. Changing `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` signs everyone out, so rotate either one if a device is lost. Every admin action checks the session again. Guest text is stored so the Sheet never runs it as a formula. Answers are never written to logs.
+The **Google Sheet** keeps a readable copy of the answers (tab „Odpovede“) and the guest list (tab „Pozvaní“) through a small Apps Script (`google-sheet/Code.gs`). Follow `google-sheet/SETUP.md` once to create it and connect it. Every write goes to the database first; the copy to the Sheet runs right after the reply, and a row the Sheet didn't take stays marked until the next sync („Synchronizovať“ in the admin sidebar). Edits made by hand in the Sheet are not read back.
+
+- **Guests** answer at `/rsvp`. The server validates the answer and stores it in the database. The guest sees „Ďakujeme“ only when the database confirms the row was written. If the database isn't connected, the form says plainly that the answer was not received. On an error it keeps what they typed.
+- **You** sign in at `/admin` with `ADMIN_PASSWORD`:
+  - **Prehľad:** guests coming (adults and children), reply rate against the guest list, households still to answer, days to the RSVP deadline, a chart of confirmed guests over time against the number invited, people per side (bride, groom, both), the latest answers, who hasn't replied, what is still missing on the site, and portions for the kitchen.
+  - **Odpovede:** a sortable, searchable table with filters (coming, not coming, diet, children, with a message, not matched to an invitation), a detail panel with edit, delete and invitation assignment, „Pridať odpoveď“ for answers received by phone, and CSV export.
+  - **Pozvaní:** the guest list, one row per household with expected headcount, side, group and contact. Answers are matched to invitations by name (any guest name equal to a name on exactly one invitation, ignoring case and diacritics), or by hand. Filter by status and side, paste a whole list at once („Vložiť zoznam“: „Novákovci; 4“ or „Ján Kováč, Eva Kováčová“ per line), and send a reminder: a ready message with the RSVP link to copy, or to open as SMS or e-mail, then mark the household as reminded.
+  - **Hostia a kuchyňa:** everyone coming, one row per person (adult or child, household, side, group), and the households with diets or allergies. Print it or download CSV (semicolon-separated for Slovak Excel).
+  - **Obsah webu:** editors for the programme (title, time or „Po obrade“, place, text, drawing and its two tint colours, playlist), „Pár prosieb“, the FAQ, and the deadline, contact and place times. „Uložiť a zverejniť“ rebuilds the guest pages on their next visit.
+- **No duplicates:** the browser gives each answer a random key, and the database stores an answer with a key it has already seen only once. A retry after a timeout returns the stored row instead of adding a second one.
+- **E-mail:** set the script property `NOTIFY_EMAIL` and every new answer from the website sends a short e-mail (name, yes/no, number of guests). The details stay in the Sheet.
+- **Security:** the database token, the Sheet secret and the admin password live only in server environment variables. All SQL uses parameters. `ADMIN_PASSWORD` must be at least 12 characters; use a random passphrase. The login cookie is HttpOnly, signed, limited to `/admin` and valid for a week. Changing `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` signs everyone out, so rotate either one if a device is lost. Every admin action and the CSV downloads check the session again. Guest text is stored so the Sheet never runs it as a formula, and CSV cells that start like a formula are prefixed. Answers are never written to logs.
 - **Limits:** failed logins are slowed and limited per address and overall, and RSVPs to ten per address in ten minutes. These counters live in each server instance, so also add the two Firewall rules under Deploy. The honeypot field quietly drops bot answers.
 - **Headers:** guest pages send a baseline Content Security Policy and HSTS (`next.config.ts`). `/admin` gets a strict per-request policy with a nonce (`src/proxy.ts`); the inline boot script (`src/lib/boot.ts`) is allowed by its hash, computed automatically.
-- After `deadline` in `src/content/rsvp.ts` the form closes and points to `contact`.
-- The fields (name, attending, number of guests, the name of every guest, diet, message) are a proposal. Each guest after the respondent needs a name; the Sheet keeps them one per line in „Mená hostí“, the respondent first, and each guest after the respondent is marked adult or child (column „Dospelý / dieťa“, same lines). Change them in `src/lib/rsvp.ts`, `src/components/RsvpForm.tsx`, `src/components/admin/AnswerEditor.tsx` and the columns in `google-sheet/Code.gs`.
+- After the deadline (set in `/admin` → „Obsah webu“ → „Termín a časy“, default `src/content/rsvp.ts`) the form closes and points to the contact.
+- The fields (name, attending, number of guests, the name of every guest, diet, message) are a proposal. Each guest after the respondent needs a name; the Sheet keeps them one per line in „Mená hostí“, the respondent first, and each guest after the respondent is marked adult or child (column „Dospelý / dieťa“, same lines). Change them in `src/lib/rsvp.ts`, `src/components/RsvpForm.tsx`, `src/components/admin/AnswerEditor.tsx`, the `answers` table in `src/lib/db.ts` and the columns in `google-sheet/Code.gs`.
 
 ### Try it locally without Google
 
-`npm run sheet:mock` runs the real `Code.gs` against an in-memory sheet. In `.env.local`:
+The database needs nothing: `npm run dev` creates `.data/svadba.db`. `npm run sheet:mock` runs the real `Code.gs` against an in-memory sheet. In `.env.local`:
 
 ```
 RSVP_SHEET_URL=http://localhost:8790
@@ -76,7 +83,7 @@ RSVP_SHEET_SECRET=dev-secret npm run sheet:mock
 npm run dev
 ```
 
-Plain HTTP to localhost is accepted only by the dev server. Production requires HTTPS. The mock forgets everything when stopped.
+Plain HTTP to localhost and a local database file are accepted only outside production. Production requires HTTPS and `TURSO_DATABASE_URL`. The mock forgets everything when stopped; the database file doesn't, so after restarting the mock press „Synchronizovať“ or expect only new changes in it.
 
 ## Drawings and photos
 
@@ -92,7 +99,7 @@ The photos and palette masks are not in git, so Vercel can't build from the repo
 Once:
 
 1. Create a project at vercel.com/new without connecting a repository, or run `npx vercel@63.1.2 link` in `wedding-site/` and follow the prompts. Log in first with `npx vercel@63.1.2 login`.
-2. Under Settings → Environment Variables add the five variables from `google-sheet/SETUP.md` for Production.
+2. Under Storage add a Turso database from the Marketplace and connect it to the project for Production (it adds `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`). Under Settings → Environment Variables add the five variables from `google-sheet/SETUP.md` for Production.
 3. Under Settings → General → Node.js Version choose 24.x (the same as `.nvmrc`).
 4. Under Firewall add two rate-limit rules: POST requests to `/admin/login`, 10 per IP per 15 minutes, and POST requests to `/rsvp`, 20 per IP per 10 minutes. Both deny when exceeded.
 5. Optional: add a custom domain under Settings → Domains.
@@ -107,21 +114,23 @@ npm run deploy     # pulls the settings, builds here, uploads the build to produ
 
 After the first deploy, submit one test RSVP, check it appears in `/admin` and in the Sheet, then delete it.
 
+The guest pages are static. The build reads the edited content from the production database (`vercel pull` brings the Turso variables), and saving in „Obsah webu“ rebuilds them on Vercel on the next visit, so content edits need no deploy.
+
 The site asks search engines not to index it (`robots: noindex`), because it is a private invitation.
 
 ## Structure
 
 ```
-src/app/            root layout (fonts, metadata), error pages; (site)/ public page and rsvp/; admin/ page, login, actions
+src/app/            root layout (fonts, metadata), error pages; (site)/ public page and rsvp/; admin/ (app)/ pages, login, actions, export/ CSV
 src/proxy.ts        the strict Content Security Policy for /admin
 src/components/     Nav, RouteTimeline (the road), RevealObserver, Tint, Drawing, RsvpForm, admin/
-src/lib/            rsvp (validation), sheet (Google Sheet client), auth + session (admin login), limit, csp, ics, art, format
+src/lib/            db (libSQL), answers + invites (records, Sheet mirror), mirror (sync), records (matching, totals, CSV), content + site-content (editable content), sheet (Google Sheet client), rsvp (validation), auth + session (admin login), limit, csp, ics, art, format
 google-sheet/       Code.gs (Apps Script) and SETUP.md
 scripts/            sync-art, sync-fills, prepare-photos, check-assets, sheet-mock + sheet-fake
 tests/              node --test suites
 src/components/sections/  Hero, Programme, Places, Requests, Palette, Photos, Stay, Faq, RsvpCta, Closing
 src/content/        all words and facts, typed
-src/styles/         tokens → base → components → sections → motion on every page; rsvp.css on /rsvp and /admin, admin.css on /admin
+src/styles/         tokens → base → components → sections → motion on every page; rsvp.css on /rsvp, admin.css on /admin
 ```
 
 Without JavaScript every section is visible. The road between programme landmarks needs JavaScript, and the RSVP form still submits. With reduced motion everything appears in place.

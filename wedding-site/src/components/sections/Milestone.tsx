@@ -2,12 +2,14 @@ import type { CSSProperties } from "react";
 import { site } from "@/content";
 import { art } from "@/lib/art";
 import { googleCalendarUrl } from "@/lib/calendar";
+import { getSiteContent } from "@/lib/content";
 import { AppleLogo, GoogleLogo } from "../CalendarLogos";
 import { Countdown } from "../Countdown";
 import { Tint } from "../Tint";
 
 /** Where the road leaves the hero: a milestone with the days left and a way to save the date. */
-export function Milestone() {
+export async function Milestone() {
+  const calendarUrl = googleCalendarUrl(await getSiteContent());
   return (
     <section className="milestone" aria-label="Odpočítavanie do svadby">
       <div className="milestone__stone">
@@ -16,7 +18,7 @@ export function Milestone() {
         <details className="cal rv" style={{ "--d": "160ms" } as CSSProperties}>
           <summary className="btn cal__toggle">Pridať do kalendára</summary>
           <div className="cal__menu">
-            <a className="btn cal__btn cal__btn--google" href={googleCalendarUrl()} target="_blank" rel="noopener noreferrer">
+            <a className="btn cal__btn cal__btn--google" href={calendarUrl} target="_blank" rel="noopener noreferrer">
               <GoogleLogo />
               Google Kalendár<span className="sr-only"> (otvorí sa v novom okne)</span>
             </a>

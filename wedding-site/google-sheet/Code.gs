@@ -1,36 +1,65 @@
 /**
- * RSVP store for the wedding site. Paste into Extensions → Apps Script of the
- * Google Sheet, set the script property RSVP_SECRET, and deploy as a web app
- * (Execute as: Me, Who has access: Anyone). See SETUP.md.
+ * Google Sheet mirror for the wedding site. Paste into Extensions → Apps Script
+ * of the Google Sheet, set the script property RSVP_SECRET, and deploy as a web
+ * app (Execute as: Me, Who has access: Anyone). See SETUP.md.
  *
- * Every request is a JSON POST: { secret, action, ... }.
+ * The site's database is the record; this script keeps a readable copy of the
+ * RSVP answers (tab „Odpovede“) and the guest list (tab „Pozvaní“) in the Sheet.
+ *
+ * Every request is a JSON POST: { secret, action, table, ... }.
+ *   upsert { table, row }  writes the row with this id, or appends it
+ *   delete { table, id }   removes the row with this id
+ *   list   { table }       returns every row
+ * `table` is "answers" (the default) or "invites".
  * Answers: { ok: true, ... } or { ok: false, error }.
  * The site only ever talks to this script from its server; the secret never
  * reaches a browser.
  *
  * Optional script property NOTIFY_EMAIL: an address that gets a short e-mail
- * (name, yes/no, number of guests) for every answer sent from the website.
+ * (name, yes/no, number of guests) for every new answer sent from the website.
  */
 
-var SHEET_NAME = 'Odpovede';
-// Column order in the sheet. Headers are Slovak for the couple; keys are for the site.
-var COLUMNS = [
-  { key: 'id', header: 'ID' },
-  { key: 'submittedAt', header: 'Prijaté' },
-  { key: 'updatedAt', header: 'Upravené' },
-  { key: 'name', header: 'Meno' },
-  { key: 'attending', header: 'Príde' },
-  { key: 'guests', header: 'Počet hostí' },
-  { key: 'party', header: 'Mená hostí' },
-  { key: 'dietary', header: 'Strava a alergie' },
-  { key: 'message', header: 'Odkaz' },
-  { key: 'source', header: 'Zdroj' },
-  // Appended last so sheets created before these columns keep their layout.
-  { key: 'kids', header: 'Dospelý / dieťa' },
-  // The browser's key for one answer: a retry with the same key returns the stored row instead of adding one.
-  { key: 'submission', header: 'Kľúč odoslania' }
-];
-var LIMITS = { name: 100, dietary: 500, message: 1000, guestsMax: 10 };
+var LIMITS = { name: 100, dietary: 500, message: 1000, guestsMax: 10, members: 20, contact: 200, note: 500 };
+
+// Column order per tab. Headers are Slovak for the couple; keys are for the site.
+// New columns are appended last so existing sheets keep their layout.
+var TABLES = {
+  answers: {
+    sheet: 'Odpovede',
+    columns: [
+      { key: 'id', header: 'ID' },
+      { key: 'submittedAt', header: 'Prijaté' },
+      { key: 'updatedAt', header: 'Upravené' },
+      { key: 'name', header: 'Meno' },
+      { key: 'attending', header: 'Príde' },
+      { key: 'guests', header: 'Počet hostí' },
+      { key: 'party', header: 'Mená hostí' },
+      { key: 'dietary', header: 'Strava a alergie' },
+      { key: 'message', header: 'Odkaz' },
+      { key: 'source', header: 'Zdroj' },
+      { key: 'kids', header: 'Dospelý / dieťa' },
+      { key: 'submission', header: 'Kľúč odoslania' },
+      { key: 'invite', header: 'Pozvánka' }
+    ]
+  },
+  invites: {
+    sheet: 'Pozvaní',
+    columns: [
+      { key: 'id', header: 'ID' },
+      { key: 'createdAt', header: 'Pridané' },
+      { key: 'updatedAt', header: 'Upravené' },
+      { key: 'household', header: 'Domácnosť' },
+      { key: 'members', header: 'Mená' },
+      { key: 'expected', header: 'Očakávaný počet' },
+      { key: 'side', header: 'Strana' },
+      { key: 'group', header: 'Skupina' },
+      { key: 'contact', header: 'Kontakt' },
+      { key: 'note', header: 'Poznámka' },
+      { key: 'remindedAt', header: 'Pripomenuté' }
+    ]
+  }
+};
+var SIDES = { bride: 'nevesta', groom: 'ženích', both: 'spoloční' };
 
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -38,13 +67,14 @@ function doPost(e) {
     var req = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     var secret = PropertiesService.getScriptProperties().getProperty('RSVP_SECRET');
     if (!secret || !sameText(req.secret, secret)) return reply({ ok: false, error: 'unauthorized' });
+    var table = TABLES[req.table || 'answers'];
+    if (!table) return reply({ ok: false, error: 'unknown_table' });
     // Shorter than the site's 15 s timeout, so a busy moment ends in an answer, not a timeout.
     lock.waitLock(8000);
     switch (req.action) {
-      case 'create': return reply(create(req.answer, req.source === 'admin' ? 'admin' : 'web', req.submission));
-      case 'list': return reply({ ok: true, answers: list() });
-      case 'update': return reply(update(req.id, req.answer));
-      case 'delete': return reply(remove(req.id));
+      case 'upsert': return reply(upsert(req.table || 'answers', req.row));
+      case 'list': return reply({ ok: true, rows: list(table) });
+      case 'delete': return reply(remove(table, req.id));
       default: return reply({ ok: false, error: 'unknown_action' });
     }
   } catch (err) {
@@ -58,89 +88,76 @@ function doGet() {
   return reply({ ok: false, error: 'use_post' });
 }
 
-function create(answer, source, submission) {
-  var a = clean(answer);
-  if (!a) return { ok: false, error: 'invalid' };
-  var key = typeof submission === 'string' && /^[0-9a-f-]{36}$/.test(submission) ? submission : '';
-  if (key) {
-    var stored = findRowBy('submission', key);
-    if (stored) return { ok: true, id: stored.answer.id };
+function upsert(name, input) {
+  var table = TABLES[name];
+  var row = name === 'answers' ? cleanAnswer(input) : cleanInvite(input);
+  if (!row) return { ok: false, error: 'invalid' };
+  var found = findRow(table, row.id);
+  if (found) {
+    sheet(table).getRange(found, 1, 1, table.columns.length).setValues([toRow(table, row)]);
+  } else {
+    sheet(table).appendRow(toRow(table, row));
+    if (name === 'answers' && row.source === 'web') notify(row);
   }
-  var now = new Date().toISOString();
-  var row = { id: Utilities.getUuid(), submittedAt: now, updatedAt: now, source: source, submission: key };
-  for (var k in a) row[k] = a[k];
-  sheet().appendRow(toRow(row));
-  if (source === 'web') notify(row);
-  return { ok: true, id: row.id };
+  return { ok: true };
 }
 
-function list() {
-  var values = sheet().getDataRange().getValues();
+function list(table) {
+  var values = sheet(table).getDataRange().getValues();
   var out = [];
   for (var i = 1; i < values.length; i++) {
     if (values[i][0] === '' || values[i][0] === null) continue;
-    out.push(fromRow(values[i]));
+    out.push(fromRow(table, values[i]));
   }
   return out;
 }
 
-function update(id, answer) {
-  var a = clean(answer);
-  if (!a) return { ok: false, error: 'invalid' };
-  var found = findRowBy('id', id);
+function remove(table, id) {
+  var found = findRow(table, id);
   if (!found) return { ok: false, error: 'not_found' };
-  var row = found.answer;
-  for (var k in a) row[k] = a[k];
-  row.updatedAt = new Date().toISOString();
-  sheet().getRange(found.index, 1, 1, COLUMNS.length).setValues([toRow(row)]);
-  return { ok: true };
-}
-
-function remove(id) {
-  var found = findRowBy('id', id);
-  if (!found) return { ok: false, error: 'not_found' };
-  sheet().deleteRow(found.index);
+  sheet(table).deleteRow(found);
   return { ok: true };
 }
 
 // ---- helpers ----
 
-function sheet() {
+function sheet(table) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sh = ss.getSheetByName(SHEET_NAME);
+  var sh = ss.getSheetByName(table.sheet);
+  var n = table.columns.length;
   if (!sh) {
-    sh = ss.insertSheet(SHEET_NAME);
-    plainText(sh);
-    sh.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS.map(function (c) { return c.header; })]);
+    sh = ss.insertSheet(table.sheet);
+    plainText(sh, n);
+    sh.getRange(1, 1, 1, n).setValues([table.columns.map(function (c) { return c.header; })]);
     sh.setFrozenRows(1);
   } else {
     // A sheet from before the last columns existed (or one made by hand): add the missing headers.
-    var headers = sh.getRange(1, 1, 1, COLUMNS.length).getValues()[0];
+    var headers = sh.getRange(1, 1, 1, n).getValues()[0];
     var added = false;
-    COLUMNS.forEach(function (c, i) {
+    table.columns.forEach(function (c, i) {
       if (String(headers[i]) === '') {
         sh.getRange(1, i + 1, 1, 1).setValues([[c.header]]);
         added = true;
       }
     });
-    if (added) plainText(sh);
+    if (added) plainText(sh, n);
   }
   return sh;
 }
 
 // Keep every column plain text, so Sheets never reads guest text as a formula or a date.
-function plainText(sh) {
-  sh.getRange(1, 1, sh.getMaxRows(), COLUMNS.length).setNumberFormat('@');
+function plainText(sh, n) {
+  sh.getRange(1, 1, sh.getMaxRows(), n).setNumberFormat('@');
 }
 
-function findRowBy(key, value) {
-  if (typeof value !== 'string' || value === '') return null;
-  var col = COLUMNS.map(function (c) { return c.key; }).indexOf(key);
-  var values = sheet().getDataRange().getValues();
+/** The sheet row number (1-based) holding this id, or 0. */
+function findRow(table, id) {
+  if (typeof id !== 'string' || id === '') return 0;
+  var values = sheet(table).getDataRange().getValues();
   for (var i = 1; i < values.length; i++) {
-    if (String(values[i][col]) === value) return { index: i + 1, answer: fromRow(values[i]) };
+    if (String(values[i][0]) === id) return i + 1;
   }
-  return null;
+  return 0;
 }
 
 // Compares the whole string every time, so the reply time says nothing about how much of a guess was right.
@@ -151,21 +168,29 @@ function sameText(a, b) {
   return diff === 0;
 }
 
-// A short e-mail per web answer, if NOTIFY_EMAIL is set. Only the summary: the details stay in the Sheet.
+// A short e-mail per new web answer, if NOTIFY_EMAIL is set. Only the summary: the details stay in the Sheet.
 // A failed e-mail never fails the answer.
 function notify(row) {
   var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
   if (!to) return;
   try {
     var summary = row.attending ? 'príde, ' + row.guests + (row.guests === 1 ? ' osoba' : row.guests <= 4 ? ' osoby' : ' osôb') : 'nepríde';
-    MailApp.sendEmail(to, 'Nová odpoveď: ' + row.name, row.name + ' ' + summary + '.\n\nVšetko je v tabuľke ' + SHEET_NAME + '.');
+    MailApp.sendEmail(to, 'Nová odpoveď: ' + row.name, row.name + ' ' + summary + '.\n\nVšetko je v tabuľke ' + TABLES.answers.sheet + '.');
   } catch (err) {
     // Quota or permission problem: the row is already stored.
   }
 }
 
+function meta(r, row) {
+  var id = text(r.id, 64);
+  if (!id) return null;
+  row.id = id;
+  row.updatedAt = text(r.updatedAt, 40);
+  return row;
+}
+
 // Validates again here, so the sheet stays clean even if called directly.
-function clean(a) {
+function cleanAnswer(a) {
   if (!a || typeof a !== 'object') return null;
   var name = text(a.name, LIMITS.name);
   if (name.length < 2) return null;
@@ -185,7 +210,11 @@ function clean(a) {
       kids.push(i > 0 && Array.isArray(a.kids) && a.kids[i] === true);
     }
   }
-  return {
+  return meta(a, {
+    submittedAt: text(a.submittedAt, 40),
+    source: a.source === 'admin' ? 'admin' : 'web',
+    submission: text(a.submission, 64),
+    invite: text(a.invite, 64),
     name: name,
     attending: attending,
     guests: guests,
@@ -193,7 +222,26 @@ function clean(a) {
     kids: kids,
     dietary: attending ? text(a.dietary, LIMITS.dietary) : '',
     message: text(a.message, LIMITS.message)
-  };
+  });
+}
+
+function cleanInvite(v) {
+  if (!v || typeof v !== 'object') return null;
+  var household = text(v.household, LIMITS.name);
+  var expected = Number(v.expected);
+  if (household.length < 2 || !(expected >= 1 && expected <= LIMITS.guestsMax * 2) || Math.floor(expected) !== expected) return null;
+  var members = Array.isArray(v.members) ? v.members.slice(0, LIMITS.members).map(function (m) { return text(m, LIMITS.name); }).filter(String) : [];
+  return meta(v, {
+    createdAt: text(v.createdAt, 40),
+    household: household,
+    members: members,
+    expected: expected,
+    side: SIDES[v.side] ? v.side : 'both',
+    group: text(v.group, 60),
+    contact: text(v.contact, LIMITS.contact),
+    note: text(v.note, LIMITS.note),
+    remindedAt: text(v.remindedAt, 40)
+  });
 }
 
 function text(v, max) {
@@ -206,30 +254,38 @@ function safe(v) {
   return /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
 }
 
-function toRow(a) {
-  return COLUMNS.map(function (c) {
-    if (c.key === 'attending') return a.attending ? 'áno' : 'nie';
-    if (c.key === 'guests') return String(a.guests);
+function toRow(table, a) {
+  return table.columns.map(function (c) {
+    var v = a[c.key];
+    if (c.key === 'attending') return v ? 'áno' : 'nie';
+    if (c.key === 'guests' || c.key === 'expected') return String(v);
+    if (c.key === 'side') return SIDES[v];
     // One name per line in the cell.
-    if (c.key === 'party') return safe((a.party || []).join('\n'));
+    if (c.key === 'party' || c.key === 'members') return safe((v || []).join('\n'));
     // Same lines as the names: dospelý or dieťa.
-    if (c.key === 'kids') return (a.kids || []).map(function (k) { return k ? 'dieťa' : 'dospelý'; }).join('\n');
-    return safe(a[c.key] === undefined ? '' : a[c.key]);
+    if (c.key === 'kids') return (v || []).map(function (k) { return k ? 'dieťa' : 'dospelý'; }).join('\n');
+    return safe(v === undefined ? '' : v);
   });
 }
 
-function fromRow(r) {
+function fromRow(table, r) {
   var a = {};
-  COLUMNS.forEach(function (c, i) {
+  table.columns.forEach(function (c, i) {
     var v = r[i];
     a[c.key] = v instanceof Date ? v.toISOString() : String(v === null || v === undefined ? '' : v);
   });
-  a.attending = a.attending === 'áno';
-  a.guests = Number(a.guests) || 0;
-  a.party = a.party === '' ? [] : a.party.split('\n');
-  // Rows from before the column existed have no flags: everyone is an adult.
-  var flags = a.kids === '' ? [] : a.kids.split('\n');
-  a.kids = a.party.map(function (_, i) { return flags[i] === 'dieťa'; });
+  if (table === TABLES.answers) {
+    a.attending = a.attending === 'áno';
+    a.guests = Number(a.guests) || 0;
+    a.party = a.party === '' ? [] : a.party.split('\n');
+    // Rows from before the column existed have no flags: everyone is an adult.
+    var flags = a.kids === '' ? [] : a.kids.split('\n');
+    a.kids = a.party.map(function (_, i) { return flags[i] === 'dieťa'; });
+  } else {
+    a.expected = Number(a.expected) || 0;
+    a.members = a.members === '' ? [] : a.members.split('\n');
+    a.side = Object.keys(SIDES).filter(function (k) { return SIDES[k] === a.side; })[0] || 'both';
+  }
   return a;
 }
 

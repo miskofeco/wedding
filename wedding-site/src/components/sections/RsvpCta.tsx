@@ -1,11 +1,12 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { rsvp } from "@/content";
+import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
 import { formatDayMonth } from "@/lib/format";
 import { Drawing } from "../Drawing";
 
-export function RsvpCta() {
+export async function RsvpCta() {
+  const { rsvp } = await getSiteContent();
   return (
     // The band reveals as one: the envelope slides in from its cropped corner, the rose follows, the text rises.
     <section className="rsvp" id="rsvp" aria-labelledby="rsvp-h" data-rv-group="" data-rv-threshold="0.25">

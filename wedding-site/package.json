@@ -18,6 +18,7 @@
     "sheet:mock": "node scripts/sheet-mock.mjs"
   },
   "dependencies": {
+    "@libsql/client": "0.18.0",
     "next": "16.4.3",
     "react": "19.3.1",
     "react-dom": "19.3.1"

@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { faq } from "@/content";
+import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
 import { Drawing } from "../Drawing";
 
-export function Faq() {
+export async function Faq() {
+  const { faq } = await getSiteContent();
   return (
     <section className="faq" id="otazky" aria-labelledby="faq-h">
       <div className="wrap">

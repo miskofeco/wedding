@@ -1,6 +1,9 @@
 // One source for the "add to calendar" event: the Google link and the .ics file.
-import { events, places, site } from "@/content";
+import { site } from "@/content";
+import type { SiteContent } from "./content";
 import { escapeText, fold } from "./ics";
+
+type Content = Pick<SiteContent, "events" | "places">;
 
 /** Public site address for the event description, e.g. https://svadba.example.sk (optional). */
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "") || null;
@@ -20,26 +23,27 @@ const toUtcStamp = (hhmm: string) => {
   return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 };
 
-/** The ceremony time once confirmed in content/events.ts; until then the event is all-day. */
-const start = events[0]?.time ?? null;
+/** The event from the current content: timed from the ceremony once its time is set, all-day until then. */
+export function calendarEvent({ events, places }: Content) {
+  const start = events[0]?.time ?? null;
+  return {
+    title: site.calendarTitle,
+    // The day starts at the church, so that is the event's location; the barn is in the description.
+    location: [places.church.name ?? "Kostol v Hlinnom", places.church.address ?? "Hlinné"].join(", "),
+    description: [
+      `Obrad: ${[places.church.name ?? "kostol v Hlinnom", places.church.address].filter(Boolean).join(", ")}.`,
+      `Oslava: ${[places.venue.name ?? "Stodola Zlatník", places.venue.address].filter(Boolean).join(", ")}.`,
+      siteUrl ? `Program, mapa a potvrdenie účasti: ${siteUrl}` : "Program a mapu nájdete na pozvánke.",
+    ].join(" "),
+    allDay: start === null,
+    // All-day: the date and the next day (end is exclusive). Timed: ceremony until 23:59.
+    startStamp: start ? toUtcStamp(start) : ymd,
+    endStamp: start ? toUtcStamp("23:59") : nextDay,
+  };
+}
 
-export const calendarEvent = {
-  title: site.calendarTitle,
-  // The day starts at the church, so that is the event's location; the barn is in the description.
-  location: [places.church.name ?? "Kostol v Hlinnom", places.church.address ?? "Hlinné"].join(", "),
-  description: [
-    `Obrad: ${[places.church.name ?? "kostol v Hlinnom", places.church.address].filter(Boolean).join(", ")}.`,
-    `Oslava: ${[places.venue.name ?? "Stodola Zlatník", places.venue.address].filter(Boolean).join(", ")}.`,
-    siteUrl ? `Program, mapa a potvrdenie účasti: ${siteUrl}` : "Program a mapu nájdete na pozvánke.",
-  ].join(" "),
-  allDay: start === null,
-  // All-day: the date and the next day (end is exclusive). Timed: ceremony until 23:59.
-  startStamp: start ? toUtcStamp(start) : ymd,
-  endStamp: start ? toUtcStamp("23:59") : nextDay,
-};
-
-export function googleCalendarUrl(): string {
-  const e = calendarEvent;
+export function googleCalendarUrl(content: Content): string {
+  const e = calendarEvent(content);
   const params = new URLSearchParams({
     action: "TEMPLATE",
     text: e.title,
@@ -51,8 +55,8 @@ export function googleCalendarUrl(): string {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-export function icsFile(now = new Date()): string {
-  const e = calendarEvent;
+export function icsFile(content: Content, now = new Date()): string {
+  const e = calendarEvent(content);
   const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const lines = [
     "BEGIN:VCALENDAR",
