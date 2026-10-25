@@ -24,12 +24,13 @@ export async function Programme() {
             <li className="ev" key={e.id} data-rv-group="" data-rv-margin="0px 0px -30% 0px" data-rv-threshold="0">
               <div className={`ev__txt rv ${i % 2 ? "rv--right" : "rv--left"}`} style={{ "--d": "90ms" } as CSSProperties}>
                 <h3>{e.title}</h3>
+                {/* Without a time the lead's „Časy doplníme“ speaks for every row; only a relative time is shown. */}
                 {e.time ? (
                   <p className="ev__time">
                     <time dateTime={`${site.date}T${e.time}`}>{e.time}</time>
                   </p>
                 ) : (
-                  <p className="ev__time ev__time--pending">{e.relativeTime ?? "Čas upresníme"}</p>
+                  e.relativeTime && <p className="ev__time ev__time--pending">{e.relativeTime}</p>
                 )}
                 <p className="ev__place">{e.place}</p>
                 <p className="ev__desc">{e.description}</p>

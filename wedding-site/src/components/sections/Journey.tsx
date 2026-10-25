@@ -163,7 +163,7 @@ export async function Journey() {
               {church.name ?? "Kostol"}
               {church.address && <span className="journey__addr">{church.address}</span>}
             </p>
-            <p className="journey__when">Obrad · {ceremony?.time ?? "čas upresníme"}</p>
+            <p className="journey__when">Obrad{ceremony?.time && ` · ${ceremony.time}`}</p>
             <a className="link" href={mapHref(church)} target="_blank" rel="noopener noreferrer">
               {mapLabel(church, "ku kostolu")}
               <span className="sr-only"> (otvorí sa v novom okne)</span>

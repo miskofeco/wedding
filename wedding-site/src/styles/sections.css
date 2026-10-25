@@ -86,7 +86,7 @@
 .ev__playlist p { font-size: var(--text-small); }
 .ev__playlist-btn { --c: var(--sage); --btn-h: 46px; margin-top: 4px; padding: 12px 20px 12px 16px; font-size: var(--text-small); white-space: nowrap; }
 .ev__playlist-logo { flex: none; width: 20px; height: 20px; }
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .ev { grid-template-columns: 104px 1fr; align-items: start; gap: 0 16px; padding: 20px 0; }
   .ev__playlist, .ev:nth-child(odd) .ev__playlist, .ev:nth-child(even) .ev__playlist { grid-column: 2; grid-row: 2; justify-self: start; margin-top: 14px; padding: 18px 20px; }
   .ev__mark, .ev:nth-child(odd) .ev__mark, .ev:nth-child(even) .ev__mark { grid-column: 1; grid-row: 1; align-self: start; transform: none; }
@@ -99,6 +99,7 @@
 .panel { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 24px; overflow: hidden; padding: clamp(28px, 4vw, 56px); background: var(--c, var(--ivory)); }
 .panel h3 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.6rem); line-height: 0.94; letter-spacing: -0.025em; }
 .panel__sub { max-width: 30ch; margin-top: 12px; }
+.panel__line { display: block; }
 /* --px (scroll drift) and --lift (hover) are animated in motion.css */
 .panel__art { position: absolute; right: -18%; bottom: -8%; width: min(84%, 480px); pointer-events: none; transform: translateY(calc(var(--px, 0px) + var(--lift, 0px))); }
 .panel__foot { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; font-size: var(--text-caption); }

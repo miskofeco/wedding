@@ -97,8 +97,8 @@ html.js .milestone__num--word { transition: scale var(--t-stamp) var(--ease-stam
 html.mo:not(.land) .milestone__count:not(.in):has(.milestone__num--word) { translate: none; }
 html.mo:not(.land) .milestone__count:not(.in) .milestone__num--word { scale: 1.06; rotate: -2deg; }
 
-/* ===== programme: text slides in from its side; on phones everything comes from the right ===== */
-@media (max-width: 760px) {
+/* ===== programme: text slides in from its side; up to 900 px everything comes from the right ===== */
+@media (max-width: 900px) {
   html.mo:not(.land) .ev .rv--left:not(.in) { translate: var(--rv-x) 0; }
 }
 
