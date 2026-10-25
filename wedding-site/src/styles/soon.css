@@ -3,7 +3,7 @@
    along the bottom edge. Motion: text rises, drawings stamp and their colour settles (as in the hero), the road
    draws in from the right, the car drives in after it and brakes; then the road marches under the parked car, the one loop. */
 
-.soon { position: relative; display: grid; grid-template-rows: minmax(16px, 1fr) repeat(7, auto) minmax(28px, 1fr) auto; justify-items: center; min-height: 100svh; overflow: clip; padding: 0 var(--gutter); text-align: center; }
+.soon { position: relative; display: grid; grid-template-rows: minmax(16px, 1fr) repeat(7, auto) minmax(28px, 1fr) auto; justify-items: center; min-height: 100svh; overflow-x: clip; padding: 0 var(--gutter); text-align: center; }
 .soon::before { content: ""; }
 
 .soon__art { width: clamp(140px, min(54vw, 28svh), 360px); }
@@ -22,13 +22,19 @@
 .soon__kicker { margin-top: clamp(6px, 1.4svh, 16px); font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(1.05rem, 1rem + 0.45vw, 1.4rem); }
 .soon h1 { font-size: clamp(2.8rem, min(1rem + 11vw, 12svh), 8.5rem); margin: 0.06em 0 0.12em; max-width: 14ch; }
 .soon__date { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.3rem, min(1rem + 2vw, 4.6svh), 2.4rem); line-height: 1.05; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; margin-bottom: 0.4em; }
-.soon__where { color: var(--ink-soft); font-size: clamp(0.9rem, 0.9rem + 0.3vw, 1.1rem); }
+.soon__where { max-width: 52ch; color: var(--ink-soft); font-size: clamp(0.9rem, 0.9rem + 0.3vw, 1.1rem); text-wrap: balance; }
 .soon__intro { max-width: 38ch; margin: clamp(10px, 2.2svh, 22px) 0 clamp(16px, 3svh, 28px); font-size: clamp(1rem, min(1rem + 0.4vw, 2.5svh), 1.25rem); text-wrap: pretty; }
 
+/* the calendar opens over the page instead of pushing it taller, so nothing above it moves; on a short
+   screen it may hang below the fold (the page clips sideways only), and the page scrolls to it */
+.soon__cal { position: relative; z-index: 2; }
+.soon__cal .cal__drop { position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); display: grid; justify-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 2 * var(--gutter)); padding: 12px; border-radius: var(--card-radius); background: var(--ground); }
+
 /* the road runs edge to edge along the bottom; the car (it faces left) parks left of centre, wheels on the line.
-   The drawing ends 25.7 % above the bottom of its square artboard, hence the negative margin. */
-.soon__road { --car: clamp(104px, 11vw, 160px); grid-row: -2; position: relative; justify-self: stretch; margin: 0 calc(-1 * var(--gutter)); padding-bottom: clamp(16px, 2.6svh, 30px); }
-.soon__road::before { content: ""; position: absolute; left: 0; right: 0; bottom: clamp(16px, 2.6svh, 30px); height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
+   The drawing ends 25.7 % above the bottom of its square artboard, hence the negative margin; --under keeps
+   that empty strip of the artboard inside the page, so it never adds a scrollbar. */
+.soon__road { --car: clamp(104px, 11vw, 160px); --under: max(clamp(16px, 2.6svh, 30px), calc(var(--car) * 0.26)); grid-row: -2; position: relative; justify-self: stretch; margin: 0 calc(-1 * var(--gutter)); padding-bottom: var(--under); }
+.soon__road::before { content: ""; position: absolute; left: 0; right: 0; bottom: var(--under); height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
 .soon__car { display: block; width: var(--car); margin-left: calc(40% - var(--car) / 2); margin-bottom: calc(var(--car) * -0.257 + 1px); }
 
 /* ===== motion (hidden states only under html.mo; reduced motion snaps through motion.css) ===== */

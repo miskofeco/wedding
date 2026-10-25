@@ -45,7 +45,7 @@
 }
 .hero h1 { font-size: clamp(3rem, min(1rem + 14vw, 14.5svh), 11rem); margin: clamp(0px, 0.8svh, 12px) 0 0.14em; max-width: 14ch; }
 .hero__date { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.35rem, min(1rem + 2.2vw, 5svh), 2.8rem); line-height: 1.05; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; margin-bottom: 0.4em; }
-.hero__where { color: var(--ink-soft); font-size: clamp(0.9rem, 0.9rem + 0.3vw, 1.1rem); margin-bottom: clamp(8px, 1.8svh, 18px); }
+.hero__where { max-width: 52ch; color: var(--ink-soft); font-size: clamp(0.9rem, 0.9rem + 0.3vw, 1.1rem); text-wrap: balance; margin-bottom: clamp(8px, 1.8svh, 18px); }
 .hero__intro { max-width: 40ch; margin-bottom: clamp(14px, 3svh, 28px); font-size: clamp(1rem, min(1rem + 0.45vw, 2.6svh), 1.3rem); text-wrap: pretty; }
 .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; }
 @media (max-width: 760px) {
@@ -285,6 +285,8 @@
 .cal__toggle::-webkit-details-marker { display: none; }
 .cal__toggle::after { content: ""; width: 8px; height: 8px; margin-left: 2px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; translate: 0 -3px; rotate: 45deg; transition: rotate var(--t-hover) var(--ease-out), translate var(--t-hover) var(--ease-out); }
 .cal[open] .cal__toggle::after { rotate: 225deg; translate: 0 2px; }
+/* .cal__drop groups what opens, so a page can float it (Pripravujeme); here it adds no box */
+.cal__drop { display: contents; }
 .cal__menu { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 /* Brand buttons: Google's neutral style (#f2f2f2, no stroke) and Apple's black. */
 .cal__btn { --btn-h: 48px; gap: 10px; min-width: 196px; padding: 12px 22px 12px 18px; font-size: var(--text-small); font-weight: 500; letter-spacing: 0.005em; }

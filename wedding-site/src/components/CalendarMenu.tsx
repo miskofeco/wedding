@@ -9,19 +9,21 @@ export async function CalendarMenu({ className, style }: { className?: string; s
   return (
     <details className={["cal", className].filter(Boolean).join(" ")} style={style}>
       <summary className="btn cal__toggle">Pridať do kalendára</summary>
-      <div className="cal__menu">
-        <a className="btn cal__btn cal__btn--google" href={calendarUrl} target="_blank" rel="noopener noreferrer">
-          <GoogleLogo />
-          Google Kalendár<span className="sr-only"> (otvorí sa v novom okne)</span>
-        </a>
-        <a className="btn cal__btn cal__btn--apple" href="/svadba.ics" download="svadba-barbora-michal.ics">
-          <AppleLogo />
-          Apple Kalendár
+      <div className="cal__drop">
+        <div className="cal__menu">
+          <a className="btn cal__btn cal__btn--google" href={calendarUrl} target="_blank" rel="noopener noreferrer">
+            <GoogleLogo />
+            Google Kalendár<span className="sr-only"> (otvorí sa v novom okne)</span>
+          </a>
+          <a className="btn cal__btn cal__btn--apple" href="/svadba.ics" download="svadba-barbora-michal.ics">
+            <AppleLogo />
+            Apple Kalendár
+          </a>
+        </div>
+        <a className="cal__other" href="/svadba.ics" download="svadba-barbora-michal.ics">
+          Outlook a iné kalendáre (.ics)
         </a>
       </div>
-      <a className="cal__other" href="/svadba.ics" download="svadba-barbora-michal.ics">
-        Outlook a iné kalendáre (.ics)
-      </a>
     </details>
   );
 }
