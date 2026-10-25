@@ -16,7 +16,7 @@ img { height: auto; }
 a { color: inherit; }
 button, input, select, textarea { font: inherit; color: inherit; }
 ::selection { background: var(--selection); color: var(--ink); }
-:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: var(--focus-radius); }
 /* sections focused after an in-page link (AnchorScroll) are not controls */
 [data-anchor-focus]:focus { outline: none; }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.025em; line-height: 0.96; margin: 0; text-wrap: balance; }

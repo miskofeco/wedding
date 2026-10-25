@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { Fragment, type CSSProperties } from "react";
 import Link from "next/link";
 import { site } from "@/content";
 import { art } from "@/lib/art";
@@ -26,7 +26,18 @@ export function Hero() {
       <p className="hero__date">
         <time dateTime={site.date}>{site.dateLabel}</time>
       </p>
-      <p className="hero__where">{tie(site.where)}</p>
+      {/* Each fact keeps together, so lines break at the dots and never inside the church's name. */}
+      <p className="hero__where">
+        {site.where.split(" · ").map((part, i, all) => (
+          <Fragment key={part}>
+            {i > 0 && " "}
+            <span>
+              {tie(part)}
+              {i < all.length - 1 && " ·"}
+            </span>
+          </Fragment>
+        ))}
+      </p>
       <p className="hero__intro">{tie(site.intro)}</p>
       <div className="hero__actions">
         <a className="btn btn--solid" href="#program">

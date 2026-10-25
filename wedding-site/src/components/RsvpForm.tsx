@@ -182,9 +182,11 @@ function FormSteps({
   return (
     <ol className="steps">
       <li className="step">
-        <label className="step__title" htmlFor="name">
-          Ako sa voláte?
-        </label>
+        <h2 className="step__heading">
+          <label className="step__title" htmlFor="name">
+            Ako sa voláte?
+          </label>
+        </h2>
         <p className="field__hint" id="name-hint">
           Meno a&nbsp;priezvisko. Ostatných z&nbsp;domácnosti dopíšete o&nbsp;dva kroky nižšie.
         </p>
@@ -204,7 +206,9 @@ function FormSteps({
 
       <li className="step">
         <fieldset className="step__set" aria-describedby={described("attending", state)}>
-          <legend className="step__title">Budete s&nbsp;nami 29.&nbsp;mája?</legend>
+          <legend className="step__title">
+            <h2 className="step__heading">Budete s&nbsp;nami 29.&nbsp;mája?</h2>
+          </legend>
           <div className="tiles" role="radiogroup" aria-invalid={state.errors.attending ? true : undefined}>
             <label className="tile tile--yes">
               <input
@@ -231,9 +235,11 @@ function FormSteps({
       </li>
 
       <li className="step step--coming">
-        <label className="step__title" htmlFor="guests">
-          Koľko vás príde?
-        </label>
+        <h2 className="step__heading">
+          <label className="step__title" htmlFor="guests">
+            Koľko vás príde?
+          </label>
+        </h2>
         <GuestsField state={state} value={guests} onChange={setGuests} />
         <FieldError id="guests" state={state} />
         <p className="field__hint" id="party-hint">
@@ -246,9 +252,11 @@ function FormSteps({
       </li>
 
       <li className="step step--coming">
-        <label className="step__title" htmlFor="dietary">
-          Niečo, čo nejete?
-        </label>
+        <h2 className="step__heading">
+          <label className="step__title" htmlFor="dietary">
+            Niečo, čo nejete?
+          </label>
+        </h2>
         <p className="field__hint" id="dietary-hint">
           Vyberte alebo dopíšte, napríklad alergiu. Nepovinné.
         </p>
@@ -257,9 +265,11 @@ function FormSteps({
       </li>
 
       <li className="step" id="odkaz">
-        <label className="step__title" htmlFor="sprava">
-          Chcete nám niečo odkázať?
-        </label>
+        <h2 className="step__heading">
+          <label className="step__title" htmlFor="sprava">
+            Chcete nám niečo odkázať?
+          </label>
+        </h2>
         <p className="field__hint" id="message-hint">
           Otázka, prianie alebo čokoľvek, čo by sme mali vedieť. Nepovinné.
         </p>
