@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
-import { formatDayMonth } from "@/lib/format";
+import { formatDayMonth, tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 
 export async function RsvpCta() {
@@ -18,7 +18,7 @@ export async function RsvpCta() {
         </h2>
         <p className="lead rv" style={{ "--d": "100ms" } as CSSProperties}>
           {rsvp.deadline
-            ? `Dajte nám, prosím, vedieť do ${formatDayMonth(rsvp.deadline)}. Potvrdenie zaberie minútu.`
+            ? tie(`Dajte nám, prosím, vedieť do ${formatDayMonth(rsvp.deadline)}. Potvrdenie zaberie minútu.`)
             : "Dajte nám, prosím, vedieť, či prídete. Potvrdenie zaberie minútu."}
         </p>
         <p className="rv" style={{ "--d": "200ms" } as CSSProperties}>

@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { site } from "@/content";
 import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 import { Tint } from "../Tint";
 import { RouteTimeline } from "../RouteTimeline";
@@ -14,7 +15,7 @@ export async function Programme() {
         <h2 id="prog-h">Chvíle nášho dňa</h2>
         <Drawing className="sprig" src={art("rose-border", "black")} />
         <p className="lead">
-          Jedna cesta, jeden deň: z kostola v Hlinnom do záhrady v Zlatníku. Časy doplníme, len čo budú isté.
+          Jedna cesta, jeden deň: z&nbsp;kostola v&nbsp;Hlinnom do záhrady v&nbsp;Zlatníku. Časy doplníme, len čo budú isté.
         </p>
       </header>
       <RouteTimeline>
@@ -23,22 +24,22 @@ export async function Programme() {
             // Each row waits for the road: it reveals as it crosses 70 % of the viewport, where the road's drawn end is.
             <li className="ev" key={e.id} data-rv-group="" data-rv-margin="0px 0px -30% 0px" data-rv-threshold="0">
               <div className={`ev__txt rv ${i % 2 ? "rv--right" : "rv--left"}`} style={{ "--d": "90ms" } as CSSProperties}>
-                <h3>{e.title}</h3>
+                <h3>{tie(e.title)}</h3>
                 {/* Without a time the lead's „Časy doplníme“ speaks for every row; only a relative time is shown. */}
                 {e.time ? (
                   <p className="ev__time">
                     <time dateTime={`${site.date}T${e.time}`}>{e.time}</time>
                   </p>
                 ) : (
-                  e.relativeTime && <p className="ev__time ev__time--pending">{e.relativeTime}</p>
+                  e.relativeTime && <p className="ev__time ev__time--pending">{tie(e.relativeTime)}</p>
                 )}
-                <p className="ev__place">{e.place}</p>
-                <p className="ev__desc">{e.description}</p>
+                <p className="ev__place">{tie(e.place)}</p>
+                <p className="ev__desc">{tie(e.description)}</p>
               </div>
               {e.playlist && (
                 <div className={`ev__playlist rv ${i % 2 ? "rv--left" : "rv--right"}`} style={{ "--d": "180ms" } as CSSProperties}>
                   <h4>{e.playlist.title}</h4>
-                  <p>{e.playlist.note}</p>
+                  <p>{tie(e.playlist.note)}</p>
                   <a className="btn ev__playlist-btn" href={e.playlist.url} target="_blank" rel="noopener noreferrer">
                     <SpotifyLogo />
                     {e.playlist.label}

@@ -42,7 +42,7 @@ export async function Journey() {
         <div className="journey__head rv">
           <h2 id="journey-h">Z Hlinného do Zlatníka</h2>
           <p className="lead">
-            Po obrade sa presunieme z kostola v Hlinnom do Stodoly Zlatník, 4,5 km autom. Mapa je v mierke: kostol,
+            Po obrade sa presunieme z&nbsp;kostola v&nbsp;Hlinnom do Stodoly Zlatník, 4,5 km autom. Mapa je v&nbsp;mierke: kostol,
             stodola aj miesta na prespanie ležia tam, kde naozaj sú. Na cestu si aj tak zapnite navigáciu.
           </p>
         </div>
@@ -175,7 +175,7 @@ export async function Journey() {
               {venue.name ?? "Stodola"}
               {venue.address && <span className="journey__addr">{venue.address}</span>}
             </p>
-            <p className="journey__when">Oslava, záhrada a jazierko · {venue.time ? `od ${venue.time}` : "po obrade"}</p>
+            <p className="journey__when">Oslava, záhrada a&nbsp;jazierko · {venue.time ? `od ${venue.time}` : "po obrade"}</p>
             <a className="link" href={mapHref(venue)} target="_blank" rel="noopener noreferrer">
               {mapLabel(venue, "do stodoly")}
               <span className="sr-only"> (otvorí sa v novom okne)</span>

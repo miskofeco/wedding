@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { getSiteContent } from "@/lib/content";
 import type { Place } from "@/content/types";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 
 /** Name, address and time, one per line; the time line waits until there is a time. */
@@ -22,7 +23,7 @@ function PlacePanel({ place, drawing }: { place: Place; drawing: string }) {
       <div className="rv">
         {/* Lines as blocks, not <br>, so the heading reads „Sobáš v Hlinnom“ and not „Sobášv Hlinnom“. */}
         <h3>
-          <span className="panel__line">{place.title[0]}</span> <span className="panel__line">{place.title[1]}</span>
+          <span className="panel__line">{place.title[0]}</span> <span className="panel__line">{tie(place.title[1])}</span>
         </h3>
         <p className="panel__sub">
           {details(place).map((line) => (

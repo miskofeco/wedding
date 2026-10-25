@@ -9,3 +9,11 @@ export function formatDayMonth(iso: string): string {
 export function formatKm(km: number): string {
   return `${km.toLocaleString("sk-SK")} km`;
 }
+
+/**
+ * Slovak line breaks: a one-letter word (v, k, s, z, a, o, u, i) stays with the next word, and a day or
+ * month number with what follows („29. mája“, „29. 05. 2027“). Only for text shown, never for URLs.
+ */
+export function tie(text: string): string {
+  return text.replace(/(?<=^|[\s(„])([vkszaoui]) /giu, "$1 ").replace(/(?<=\b\d{1,2}\.) (?=[\p{L}\d])/gu, " ");
+}

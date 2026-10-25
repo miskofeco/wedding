@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { site } from "@/content";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Tint } from "../Tint";
 
 export function Hero() {
@@ -25,8 +26,8 @@ export function Hero() {
       <p className="hero__date">
         <time dateTime={site.date}>{site.dateLabel}</time>
       </p>
-      <p className="hero__where">{site.where}</p>
-      <p className="hero__intro">{site.intro}</p>
+      <p className="hero__where">{tie(site.where)}</p>
+      <p className="hero__intro">{tie(site.intro)}</p>
       <div className="hero__actions">
         <a className="btn btn--solid" href="#program">
           Pozrieť program
