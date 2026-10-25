@@ -245,7 +245,7 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
         <FieldError id="dietary" state={state} />
       </li>
 
-      <li className="step">
+      <li className="step" id="odkaz">
         <label className="step__title" htmlFor="sprava">
           Chcete nám niečo odkázať?
         </label>

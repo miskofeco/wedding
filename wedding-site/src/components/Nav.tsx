@@ -12,6 +12,9 @@ const sections = [
   { id: "otazky", label: "Otázky" },
 ] as const;
 
+// Sections without a link of their own keep the underline on the link they belong to.
+const partOf: Record<string, string> = { prosby: "miesta", mapa: "miesta" };
+
 export function Nav({ mark }: { mark: string }) {
   const pathname = usePathname();
   const home = pathname === "/";
@@ -26,7 +29,7 @@ export function Nav({ mark }: { mark: string }) {
   useEffect(() => {
     if (!home) return;
     const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setCurrent(e.target.id)),
+      (entries) => entries.forEach((e) => e.isIntersecting && setCurrent(partOf[e.target.id] ?? e.target.id)),
       { rootMargin: "-40% 0px -55% 0px" },
     );
     document.querySelectorAll("main section[id]").forEach((s) => observer.observe(s));

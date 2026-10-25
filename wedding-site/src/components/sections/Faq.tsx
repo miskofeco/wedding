@@ -14,7 +14,7 @@ export async function Faq() {
           <Drawing className="sprig" src={art("rose-border", "black")} />
           <p className="lead">Ak tu odpoveď nenájdete, napíšte nám. Radi odpovieme.</p>
           <p className="rv" style={{ "--d": "240ms" } as CSSProperties}>
-            <Link className="btn" href="/rsvp#sprava" style={{ "--c": "var(--peony)" } as CSSProperties}>
+            <Link className="btn" href="/rsvp#odkaz" style={{ "--c": "var(--peony)" } as CSSProperties}>
               Napísať nám
             </Link>
           </p>
