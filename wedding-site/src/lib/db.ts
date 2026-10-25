@@ -88,13 +88,18 @@ async function open(): Promise<Client> {
     db = (await import("@libsql/client/http")).createClient(c);
   }
   await db.batch(SCHEMA, "write");
-  if (MIGRATIONS.length === 0) return db;
+  await migrate(db, MIGRATIONS);
+  return db;
+}
+
+/** Runs the migrations the database hasn't seen yet; `user_version` counts the ones done. */
+export async function migrate(db: Client, migrations: readonly string[]): Promise<void> {
+  if (migrations.length === 0) return;
   const { rows } = await db.execute("PRAGMA user_version");
   const version = Number(rows[0]?.user_version ?? 0);
-  for (let i = version; i < MIGRATIONS.length; i++) {
-    await db.batch([MIGRATIONS[i], `PRAGMA user_version = ${i + 1}`], "write");
+  for (let i = version; i < migrations.length; i++) {
+    await db.batch([migrations[i], `PRAGMA user_version = ${i + 1}`], "write");
   }
-  return db;
 }
 
 /** The shared client; the first call creates the tables. */

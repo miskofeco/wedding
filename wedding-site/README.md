@@ -11,7 +11,8 @@ npm run build      # production build (checks the photos and masks exist first)
 npm run start      # serve the build
 npm run lint
 npm run typecheck
-npm test           # validation, session, calendar, guest records and Code.gs
+npm test           # validation, session, calendar, guest records, the database, content checks and Code.gs
+npm run test:authz # builds and starts the site, then asks every admin page, export and action without a cookie, and checks the action body limit
 ```
 
 GitHub Actions runs typecheck, lint and tests on every push (`.github/workflows/ci.yml`). It can't build, because the photos and masks are not in git; see Deploy.
@@ -59,7 +60,7 @@ The **Google Sheet** keeps a readable copy of the answers (tab „Odpovede“) a
 - **No duplicates:** the browser gives each answer a random key, and the database stores an answer with a key it has already seen only once. A retry after a timeout returns the stored row instead of adding a second one.
 - **E-mail:** set the script property `NOTIFY_EMAIL` and every new answer from the website sends a short e-mail (name, yes/no, number of guests). The details stay in the Sheet.
 - **Security:** the database token, the Sheet secret and the admin password live only in server environment variables. All SQL uses parameters. `ADMIN_PASSWORD` must be at least 12 characters; use a random passphrase. The login cookie is HttpOnly, signed, limited to `/admin` and valid for a week. Changing `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` signs everyone out, so rotate either one if a device is lost. Every admin action and the CSV downloads check the session again. Guest text is stored so the Sheet never runs it as a formula, and CSV cells that start like a formula are prefixed. Answers are never written to logs.
-- **Limits:** every failed login waits 600 ms, and each address gets 8 tries in 15 minutes, counted in the database (`login_attempts`, keyed by a hash of the address, never the address itself) so all server instances share the count; signing in resets it. RSVPs are limited to ten per address in ten minutes, and there are in-memory login brakes per address and overall; those counters live in each server instance. Also add the Firewall rule under Deploy. The honeypot field quietly drops bot answers.
+- **Limits:** every failed login waits 600 ms, and each address gets 8 tries in 15 minutes, counted in the database (`login_attempts`, keyed by a hash of the address, never the address itself) so all server instances share the count; signing in resets it. RSVPs are limited to ten per address in ten minutes, and an in-memory login brake per address answers before the database; those two counters live in each server instance. There is deliberately no limit across all addresses, which anyone could use to lock you out; a long random password is the defence against guessing from many addresses. Also add the Firewall rule under Deploy. The honeypot field quietly drops bot answers.
 - **Headers:** guest pages send a baseline Content Security Policy and HSTS (`next.config.ts`). `/admin` gets a strict per-request policy with a nonce (`src/proxy.ts`); the inline boot script (`src/lib/boot.ts`) is allowed by its hash, computed automatically.
 - After the deadline (set in `/admin` → „Obsah webu“ → „Termín a časy“, default `src/content/rsvp.ts`) the form closes and points to the contact.
 - The fields (name, attending, number of guests, the name of every guest, diet, message) are a proposal. Each guest after the respondent needs a name; the Sheet keeps them one per line in „Mená hostí“, the respondent first, and each guest after the respondent is marked adult or child (column „Dospelý / dieťa“, same lines). Change them in `src/lib/rsvp.ts`, `src/components/RsvpForm.tsx`, `src/components/admin/AnswerEditor.tsx`, the `answers` table in `src/lib/db.ts` and the columns in `google-sheet/Code.gs`.
@@ -107,13 +108,17 @@ Once:
 5. Under Firewall add one rate-limit rule (the free plan allows one, with a window of at most 10 minutes): if Request Method equals `POST`, on any path, rate limit 60 requests per IP per 10 minutes, then deny. Don't narrow it to `/rsvp` or `/admin/login`: the login and the RSVP form are server actions, which Next.js runs for a POST to any page that carries a `Next-Action` header. The limit leaves room for editing in `/admin`, where every save is a POST too; the login's own limit (8 tries per address per 15 minutes) is in the database.
 6. Optional: add a custom domain under Settings → Domains.
 
-Every deploy, from `wedding-site/` with Node 24:
+Every deploy, from `wedding-site/` with Node 24, the version Vercel runs (`nvm install` once, then `nvm use`; the deploy refuses any other major version):
 
 ```bash
 npm run photos     # only if the photos changed
 npm run fills      # only if the palette figures changed
 npm run deploy     # pulls the settings, builds here, uploads the build to production
 ```
+
+`npm run deploy` (`scripts/deploy.mjs`) refuses to start while `wedding-site/` has uncommitted or untracked changes, or while the branch has commits that aren't pushed, so production always matches a pushed commit. The short commit hash is recorded on the deployment (`commit` under the deployment's metadata in Vercel). Changes outside `wedding-site/` don't count.
+
+**Rollback:** in Vercel → Deployments, open the previous production deployment and choose „Promote to Production“ (or `npx vercel@63.1.2 promote <deployment-url>`). It switches back at once, without a build. Answers, invitations and content edited in `/admin` live in the database, so nothing is lost. The promoted build's guest pages show the content as it was when that build was made, until the next save in „Obsah webu“ refreshes them.
 
 After the first deploy, submit one test RSVP, check it appears in `/admin` and in the Sheet, then delete it. While „Pripravujeme“ is on, `/rsvp` is closed in production, so add the test answer in `/admin` → Odpovede → „Pridať odpoveď“ instead.
 

@@ -15,6 +15,12 @@ const assetCache = { key: "Cache-Control", value: "public, max-age=86400, stale-
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // Down from 1 MB, so junk uploads cost less. The largest real bodies are a content
+    // save (the action takes up to 100,000 characters of JSON, ~200 kB of Slovak text)
+    // and a 300-line invitation paste (~100 kB); tests/authz.e2e.ts sends both.
+    serverActions: { bodySizeLimit: "256kb" },
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 80],

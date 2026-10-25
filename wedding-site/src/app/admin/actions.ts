@@ -40,14 +40,13 @@ export async function login(_prev: LoginState, form: FormData): Promise<LoginSta
   }
   const ip = clientIp(await headers());
   // Counted before the password is checked, so parallel tries can't race past the limit.
-  if (loginFailures.perIp.blocked(ip) || loginFailures.all.blocked("all") || !(await withinTries(ip))) {
+  if (loginFailures.perIp.blocked(ip) || !(await withinTries(ip))) {
     return { error: "Príliš veľa pokusov. Skúste to znova o 15 minút." };
   }
 
   const password = form.get("password");
   if (typeof password !== "string" || !passwordMatches(password)) {
     loginFailures.perIp.hit(ip);
-    loginFailures.all.hit("all");
     await new Promise((r) => setTimeout(r, 600));
     return { error: "Nesprávne heslo." };
   }

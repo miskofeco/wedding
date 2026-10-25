@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { site } from "@/content";
+import { requireAdmin } from "@/lib/auth";
 import { readContent } from "@/lib/content";
 import { dbConfigured } from "@/lib/db";
 import { DetailsEditor, FaqEditor, ProgrammeEditor, RequestsEditor } from "@/components/admin/ContentEditors";
@@ -23,6 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ part: str
 
 /** Editors for the parts of the guest site the couple changes themselves. */
 export default async function ContentPage({ params }: { params: Promise<{ part: string }> }) {
+  await requireAdmin(); // see loadBoard
   const { part } = await params;
   if (!isPart(part)) notFound();
   const { content, updatedAt } = await readContent();
