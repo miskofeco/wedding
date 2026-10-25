@@ -167,6 +167,17 @@ export async function syncSheet(): Promise<{ done: number; left: number }> {
 
 const isKey = (v: unknown): v is ContentKey => CONTENT_KEYS.includes(v as ContentKey);
 
+/**
+ * The guest pages are static: rebuild them (and the calendar file) on the next visit. The
+ * layout covers them all; the calendar file, a route handler, and /rsvp, with its own
+ * revalidate, are named as well in case the layout doesn't reach them on Vercel.
+ */
+function refreshGuestPages() {
+  revalidatePath("/", "layout");
+  revalidatePath("/svadba.ics");
+  revalidatePath("/rsvp");
+}
+
 /** Saves one part of the site (programme, requests, FAQ, details) and rebuilds the guest pages. */
 export async function saveSiteContent(_prev: ContentFormState, form: FormData): Promise<ContentFormState> {
   await requireAdmin();
@@ -186,8 +197,7 @@ export async function saveSiteContent(_prev: ContentFormState, form: FormData): 
   if (!(await saveContent(key, checked.value))) {
     return { status: "error", errors: {}, message: storeMessage.failed, at: stamp() };
   }
-  // The guest pages are static: rebuild them (and the calendar file) on the next visit.
-  revalidatePath("/", "layout");
+  refreshGuestPages();
   return { status: "saved", errors: {}, at: stamp() };
 }
 
@@ -196,6 +206,6 @@ export async function resetSiteContent(_prev: ContentFormState, form: FormData):
   const key = form.get("key");
   if (!isKey(key)) return { status: "error", errors: {}, message: "Neplatná požiadavka.", at: stamp() };
   if (!(await resetContent(key))) return { status: "error", errors: {}, message: storeMessage.failed, at: stamp() };
-  revalidatePath("/", "layout");
+  refreshGuestPages();
   return { status: "saved", errors: {}, message: "reset", at: stamp() };
 }
