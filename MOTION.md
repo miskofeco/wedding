@@ -55,7 +55,7 @@ One-shot keyframed responses have their duration written in place, because each 
 | 300–520ms | FAQ and calendar open and close (300), FAQ answer rise (360), pop (360), squash (360), notice rise and dot drop (420), nudge (450), nod and hop (520), palette pour (520) |
 | 550–900ms | Entrances: rise, stamp, settle, hero beats (800), places push-in and envelope (900), count-up (900) |
 | Scroll-linked | Every road draw, the car, the desktop drift. No duration; they follow the scrollbar |
-| Loops | Hero road march (1.6s per step), hero breathing (7s), lantern sway (4.5s), palette cycle (4s per colour), playlist logo while hovered (2.4s), send button road while sending (0.8s) |
+| Loops | Hero road march (1.6s per step), „Pripravujeme“ road march (1.2s per step), hero breathing (7s), lantern sway (4.5s), palette cycle (4s per colour), playlist logo while hovered (2.4s), send button road while sending (0.8s) |
 
 Feedback is under 300ms; arrivals take 500–900ms; nothing a guest waits on is slower than that.
 
@@ -146,6 +146,7 @@ Everything that moves today. Update this table when you add or change motion.
 | Footer | The garland stamps; thanks, names, date and links rise in one chain (80ms apart) |
 | RSVP page | Cover text rises; envelope and rose stamp with colour settling; the road draws down into the form. Thank-you: the last road segment draws, the peony pin drops, the drawing stamps, the words rise (about 1.3s) |
 | Page change | Home ↔ `/rsvp` crossfades in 240ms |
+| Pripravujeme | The hero's beats: text rises, the couple and blooms stamp with colour settling. The road draws in from the right edge (700ms, 900ms long), the car drives in after it from the right (1100ms, 1500ms) and brakes with a nod onto its front wheel (−2.5°, 520ms); then the road marches under the parked car, the page's one loop. Hovering the car hops it. Time-based, because the page doesn't scroll |
 
 ### Interaction
 
@@ -183,7 +184,7 @@ Everything that moves today. Update this table when you add or change motion.
 
 1. **One hero moment per section.** Each section has one thing that moves in an unusual way (the road draws, the car drives, the colour pours, the cards land). Everything else rises.
 2. **Scroll-linked for the road and what sits on it; time-based for everything else.** Scroll-linked motion is smoothed (CSS scroll timelines, or a lerp in JavaScript), never mapped 1:1 to scroll ticks. Nothing scrolls the page by itself.
-3. **Loops have a budget.** Idle loops are the hero march (until the first scroll), the hero breathing (after it), the palette cycle (until touched) and the lantern. Never two in one viewport. A loop a guest starts and can see the end of (playlist logo while hovered, send road while sending) does not count against the budget. Adding a loop means removing or gating one.
+3. **Loops have a budget.** Idle loops are the hero march (until the first scroll), the hero breathing (after it), the palette cycle (until touched), the lantern, and the road under the car on „Pripravujeme“. Never two in one viewport. A loop a guest starts and can see the end of (playlist logo while hovered, send road while sending) does not count against the budget. Adding a loop means removing or gating one.
 4. **No parallax on text.** Drift only on oversized cropped drawings, desktop only (≥ 900px), ±24px at most.
 5. **Overshoot only on drawings, pins and checks**, through `--ease-stamp` (4% at most). Never on text or buttons.
 6. **Lanes and cheap properties.** Animate only what the lanes table lists. Layout properties (`height`, `margin`) animate only in the open/close lane. No `transition: all`.

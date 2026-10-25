@@ -1,0 +1,58 @@
+/* „Pripravujeme“: the one screen production shows until the invitation opens (content/launch.ts).
+   The hero's grammar on one screen: couple and blooms on riso tints, names, date, the calendar, and the road
+   along the bottom edge. Motion: text rises, drawings stamp and their colour settles (as in the hero), the road
+   draws in from the right, the car drives in after it and brakes; then the road marches under the parked car, the one loop. */
+
+.soon { position: relative; display: grid; grid-template-rows: minmax(16px, 1fr) repeat(7, auto) minmax(28px, 1fr) auto; justify-items: center; min-height: 100svh; overflow: clip; padding: 0 var(--gutter); text-align: center; }
+.soon::before { content: ""; }
+
+.soon__art { width: clamp(140px, min(54vw, 28svh), 360px); }
+.soon__bloom { position: absolute; width: clamp(110px, min(15vw, 24svh), 230px); }
+.soon__bloom::before { left: 26%; top: 30%; width: 48%; height: 46%; }
+.soon__bloom::after { left: 14%; bottom: 14%; width: 24%; height: 20%; }
+.soon__bloom--left { left: calc(50% - clamp(240px, 30vw, 440px)); top: 9%; transform: scaleX(-1) rotate(8deg); }
+.soon__bloom--right { left: calc(50% + clamp(140px, 17vw, 230px)); top: 17%; width: clamp(100px, min(14vw, 22svh), 210px); transform: rotate(-6deg); }
+.soon__bloom--right::before { left: 8%; top: 12%; width: 54%; height: 50%; }
+.soon__bloom--right::after { left: auto; right: 14%; bottom: 10%; width: 26%; height: 22%; }
+@media (max-width: 760px) {
+  .soon__bloom--left { left: -7%; top: 3%; width: min(30vw, 15svh); }
+  .soon__bloom--right { left: auto; right: -6%; top: 13%; width: min(25vw, 12svh); }
+}
+
+.soon__kicker { margin-top: clamp(6px, 1.4svh, 16px); font-family: var(--font-display); font-style: italic; font-weight: 400; font-size: clamp(1.05rem, 1rem + 0.45vw, 1.4rem); }
+.soon h1 { font-size: clamp(2.8rem, min(1rem + 11vw, 12svh), 8.5rem); margin: 0.06em 0 0.12em; max-width: 14ch; }
+.soon__date { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.3rem, min(1rem + 2vw, 4.6svh), 2.4rem); line-height: 1.05; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; margin-bottom: 0.4em; }
+.soon__where { color: var(--ink-soft); font-size: clamp(0.9rem, 0.9rem + 0.3vw, 1.1rem); }
+.soon__intro { max-width: 38ch; margin: clamp(10px, 2.2svh, 22px) 0 clamp(16px, 3svh, 28px); font-size: clamp(1rem, min(1rem + 0.4vw, 2.5svh), 1.25rem); text-wrap: pretty; }
+
+/* the road runs edge to edge along the bottom; the car (it faces left) parks left of centre, wheels on the line.
+   The drawing ends 25.7 % above the bottom of its square artboard, hence the negative margin. */
+.soon__road { --car: clamp(104px, 11vw, 160px); grid-row: -2; position: relative; justify-self: stretch; margin: 0 calc(-1 * var(--gutter)); padding-bottom: clamp(16px, 2.6svh, 30px); }
+.soon__road::before { content: ""; position: absolute; left: 0; right: 0; bottom: clamp(16px, 2.6svh, 30px); height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
+.soon__car { display: block; width: var(--car); margin-left: calc(40% - var(--car) / 2); margin-bottom: calc(var(--car) * -0.257 + 1px); }
+
+/* ===== motion (hidden states only under html.mo; reduced motion snaps through motion.css) ===== */
+html.mo .soon > :is(.soon__kicker, h1, .soon__date, .soon__where, .soon__intro, .soon__cal) { animation: rise 800ms var(--ease-out) both; }
+html.mo .soon > h1 { animation-delay: 40ms; }
+html.mo .soon > .soon__date { animation-delay: 100ms; }
+html.mo .soon > .soon__where { animation-delay: 420ms; }
+html.mo .soon > .soon__intro { animation-delay: 480ms; }
+html.mo .soon > .soon__cal { animation-delay: 560ms; }
+.soon__art { --sd: 120ms; }
+.soon__bloom--left { --sd: 200ms; }
+.soon__bloom--right { --sd: 320ms; }
+html.mo .soon .tint img { animation: stamp var(--t-stamp) var(--ease-stamp) var(--sd) both; }
+html.mo .soon .tint::before, html.mo .soon .tint::after { animation: settle var(--t-settle) var(--ease-settle) calc(var(--sd) + 120ms) both; }
+
+/* the road draws in from the right, the car follows it in and brakes with a small nod onto its front wheel,
+   then the road marches under the parked car (march-x, motion.css), so it still looks on its way */
+html.mo .soon__road::before { animation: soon-draw 900ms var(--ease-out) 700ms both, march-x 1.2s linear 2600ms infinite; }
+html.mo .soon__car { animation: soon-drive 1500ms var(--ease-out) 1100ms both; }
+html.mo .soon__car img { transform-origin: 22% 74%; animation: soon-brake 520ms var(--ease-stamp) 2350ms both; }
+@keyframes soon-draw { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
+@keyframes soon-drive { from { translate: 100vw 0; } }
+@keyframes soon-brake { 40% { rotate: -2.5deg; } }
+
+@media (hover: hover) {
+  html.mo .soon__car:hover img { animation: hop 520ms var(--ease-stamp); }
+}

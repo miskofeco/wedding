@@ -59,7 +59,7 @@ The **Google Sheet** keeps a readable copy of the answers (tab „Odpovede“) a
 - **No duplicates:** the browser gives each answer a random key, and the database stores an answer with a key it has already seen only once. A retry after a timeout returns the stored row instead of adding a second one.
 - **E-mail:** set the script property `NOTIFY_EMAIL` and every new answer from the website sends a short e-mail (name, yes/no, number of guests). The details stay in the Sheet.
 - **Security:** the database token, the Sheet secret and the admin password live only in server environment variables. All SQL uses parameters. `ADMIN_PASSWORD` must be at least 12 characters; use a random passphrase. The login cookie is HttpOnly, signed, limited to `/admin` and valid for a week. Changing `ADMIN_PASSWORD` or `ADMIN_SESSION_SECRET` signs everyone out, so rotate either one if a device is lost. Every admin action and the CSV downloads check the session again. Guest text is stored so the Sheet never runs it as a formula, and CSV cells that start like a formula are prefixed. Answers are never written to logs.
-- **Limits:** failed logins are slowed and limited per address and overall, and RSVPs to ten per address in ten minutes. These counters live in each server instance, so also add the two Firewall rules under Deploy. The honeypot field quietly drops bot answers.
+- **Limits:** failed logins are slowed and limited per address and overall, and RSVPs to ten per address in ten minutes. These counters live in each server instance, so also add the Firewall rule under Deploy. The honeypot field quietly drops bot answers.
 - **Headers:** guest pages send a baseline Content Security Policy and HSTS (`next.config.ts`). `/admin` gets a strict per-request policy with a nonce (`src/proxy.ts`); the inline boot script (`src/lib/boot.ts`) is allowed by its hash, computed automatically.
 - After the deadline (set in `/admin` → „Obsah webu“ → „Termín a časy“, default `src/content/rsvp.ts`) the form closes and points to the contact.
 - The fields (name, attending, number of guests, the name of every guest, diet, message) are a proposal. Each guest after the respondent needs a name; the Sheet keeps them one per line in „Mená hostí“, the respondent first, and each guest after the respondent is marked adult or child (column „Dospelý / dieťa“, same lines). Change them in `src/lib/rsvp.ts`, `src/components/RsvpForm.tsx`, `src/components/admin/AnswerEditor.tsx`, the `answers` table in `src/lib/db.ts` and the columns in `google-sheet/Code.gs`.
@@ -98,11 +98,12 @@ The photos and palette masks are not in git, so Vercel can't build from the repo
 
 Once:
 
-1. Create a project at vercel.com/new without connecting a repository, or run `npx vercel@63.1.2 link` in `wedding-site/` and follow the prompts. Log in first with `npx vercel@63.1.2 login`.
+1. Create the project: import the repository at vercel.com/new with Root Directory `wedding-site` (its first build fails on the missing photos, as it should), or run `npx vercel@63.1.2 link` in `wedding-site/`. Either way, link this machine to it with `npx vercel@63.1.2 login` and `npx vercel@63.1.2 link`.
 2. Under Storage add a Turso database from the Marketplace and connect it to the project for Production (it adds `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`). Under Settings → Environment Variables add the five variables from `google-sheet/SETUP.md` for Production.
 3. Under Settings → General → Node.js Version choose 24.x (the same as `.nvmrc`).
-4. Under Firewall add two rate-limit rules: POST requests to `/admin/login`, 10 per IP per 15 minutes, and POST requests to `/rsvp`, 20 per IP per 10 minutes. Both deny when exceeded.
-5. Optional: add a custom domain under Settings → Domains.
+4. Under Settings → Functions set the Function Region to the database's region (Dublin `dub1` for a Turso database in Ireland).
+5. Under Firewall add one rate-limit rule (the free plan allows one, with a window of at most 10 minutes): method POST and path matching `^/(rsvp|admin/login)$`, 10 per IP per 10 minutes, deny.
+6. Optional: add a custom domain under Settings → Domains.
 
 Every deploy, from `wedding-site/` with Node 24:
 
@@ -112,7 +113,11 @@ npm run fills      # only if the palette figures changed
 npm run deploy     # pulls the settings, builds here, uploads the build to production
 ```
 
-After the first deploy, submit one test RSVP, check it appears in `/admin` and in the Sheet, then delete it.
+After the first deploy, submit one test RSVP, check it appears in `/admin` and in the Sheet, then delete it. While „Pripravujeme“ is on, `/rsvp` is closed in production, so add the test answer in `/admin` → Odpovede → „Pridať odpoveď“ instead.
+
+### „Pripravujeme“ (coming soon)
+
+While `comingSoon` in `src/content/launch.ts` is `true`, production shows only `/pripravujeme`: `src/proxy.ts` rewrites every guest page to it, `/rsvp` included (sending an answer is refused too). `/admin`, `/svadba.ics` (the page's calendar button), drawings and Next.js assets stay reachable. The address bar keeps the URL the guest opened. Local dev and preview deploys always show the full site; open `/pripravujeme` there to see the page. To open the invitation, set `comingSoon` to `false` and deploy.
 
 The guest pages are static. The build reads the edited content from the production database (`vercel pull` brings the Turso variables), and saving in „Obsah webu“ rebuilds them on Vercel on the next visit, so content edits need no deploy.
 
@@ -122,7 +127,7 @@ The site asks search engines not to index it (`robots: noindex`), because it is 
 
 ```
 src/app/            root layout (fonts, metadata), error pages; (site)/ public page and rsvp/; admin/ (app)/ pages, login, actions, export/ CSV
-src/proxy.ts        the strict Content Security Policy for /admin
+src/proxy.ts        the strict Content Security Policy for /admin, and the „Pripravujeme“ gate in production
 src/components/     Nav, RouteTimeline (the road), RevealObserver, Tint, Drawing, RsvpForm, admin/
 src/lib/            db (libSQL), answers + invites (records, Sheet mirror), mirror (sync), records (matching, totals, CSV), content + site-content (editable content), sheet (Google Sheet client), rsvp (validation), auth + session (admin login), limit, csp, ics, art, format
 google-sheet/       Code.gs (Apps Script) and SETUP.md
