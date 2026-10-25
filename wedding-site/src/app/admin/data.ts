@@ -1,6 +1,7 @@
 // Everything the admin pages read, loaded once per request. Server-only.
 import { cache } from "react";
 import { listAnswers } from "@/lib/answers";
+import { requireAdmin } from "@/lib/auth";
 import { dbConfigured } from "@/lib/db";
 import { listInvites } from "@/lib/invites";
 import { linkAnswers, summarize, type Invite, type StoredAnswer } from "@/lib/records";
@@ -18,7 +19,10 @@ export interface Board {
   sheet: { configured: boolean; pending: number; url: string | null };
 }
 
+// Pages render alongside the layout, so the layout's check can't stop a page from
+// reading (and sending) the guest list: the check is here, next to the data.
 export const loadBoard = cache(async (): Promise<Board> => {
+  await requireAdmin();
   const [a, i] = await Promise.all([listAnswers(), listInvites()]);
   const answers = a.ok ? a.data : [];
   const invites = i.ok ? i.data : [];
