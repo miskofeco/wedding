@@ -108,7 +108,7 @@ Once:
 5. Under Firewall add one rate-limit rule (the free plan allows one, with a window of at most 10 minutes): if Request Method equals `POST`, on any path, rate limit 60 requests per IP per 10 minutes, then deny. Don't narrow it to `/rsvp` or `/admin/login`: the login and the RSVP form are server actions, which Next.js runs for a POST to any page that carries a `Next-Action` header. The limit leaves room for editing in `/admin`, where every save is a POST too; the login's own limit (8 tries per address per 15 minutes) is in the database.
 6. Optional: add a custom domain under Settings → Domains.
 
-Every deploy, from `wedding-site/` with Node 24:
+Every deploy, from `wedding-site/` with Node 24, the version Vercel runs (`nvm install` once, then `nvm use`; the deploy refuses any other major version):
 
 ```bash
 npm run photos     # only if the photos changed

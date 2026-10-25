@@ -1,8 +1,9 @@
 // `npm run deploy`: builds the site on this machine and uploads the build to
 // production (README → Deploy). Vercel builds whatever is on disk, so this
-// first makes sure that is a commit already pushed, and records the commit on
-// the deployment.
+// first makes sure that is a commit already pushed, built with the Node major
+// in .nvmrc (the one Vercel runs), and records the commit on the deployment.
 import { execFileSync, spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -12,6 +13,11 @@ const VERCEL = "vercel@63.1.2";
 function stop(message) {
   console.error(`Not deploying: ${message}`);
   process.exit(1);
+}
+
+const wanted = readFileSync(path.join(root, ".nvmrc"), "utf8").trim();
+if (process.versions.node.split(".")[0] !== wanted) {
+  stop(`this is Node ${process.versions.node}; the site is built with Node ${wanted}, as on Vercel (.nvmrc). Run \`nvm use\` first.`);
 }
 
 const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8" }).trim();
