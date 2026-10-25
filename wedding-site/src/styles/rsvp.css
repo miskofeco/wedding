@@ -132,7 +132,8 @@
 
 /* the small „i“ and its bubble: opens on hover, focus or tap */
 .infotip { position: relative; display: inline-block; vertical-align: middle; }
-.infotip__btn { display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: var(--white); font: italic 600 var(--text-caption)/1 var(--font-display); cursor: pointer; }
+.infotip__btn { display: inline-grid; position: relative; place-items: center; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: var(--ink); color: var(--white); font: italic 600 var(--text-caption)/1 var(--font-display); cursor: pointer; }
+.infotip__btn::before { content: ""; position: absolute; inset: -10px; border-radius: 50%; } /* 44px tap, 24px mark */
 .infotip__btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .infotip__bubble {
   position: absolute; z-index: 2; left: 50%; bottom: calc(100% + 10px); translate: -50% 0; width: max-content; max-width: min(260px, 70vw);
@@ -151,6 +152,8 @@
 /* diet: quick chips above free text */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip { min-height: 40px; padding: 8px 16px; border: 0; border-radius: var(--btn-radius); background: var(--surface-quiet); font: 500 var(--text-small) / 1.2 var(--font-text); cursor: pointer; transition: background-color var(--t-hover), color var(--t-hover), transform var(--t-press) var(--ease-out); }
+/* touch: chips and the kid pick reach 44px */
+@media (hover: none) { .chip, .kidpick__opt { min-height: 44px; } }
 @media (hover: hover) { .chip:hover { background: var(--ink); color: var(--white); } }
 .chip:active { transform: scale(var(--press)); }
 .chip[aria-pressed="true"] { background: var(--butter); color: var(--ink); }
