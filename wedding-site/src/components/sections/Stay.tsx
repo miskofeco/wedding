@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { stays } from "@/content";
 import { art } from "@/lib/art";
-import { formatKm } from "@/lib/format";
+import { formatKm, tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 
 // Each stop waits for the road, which draws with scroll and ends at 70 % of the viewport:
@@ -17,7 +17,7 @@ export function Stay() {
           <Drawing className="stay__lantern" src={art("lantern", "white")} />
           <h2 id="stay-h">Cesta domov môže počkať</h2>
           <p className="lead">
-            Zábava potrvá do noci, a tak sme pre vás vybrali zopár miest na prespanie blízko stodoly. Ráno sa potom
+            Zábava potrvá do noci, a&nbsp;tak sme pre vás vybrali zopár miest na prespanie blízko stodoly. Ráno sa potom
             nikam neponáhľajte.
           </p>
         </div>
@@ -27,10 +27,10 @@ export function Stay() {
               <li className="stop" key={s.name} {...stop}>
                 <span className="stop__pin rv" aria-hidden="true" />
                 <div className="stop__card rv rv--right" style={card}>
-                  <h3>{s.name}</h3>
+                  <h3>{tie(s.name)}</h3>
                   {s.address && <p className="stop__addr">{s.address}</p>}
                   {s.distanceKm !== null && <p className="stop__dist">{formatKm(s.distanceKm)} od Stodoly Zlatník</p>}
-                  {s.note && <p>{s.note}</p>}
+                  {s.note && <p>{tie(s.note)}</p>}
                   {s.url && (
                     <a className="link" href={s.url} target="_blank" rel="noopener noreferrer">
                       Webová stránka<span className="sr-only"> {s.name} (otvorí sa v novom okne)</span>
@@ -44,7 +44,7 @@ export function Stay() {
               <span className="stop__pin rv" aria-hidden="true" />
               <div className="stop__card rv rv--right" style={card}>
                 <h3>Miesta práve vyberáme</h3>
-                <p>Zoznam ubytovania so vzdialenosťou od stodoly a kontaktmi doplníme čoskoro.</p>
+                <p>Zoznam ubytovania so vzdialenosťou od stodoly a&nbsp;kontaktmi doplníme čoskoro.</p>
               </div>
             </li>
           )}

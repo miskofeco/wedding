@@ -33,8 +33,8 @@ export default async function RsvpPage() {
             <p className="reply__kicker">Posledná zastávka na ceste</p>
             <h1>Prídete?</h1>
             <p className="lead">
-              Pozvánku už máte. Teraz je rad na vás: jedna odpoveď za celú domácnosť a my budeme vedieť, koľko stoličiek
-              pristaviť k stolu. Zaberie to minútu.
+              Pozvánku už máte. Teraz je rad na vás: jedna odpoveď za celú domácnosť a&nbsp;my budeme vedieť, koľko stoličiek
+              pristaviť k&nbsp;stolu. Zaberie to minútu.
             </p>
             {until && <p className="reply__until">Odpoveď prosíme do {until}</p>}
           </div>

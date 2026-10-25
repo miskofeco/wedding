@@ -2,14 +2,13 @@ import type { CSSProperties } from "react";
 import { getSiteContent } from "@/lib/content";
 import type { Place } from "@/content/types";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 
-function details(place: Place): string {
+/** Name, address and time, one per line; the time line waits until there is a time. */
+function details(place: Place): string[] {
   const name = place.name ?? (place.id === "church" ? "Kostol upresníme" : "Miesto upresníme");
-  const parts = [name];
-  if (place.address) parts.push(place.address);
-  parts.push(place.time ? `od ${place.time}` : "Čas upresníme");
-  return parts.join(" · ");
+  return [name, place.address, place.time && `od ${place.time}`].filter((line): line is string => Boolean(line));
 }
 
 const d = (ms: number) => ({ "--d": `${ms}ms` }) as CSSProperties;
@@ -22,12 +21,17 @@ function PlacePanel({ place, drawing }: { place: Place; drawing: string }) {
   return (
     <div className="panel" {...group}>
       <div className="rv">
+        {/* Lines as blocks, not <br>, so the heading reads „Sobáš v Hlinnom“ and not „Sobášv Hlinnom“. */}
         <h3>
-          {place.title[0]}
-          <br />
-          {place.title[1]}
+          <span className="panel__line">{place.title[0]}</span> <span className="panel__line">{tie(place.title[1])}</span>
         </h3>
-        <p className="panel__sub">{details(place)}</p>
+        <p className="panel__sub">
+          {details(place).map((line) => (
+            <span className="panel__line" key={line}>
+              {line}
+            </span>
+          ))}
+        </p>
       </div>
       <Drawing className="panel__art rv" src={drawing} />
       <div className="panel__foot rv" style={d(60)}>

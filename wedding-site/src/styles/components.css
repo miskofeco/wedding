@@ -44,6 +44,9 @@
 }
 @media (hover: hover) { .link:hover { background-size: 100% 2px, 100% 2px; } }
 .link:active, .link:focus-visible { background-size: 100% 2px, 100% 2px; }
+/* Small text links keep their look but take a taller tap: an invisible hit area 6px above and below (44px or more). */
+.link, .nav__mark, .cal__other { position: relative; }
+.link::before, .nav__mark::before, .cal__other::before { content: ""; position: absolute; inset: -6px 0; }
 
 .pill { display: inline-flex; align-items: center; min-height: 40px; background: var(--white); border-radius: var(--btn-radius); padding: 8px 14px; font-weight: 500; }
 

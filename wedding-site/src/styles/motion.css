@@ -97,8 +97,8 @@ html.js .milestone__num--word { transition: scale var(--t-stamp) var(--ease-stam
 html.mo:not(.land) .milestone__count:not(.in):has(.milestone__num--word) { translate: none; }
 html.mo:not(.land) .milestone__count:not(.in) .milestone__num--word { scale: 1.06; rotate: -2deg; }
 
-/* ===== programme: text slides in from its side; on phones everything comes from the right ===== */
-@media (max-width: 760px) {
+/* ===== programme: text slides in from its side; up to 900 px everything comes from the right ===== */
+@media (max-width: 900px) {
   html.mo:not(.land) .ev .rv--left:not(.in) { translate: var(--rv-x) 0; }
 }
 
@@ -233,7 +233,7 @@ html.mo .reply-end > :nth-child(6) { animation-delay: 1040ms; }
 
 /* ===== nav: one underline slides to the current section (Nav sets --bar-*); hover keeps its own ===== */
 html.mo .nav__links::after {
-  content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 3px; background: var(--accent-underline);
+  content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 3px; background: var(--accent-current);
   transform-origin: left; transform: translate(var(--bar-x, 0px), var(--bar-y, 0px)) scaleX(var(--bar-w, 0));
   opacity: 0; pointer-events: none; transition: transform 260ms var(--ease-out), opacity var(--t-hover);
 }

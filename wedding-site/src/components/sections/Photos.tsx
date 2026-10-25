@@ -11,7 +11,7 @@ export function Photos() {
         <div className="photos__head rv">
           <h2 id="ph-h">Naše chvíle doteraz</h2>
           <Drawing className="sprig" src={art("rose-border", "black")} />
-          <p className="lead">Pár momentov z cesty, ktorá nás priviedla až sem.</p>
+          <p className="lead">Pár momentov z&nbsp;cesty, ktorá nás priviedla až sem.</p>
           <Drawing className="photos__cam rv rv--stamp" src={art("camera", "black")} />
         </div>
         <div className="photos__row">

@@ -22,7 +22,7 @@ export async function CalendarMenu({ className, style }: { className?: string; s
           </a>
         </div>
         <a className="cal__other" href="/svadba.ics" download="svadba-barbora-michal.ics">
-          Outlook a iné kalendáre (.ics)
+          Outlook a&nbsp;iné kalendáre (.ics)
         </a>
       </div>
     </Disclosure>

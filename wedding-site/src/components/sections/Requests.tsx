@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 import { Tint } from "../Tint";
 
@@ -17,20 +18,20 @@ export async function Requests() {
         <header className="asks__head rv">
           <h2 id="asks-h">Pár prosieb</h2>
           <Drawing className="sprig" src={art("rose-border", "black")} />
-          <p className="lead">{requestsIntro}</p>
+          <p className="lead">{tie(requestsIntro)}</p>
         </header>
         <ol className="asks__list" data-rv-stagger="110">
           {requests.map((r) => (
             <li className="ask" key={r.id} data-rv-group="" data-rv-threshold="0.25">
               <Tint className="ask__art" src={art(r.drawing, "black")} c={r.tint[0]} c2={r.tint[1]} />
               <p className="ask__when rv" style={d(90)}>
-                {r.when}
+                {tie(r.when)}
               </p>
               <h3 className="rv" style={d(130)}>
-                {r.title}
+                {tie(r.title)}
               </h3>
               <p className="ask__text rv" style={d(190)}>
-                {r.text}
+                {tie(r.text)}
               </p>
             </li>
           ))}

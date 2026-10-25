@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import type { PaletteColour } from "@/content/types";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Drawing } from "./Drawing";
 
 const CYCLE_MS = 4000;
@@ -75,7 +76,7 @@ export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
                 {p.name}
               </button>
             </h3>
-            <p>{p.meaning}</p>
+            <p>{tie(p.meaning)}</p>
           </li>
         ))}
       </ol>

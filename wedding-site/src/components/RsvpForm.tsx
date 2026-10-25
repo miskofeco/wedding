@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState, useSyncExternalStore } fro
 import Link from "next/link";
 import { submitRsvp } from "@/app/(site)/rsvp/actions";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { initialRsvpState, LIMITS, type Field, type RsvpState } from "@/lib/rsvp";
 import { AppleLogo, GoogleLogo } from "./CalendarLogos";
 import { InfoTip, KidPick } from "./KidPick";
@@ -64,7 +65,7 @@ function GuestsField({ state, value, onChange }: { state: RsvpState; value: stri
         +
       </button>
       <span className="stepper__unit" id="guests-unit">
-        {valid && n >= 1 ? persons(n) : "osoby"}, aj s vami
+        {valid && n >= 1 ? persons(n) : "osoby"}, aj s&nbsp;vami
       </span>
     </div>
   );
@@ -175,7 +176,7 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
           Ako sa voláte?
         </label>
         <p className="field__hint" id="name-hint">
-          Meno a priezvisko. Ostatných z domácnosti dopíšete o dva kroky nižšie.
+          Meno a&nbsp;priezvisko. Ostatných z&nbsp;domácnosti dopíšete o&nbsp;dva kroky nižšie.
         </p>
         <input
           id="name"
@@ -193,7 +194,7 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
 
       <li className="step">
         <fieldset className="step__set" aria-describedby={described("attending", state)}>
-          <legend className="step__title">Budete s nami 29. mája?</legend>
+          <legend className="step__title">Budete s&nbsp;nami 29.&nbsp;mája?</legend>
           <div className="tiles" role="radiogroup" aria-invalid={state.errors.attending ? true : undefined}>
             <label className="tile tile--yes">
               <input
@@ -206,7 +207,7 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
               />
               <Tint className="tile__art" src={art("champagne-toast", "black")} c="butter" c2="peony" reveal={false} />
               <span className="tile__title">Áno, s radosťou</span>
-              <span className="tile__note">Ďalej už len kto príde a strava.</span>
+              <span className="tile__note">Ďalej už len kto príde a&nbsp;strava.</span>
             </label>
             <label className="tile tile--no">
               <input type="radio" name="attending" value="no" id="attending-no" defaultChecked={state.values.attending === "no"} />
@@ -226,9 +227,9 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
         <GuestsField state={state} value={guests} onChange={setGuests} />
         <FieldError id="guests" state={state} />
         <p className="field__hint" id="party-hint">
-          Ak prídete viacerí, dopíšte, prosím, meno a priezvisko každého hosťa a označte, či ide o dieťa.{" "}
+          Ak prídete viacerí, dopíšte, prosím, meno a&nbsp;priezvisko každého hosťa a&nbsp;označte, či ide o&nbsp;dieťa.{" "}
           <InfoTip label="Prečo sa pýtame, či ide o dieťa">
-            Pomôže nám to pri zasadacom poriadku a pri plánovaní veľkosti porcií.
+            Pomôže nám to pri zasadacom poriadku a&nbsp;pri plánovaní veľkosti porcií.
           </InfoTip>
         </p>
         <PartyNames state={state} count={count} you={name} />
@@ -273,7 +274,7 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
         <button className="btn btn--solid btn--send" type="submit" disabled={pending} data-pending={pending || undefined}>
           {pending ? "Odosielam…" : "Odoslať odpoveď"}
         </button>
-        <p className="field__hint">{privacy}</p>
+        <p className="field__hint">{tie(privacy)}</p>
       </li>
     </ol>
   );
@@ -324,8 +325,8 @@ export function RsvpForm({ contact, calendarUrl, privacy }: RsvpFormProps) {
         </h2>
         <p className="lead">
           {coming
-            ? "Vašu odpoveď sme dostali. Uložte si dátum do kalendára, nech vás 29. máj nezaskočí."
-            : "Vašu odpoveď sme dostali. Budete nám chýbať a pripijeme si aj na vás."}
+            ? "Vašu odpoveď sme dostali. Uložte si dátum do kalendára, nech vás 29.\u00A0máj nezaskočí."
+            : "Vašu odpoveď sme dostali. Budete nám chýbať a\u00A0pripijeme si aj na vás."}
         </p>
         {coming && (
           <div className="reply-end__cal">
@@ -335,7 +336,7 @@ export function RsvpForm({ contact, calendarUrl, privacy }: RsvpFormProps) {
             </a>
             <a className="btn cal__btn cal__btn--apple" href="/svadba.ics" download="svadba-barbora-michal.ics">
               <AppleLogo />
-              Apple a iné kalendáre
+              Apple a&nbsp;iné kalendáre
             </a>
           </div>
         )}
@@ -390,7 +391,7 @@ export function RsvpForm({ contact, calendarUrl, privacy }: RsvpFormProps) {
           )}
           {state.status === "failed" && (
             <p>
-              <strong>Odpoveď sa nepodarilo odoslať.</strong> Skúste to, prosím, o chvíľu znova
+              <strong>Odpoveď sa nepodarilo odoslať.</strong> Skúste to, prosím, o&nbsp;chvíľu znova
               {contact ? ` alebo nám napíšte priamo: ${contact}.` : "."}
             </p>
           )}

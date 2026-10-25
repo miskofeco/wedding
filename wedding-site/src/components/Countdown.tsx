@@ -69,7 +69,7 @@ export function Countdown({ date, dateLabel }: { date: string; dateLabel: string
     return (
       <p className="milestone__count rv" ref={ref}>
         <span className="milestone__num milestone__num--word">Svoji</span>
-        <span className="milestone__unit">ďakujeme, že ste boli s nami</span>
+        <span className="milestone__unit">ďakujeme, že ste boli s&nbsp;nami</span>
       </p>
     );
   }

@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
+import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 
 export async function Faq() {
@@ -22,8 +23,8 @@ export async function Faq() {
         <div className="faq__list" data-rv-stagger="50">
           {faq.map((q) => (
             <details className="rv" key={q.question}>
-              <summary>{q.question}</summary>
-              <p>{q.answer ?? "Odpoveď doplníme."}</p>
+              <summary>{tie(q.question)}</summary>
+              <p>{q.answer ? tie(q.answer) : "Odpoveď doplníme."}</p>
             </details>
           ))}
         </div>

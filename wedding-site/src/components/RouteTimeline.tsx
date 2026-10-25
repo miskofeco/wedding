@@ -24,7 +24,7 @@ export function RouteTimeline({ children }: { children: ReactNode }) {
         return { x: b.left - r.left + b.width / 2, y: b.top - r.top + b.height / 2 };
       });
       if (pts.length < 2) return;
-      const lead = r.width < 760 ? 40 : 110;
+      const lead = window.innerWidth <= 900 ? 40 : 110;
       const first = pts[0];
       const last = pts[pts.length - 1];
       let d = `M ${round(first.x)} ${round(first.y - lead)} L ${round(first.x)} ${round(first.y)}`;
