@@ -378,3 +378,10 @@
   .map__town--small { font-size: 48px; }
   .map__north text { font-size: 56px; }
 }
+
+/* ===== 404 and error: the invitation's nav, one tinted drawing and the way back ===== */
+.oops { display: grid; justify-items: center; align-content: center; gap: 20px; min-height: calc(100svh - var(--nav-h)); padding: clamp(48px, 10vw, 120px) var(--gutter); text-align: center; }
+.oops__art { width: clamp(140px, 22vw, 220px); }
+.oops h1 { font-size: var(--text-h2); text-wrap: balance; }
+.oops .lead { max-width: 34ch; }
+.oops__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
