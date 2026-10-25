@@ -1,6 +1,7 @@
 // What the guest pages show: the content files in src/content, with the parts
 // the couple edited in /admin laid over them. An edit that fails validation, or
 // a database that can't be reached, falls back to the files. Server-only.
+import "server-only";
 import { cache } from "react";
 import { events, faq, places, requests, requestsIntro, rsvp, site } from "@/content";
 import type { Place, Rsvp } from "@/content/types";

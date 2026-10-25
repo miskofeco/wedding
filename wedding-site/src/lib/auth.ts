@@ -1,8 +1,10 @@
 // Admin session: one shared password (ADMIN_PASSWORD) and an HMAC-signed,
 // HttpOnly cookie (ADMIN_SESSION_SECRET). Server-only.
+import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createAttemptLimiter } from "./attempts";
 import { createLimiter } from "./limit";
 import { createToken, verifyToken } from "./session";
 
@@ -66,11 +68,14 @@ export async function requireAdmin(): Promise<void> {
   if (!(await isAdmin())) redirect("/admin/login");
 }
 
-// Best-effort brakes on password guessing (per server instance; the Vercel
-// Firewall rule in the README is the real one). Per address, and one for
-// everyone, since a guesser can spread tries over many addresses.
+// Brakes on password guessing. `tries` counts every try per address in the
+// database, shared by all server instances, and is the real limit. The two in
+// memory answer first without a query: per address, and one for everyone,
+// since a guesser can spread tries over many addresses.
 const WINDOW_MS = 15 * 60 * 1000;
+const MAX_TRIES = 8;
 export const loginFailures = {
-  perIp: createLimiter(8, WINDOW_MS),
+  tries: createAttemptLimiter(MAX_TRIES, WINDOW_MS),
+  perIp: createLimiter(MAX_TRIES, WINDOW_MS),
   all: createLimiter(30, WINDOW_MS),
 };

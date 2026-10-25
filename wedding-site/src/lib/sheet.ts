@@ -1,5 +1,6 @@
 // Server-only client for the Google Sheet mirror (google-sheet/Code.gs). Never
 // import this from a client component: it reads the shared secret.
+import "server-only";
 
 export type SheetResult<T> = { ok: true; data: T } | { ok: false; error: SheetError };
 export type SheetError = "not_configured" | "unreachable" | "rejected" | "not_found" | "invalid";

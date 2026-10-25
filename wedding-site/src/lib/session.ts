@@ -2,6 +2,7 @@
 // The fingerprint ties the token to the current ADMIN_PASSWORD, so changing the
 // password signs everyone out. Rotating ADMIN_SESSION_SECRET does the same.
 // Pure functions (no Next.js), so the tests can run them. Server-only.
+import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 const sign = (payload: string, secret: string) => createHmac("sha256", secret).update(payload).digest("base64url");

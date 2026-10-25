@@ -1,6 +1,7 @@
 // The guest list: one row per invitation (household). Same pattern as
 // answers.ts: the database is the record, the Sheet tab „Pozvaní“ a copy.
 // Server-only.
+import "server-only";
 import { randomUUID } from "node:crypto";
 import type { Row } from "@libsql/client";
 import { db, dbConfigured, nowIso } from "./db";
@@ -92,6 +93,7 @@ export function markReminded(id: string, reminded: boolean) {
   });
 }
 
+/** Marks the invitation deleted; removed from the database like an answer (see `deleteAnswer`). */
 export function deleteInvite(id: string) {
   return guarded("delete", async () => {
     const client = await db();
@@ -144,6 +146,13 @@ export async function mirrorInvite(id: string): Promise<boolean> {
     console.error(`Invite mirror failed: ${err instanceof Error ? err.message : "unknown error"}`);
     return false;
   }
+}
+
+/** Removes every invitation marked deleted. Only for when no Sheet is connected. */
+export async function purgeDeletedInvites(): Promise<number> {
+  if (!dbConfigured()) return 0;
+  const res = await (await db()).execute("DELETE FROM invites WHERE deleted_at IS NOT NULL");
+  return res.rowsAffected;
 }
 
 export async function pendingInviteIds(): Promise<string[]> {

@@ -2,6 +2,7 @@
 // Marketplace, reached over HTTPS (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN).
 // Development: the same SQL in a local file, `.data/svadba.db` (git-ignored),
 // unless TURSO_DATABASE_URL says otherwise. Server-only.
+import "server-only";
 import type { Client, InStatement } from "@libsql/client";
 
 const LOCAL_URL = "file:.data/svadba.db";
@@ -61,6 +62,12 @@ const SCHEMA = [
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,
     updated_at TEXT NOT NULL
+  )`,
+  // Login tries per address (attempts.ts): key is a SHA-256 of the IP, since the window start in ms.
+  `CREATE TABLE IF NOT EXISTS login_attempts (
+    key TEXT PRIMARY KEY,
+    count INTEGER NOT NULL,
+    since INTEGER NOT NULL
   )`,
 ];
 const MIGRATIONS: string[] = [];
