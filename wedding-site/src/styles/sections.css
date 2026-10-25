@@ -368,3 +368,11 @@
   .map__sub, .map__note { font-size: 34px; }
   .map__north text { font-size: 44px; }
 }
+/* Under 520 px the map is under 500 px wide and its second lines would fall below 14 px; the legend
+   below repeats them, so the map keeps only towns, river and scale, set larger. */
+@media (max-width: 520px) {
+  .map__sub, .map__note:not(.map__note--river) { display: none; }
+  .map__note--river, .map__scale text { font-size: 50px; }
+  .map__town--small { font-size: 48px; }
+  .map__north text { font-size: 56px; }
+}
