@@ -7,7 +7,7 @@ import "@/styles/soon.css";
 
 /**
  * „Pripravujeme“: one screen that production shows in place of every guest page
- * while content/launch.ts says so (src/proxy.ts does the rewrite). A save-the-date
+ * while content/launch.ts says so (next.config.ts does the rewrite). A save-the-date
  * in the hero's language; the road draws itself and the wedding car drives in.
  */
 export default function ComingSoon() {

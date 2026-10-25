@@ -124,7 +124,7 @@ After the first deploy, submit one test RSVP, check it appears in `/admin` and i
 
 ### „Pripravujeme“ (coming soon)
 
-While `comingSoon` in `src/content/launch.ts` is `true`, production shows only `/pripravujeme`: `src/proxy.ts` rewrites every guest page to it, `/rsvp` included (sending an answer is refused too). `/admin`, `/svadba.ics` (the page's calendar button), drawings and Next.js assets stay reachable. The address bar keeps the URL the guest opened. Local dev and preview deploys always show the full site; open `/pripravujeme` there to see the page. To open the invitation, set `comingSoon` to `false` and deploy.
+While `comingSoon` in `src/content/launch.ts` is `true`, production shows only `/pripravujeme`: a rewrite in `next.config.ts` sends every guest page to it, `/rsvp` included (sending an answer is refused too). `/admin`, `/svadba.ics` (the page's calendar button), drawings and Next.js assets stay reachable. The address bar keeps the URL the guest opened. The rewrite is fixed when the site is built: `npm run deploy` builds with `VERCEL_ENV=production` from `vercel pull`, so local builds and preview deploys always show the full site; open `/pripravujeme` there to see the page. To open the invitation, set `comingSoon` to `false` and deploy.
 
 The guest pages are static. The build reads the edited content from the production database (`vercel pull` brings the Turso variables), and saving in „Obsah webu“ rebuilds them on Vercel on the next visit, so content edits need no deploy.
 
@@ -134,7 +134,7 @@ The site asks search engines not to index it (`robots: noindex`), because it is 
 
 ```
 src/app/            root layout (fonts, metadata), error pages; (site)/ public page and rsvp/; admin/ (app)/ pages, login, actions, export/ CSV
-src/proxy.ts        the strict Content Security Policy for /admin, and the „Pripravujeme“ gate in production
+src/proxy.ts        the strict Content Security Policy for /admin (the only path it runs on)
 src/components/     Nav, RouteTimeline (the road), RevealObserver, Tint, Drawing, RsvpForm, admin/
 src/lib/            db (libSQL), answers + invites (records, Sheet mirror), mirror (sync), records (matching, totals, CSV), content + site-content (editable content), sheet (Google Sheet client), rsvp (validation), auth + session (admin login), limit, csp, ics, art, format
 google-sheet/       Code.gs (Apps Script) and SETUP.md

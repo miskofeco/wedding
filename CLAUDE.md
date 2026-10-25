@@ -23,6 +23,6 @@ Production is **https://www.baskamisko.sk** (`baskamisko.sk` redirects there): V
   It runs `vercel pull`, `vercel build --prod` and `vercel deploy --prebuilt --prod`. Run `npm run photos` or `npm run fills` first only if those assets changed.
 - **Deploy when the user asks**, and only a committed and pushed state, so production always matches a commit on `main`.
 - **Afterwards** check that https://www.baskamisko.sk and `/admin/login` answer, and report the deployment URL. If the build fails, report the error; don't deploy around it.
-- **„Pripravujeme“:** while `comingSoon` in `wedding-site/src/content/launch.ts` is `true`, production shows only the coming-soon page (`src/proxy.ts`); `/admin` stays open. Switch it off only when the user says so, then deploy.
+- **„Pripravujeme“:** while `comingSoon` in `wedding-site/src/content/launch.ts` is `true`, production shows only the coming-soon page (a build-time rewrite in `next.config.ts`); `/admin` stays open. Switch it off only when the user says so, then deploy.
 - **Settings** live in Vercel → Settings → Environment Variables (Production). `NEXT_PUBLIC_*` values are Config and built into the pages, so deploy after changing one. Keep `RELEASE-CHECKLIST.md` (local only) in step when variables change.
 - Content edited in `/admin` → „Obsah webu“ goes live without a deploy.
