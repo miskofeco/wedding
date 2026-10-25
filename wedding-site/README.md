@@ -12,7 +12,7 @@ npm run start      # serve the build
 npm run lint
 npm run typecheck
 npm test           # validation, session, calendar, guest records, the database, content checks and Code.gs
-npm run test:authz # builds and starts the site, then asks every admin page, export and action without a cookie
+npm run test:authz # builds and starts the site, then asks every admin page, export and action without a cookie, and checks the action body limit
 ```
 
 GitHub Actions runs typecheck, lint and tests on every push (`.github/workflows/ci.yml`). It can't build, because the photos and masks are not in git; see Deploy.

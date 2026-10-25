@@ -1,5 +1,6 @@
 // Every admin page, export and server action, asked without a cookie, must send
-// the visitor to the login. Builds the site and starts it on a free port with
+// the visitor to the login; and the action body limit must let the largest real
+// payloads through. Builds the site and starts it on a free port with
 // throwaway settings (into .next, as `npm run build` does), so it is slow and
 // runs on its own: `npm run test:authz`.
 // Needs the photos and masks that `npm run build` needs.
@@ -75,6 +76,9 @@ const sample: Record<string, string> = { "[part]": "program" };
 const fill = (route: string) => route.replace(/\[[^\]]+\]/g, (s) => sample[s] ?? "x");
 
 const routes = () => Object.values(manifest("app-path-routes-manifest.json") as Record<string, string>);
+type Action = { workers: Record<string, unknown>; filename: string; exportedName: string };
+/** [action id, where it lives] for every server action in the build. */
+const serverActions = () => Object.entries(manifest("server/server-reference-manifest.json").node as Record<string, Action>);
 
 /** GET without following redirects, except the one that adds the `_rsc` cache key to a client navigation. */
 async function get(path: string, headers: Record<string, string> = {}) {
@@ -121,8 +125,7 @@ test("the exports answer 401 without a cookie", async () => {
 });
 
 test("every admin server action sends a caller without a cookie to the login", async () => {
-  type Entry = { workers: Record<string, unknown>; filename: string; exportedName: string };
-  const actions = Object.entries(manifest("server/server-reference-manifest.json").node as Record<string, Entry>);
+  const actions = serverActions();
   const pageRoute: Record<string, string> = manifest("app-path-routes-manifest.json");
   const admin = actions.filter(([, a]) => a.filename === "src/app/admin/actions.ts" && a.exportedName !== "login");
   // A new action shows up here by itself; one missing from the build would go untested.
@@ -145,4 +148,38 @@ test("every admin server action sends a caller without a cookie to the login", a
     assert.ok(redirect, `${action.exportedName}: no redirect (status ${res.status})`);
     assert.equal(redirect.split(";")[0], "/admin/login", action.exportedName);
   }
+});
+
+test("action bodies up to the largest real ones reach the action, bigger ones are refused", async () => {
+  const actions = serverActions();
+  const idOf = (name: string) => actions.find(([, a]) => a.exportedName === name)?.[0] ?? "";
+  // Without a cookie, an action that gets to run answers with the login redirect;
+  // a body over next.config's bodySizeLimit is refused before that.
+  const send = (name: string, page: string, args: unknown[]) =>
+    fetch(base + page, {
+      method: "POST",
+      headers: { "Next-Action": idOf(name), "Content-Type": "text/plain;charset=UTF-8", Accept: "text/x-component" },
+      body: JSON.stringify(args),
+      redirect: "manual",
+    });
+  const bytes = (args: unknown[]) => Buffer.byteLength(JSON.stringify(args));
+
+  // 300 households of 20 names each, with diacritics.
+  const line = Array.from({ length: 20 }, (_, i) => `Žofia Ďuríčková ${i}`).join(", ");
+  const paste = [null, { lines: Array.from({ length: 300 }, () => line).join("\n"), side: "both", group: "Rodina" }];
+  // saveSiteContent takes up to 100,000 characters; this is that much of accented text.
+  const content = [null, { key: "faq", value: "č".repeat(100_000) }];
+  for (const [name, page, args] of [
+    ["addInvitesInBulk", "/admin/pozvani", paste],
+    ["saveSiteContent", "/admin/obsah/program", content],
+  ] as const) {
+    const res = await send(name, page, [...args]);
+    assert.equal(res.headers.get("x-action-redirect")?.split(";")[0], "/admin/login", `${name} with ${bytes([...args])} bytes: status ${res.status}`);
+  }
+
+  // Next refuses an oversized body with an error (500) instead of running the action.
+  const sized = (n: number) => [null, { value: "x".repeat(n - 19) }]; // n bytes of JSON
+  assert.ok((await send("saveSiteContent", "/admin/obsah/program", sized(256 * 1024 - 100))).headers.has("x-action-redirect"), "just under the limit");
+  const over = await send("saveSiteContent", "/admin/obsah/program", sized(256 * 1024 + 100));
+  assert.ok(!over.headers.has("x-action-redirect") && over.status >= 400, `just over the limit: status ${over.status}`);
 });
