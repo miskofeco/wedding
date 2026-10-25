@@ -72,22 +72,33 @@ const fields = (a: RsvpAnswer) => [
 /**
  * `submission` is the browser's key for this answer: an answer with a key the
  * database has already seen is stored only once, so a retry after a timeout
- * can't add a second row.
+ * can't add a second row. A deleted answer gives its key up (`deleteAnswer`),
+ * so a retry after the couple deleted it is stored again.
  */
 export function createAnswer(answer: RsvpAnswer, source: "web" | "admin", submission = "", inviteId: string | null = null) {
   return guarded<string>("create", async () => {
     const client = await db();
-    if (submission) {
-      const seen = await client.execute({ sql: "SELECT id FROM answers WHERE submission = ?", args: [submission] });
-      if (seen.rows[0]) return { ok: true, data: str(seen.rows[0].id) };
-    }
+    const seen = async () => {
+      if (!submission) return null;
+      const { rows } = await client.execute({ sql: "SELECT id FROM answers WHERE submission = ? AND deleted_at IS NULL", args: [submission] });
+      return rows[0] ? str(rows[0].id) : null;
+    };
+    const known = await seen();
+    if (known) return { ok: true, data: known };
     const id = randomUUID();
     const now = nowIso();
-    await client.execute({
-      sql: `INSERT INTO answers (id, submitted_at, updated_at, source, submission, name, attending, guests, party, kids, dietary, message, invite_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      args: [id, now, now, source, submission || null, ...fields(answer), inviteId],
-    });
+    try {
+      await client.execute({
+        sql: `INSERT INTO answers (id, submitted_at, updated_at, source, submission, name, attending, guests, party, kids, dietary, message, invite_id)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [id, now, now, source, submission || null, ...fields(answer), inviteId],
+      });
+    } catch (err) {
+      // An identical retry inserted it first (the key is unique): that one is this answer.
+      const first = await seen();
+      if (first) return { ok: true, data: first };
+      throw err;
+    }
     return { ok: true, data: id };
   });
 }
@@ -116,12 +127,13 @@ export function setAnswerInvite(id: string, inviteId: string | null) {
 
 /**
  * Marks the answer deleted; the mirror removes it from the Sheet and then from
- * the database, or from the database at once when no Sheet is connected.
+ * the database, or from the database at once when no Sheet is connected. Its
+ * submission key is cleared, so the guest can send the answer again meanwhile.
  */
 export function deleteAnswer(id: string) {
   return guarded("delete", async () => {
     const res = await (await db()).execute({
-      sql: "UPDATE answers SET deleted_at = ?, sheet_pending = 1 WHERE id = ? AND deleted_at IS NULL",
+      sql: "UPDATE answers SET deleted_at = ?, submission = NULL, sheet_pending = 1 WHERE id = ? AND deleted_at IS NULL",
       args: [nowIso(), id],
     });
     return res.rowsAffected ? { ok: true, data: true } : { ok: false, error: "not_found" };

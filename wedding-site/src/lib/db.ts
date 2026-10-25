@@ -42,6 +42,7 @@ const SCHEMA = [
     deleted_at TEXT,
     sheet_pending INTEGER NOT NULL DEFAULT 1
   )`,
+  // Deleted answers have no key (answers.ts), so this holds the live ones only.
   "CREATE UNIQUE INDEX IF NOT EXISTS answers_submission ON answers(submission) WHERE submission IS NOT NULL",
   `CREATE TABLE IF NOT EXISTS invites (
     id TEXT PRIMARY KEY,
@@ -70,7 +71,10 @@ const SCHEMA = [
     since INTEGER NOT NULL
   )`,
 ];
-const MIGRATIONS: string[] = [];
+const MIGRATIONS: string[] = [
+  // Answers deleted before deleting cleared the key give it up too.
+  "UPDATE answers SET submission = NULL WHERE deleted_at IS NOT NULL",
+];
 
 let client: Promise<Client> | null = null;
 
