@@ -1,6 +1,7 @@
 import { ViewTransition } from "react";
 import { site } from "@/content";
 import { Nav } from "@/components/Nav";
+import { ViewTransitionFix } from "@/components/ViewTransitionFix";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Nav mark={site.couple.mark} />
       {/* Home ↔ /rsvp crossfade (240 ms, motion.css); the nav sits outside, so it stays put. */}
       <ViewTransition>{children}</ViewTransition>
+      <ViewTransitionFix />
     </>
   );
 }
