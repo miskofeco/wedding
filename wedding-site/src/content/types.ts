@@ -121,6 +121,9 @@ export interface Rsvp {
   deadline: Pending<string>;
   /** How to reach the couple directly, e.g. a phone number or e-mail shown on the RSVP page. */
   contact: Pending<string>;
-  /** Under the send button: who sees the answer, where it is kept and when it is deleted. */
+  /**
+   * Under the send button: who sees the answer, who else gets part of it, where it is kept and when
+   * it is deleted. The form adds how to ask for a correction or an earlier deletion, with `contact`.
+   */
   privacy: string;
 }

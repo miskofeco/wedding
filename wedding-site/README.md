@@ -31,7 +31,7 @@ Every unconfirmed fact is `null` in `src/content/` and shows a Slovak placeholde
 | FAQ answers | `src/content/faq.ts` | `answer` |
 | „Pár prosieb“ wording (arrive early, phones, confetti rule) | `src/content/requests.ts` | `requests`, `requestsIntro` |
 | RSVP deadline and direct contact | `src/content/rsvp.ts` | `deadline: "2027-04-30"`, `contact` |
-| Privacy note under the RSVP button (who sees it, where, when it's deleted) | `src/content/rsvp.ts` | `privacy` |
+| Privacy note under the RSVP button (who sees it, what the kitchen gets, where, when it's deleted; the form adds the contact for corrections) | `src/content/rsvp.ts` | `privacy` |
 | Photo captions | `src/content/photos.ts` | `caption` |
 | Palette meanings, dress-code wording | `src/content/palette.ts` | `paletteIntro`, `meaning` |
 

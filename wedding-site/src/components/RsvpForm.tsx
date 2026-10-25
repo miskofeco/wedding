@@ -164,7 +164,17 @@ function DietField({ state }: { state: RsvpState }) {
 }
 
 /** The numbered stops. Remounts with the form after each attempt, so its state starts from the echoed values. */
-function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boolean; privacy: string }) {
+function FormSteps({
+  state,
+  pending,
+  privacy,
+  contact,
+}: {
+  state: RsvpState;
+  pending: boolean;
+  privacy: string;
+  contact: string | null;
+}) {
   const [name, setName] = useState(state.values.name ?? "");
   const [guests, setGuests] = useState(state.values.guests || "1");
   const n = Number.parseInt(guests, 10);
@@ -274,7 +284,15 @@ function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boo
         <button className="btn btn--solid btn--send" type="submit" disabled={pending} data-pending={pending || undefined}>
           {pending ? "Odosielam…" : "Odoslať odpoveď"}
         </button>
-        <p className="field__hint">{tie(privacy)}</p>
+        <p className="field__hint">
+          {tie(
+            `${privacy} ${
+              contact
+                ? `Ak chcete niečo opraviť alebo vymazať skôr, napíšte nám: ${contact}.`
+                : "Ak chcete niečo opraviť alebo vymazať skôr, dajte nám vedieť."
+            }`,
+          )}
+        </p>
       </li>
     </ol>
   );
@@ -399,7 +417,7 @@ export function RsvpForm({ contact, calendarUrl, privacy }: RsvpFormProps) {
       )}
 
       <input type="hidden" name="submission" value={submission} />
-      <FormSteps state={state} pending={pending} privacy={privacy} />
+      <FormSteps state={state} pending={pending} privacy={privacy} contact={contact} />
     </form>
   );
 }
