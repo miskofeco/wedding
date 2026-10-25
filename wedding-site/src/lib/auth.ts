@@ -69,13 +69,13 @@ export async function requireAdmin(): Promise<void> {
 }
 
 // Brakes on password guessing. `tries` counts every try per address in the
-// database, shared by all server instances, and is the real limit. The two in
-// memory answer first without a query: per address, and one for everyone,
-// since a guesser can spread tries over many addresses.
+// database, shared by all server instances, and is the real limit. `perIp`, in
+// memory, answers first without a query. There is no count across all
+// addresses: anyone could fill it and lock the couple out. Against a guesser
+// with many addresses, the password's length (MIN_PASSWORD) is the defence.
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_TRIES = 8;
 export const loginFailures = {
   tries: createAttemptLimiter(MAX_TRIES, WINDOW_MS),
   perIp: createLimiter(MAX_TRIES, WINDOW_MS),
-  all: createLimiter(30, WINDOW_MS),
 };
