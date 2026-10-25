@@ -59,6 +59,7 @@ const SCHEMA = [
     deleted_at TEXT,
     sheet_pending INTEGER NOT NULL DEFAULT 1
   )`,
+  // The parts edited in „Obsah webu“, and the sign-out cut-off (auth.ts); content.ts skips keys it doesn't know.
   `CREATE TABLE IF NOT EXISTS content (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL,

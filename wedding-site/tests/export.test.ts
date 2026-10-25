@@ -22,8 +22,10 @@ test.after(async () => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-const signIn = () =>
-  jar.set("bm_admin", createToken(process.env.ADMIN_SESSION_SECRET!, process.env.ADMIN_PASSWORD!, Math.floor(Date.now() / 1000) + 60));
+const signIn = () => {
+  const now = Math.floor(Date.now() / 1000);
+  jar.set("bm_admin", createToken(process.env.ADMIN_SESSION_SECRET!, process.env.ADMIN_PASSWORD!, now, now + 60));
+};
 const get = (kind: string) => GET(new Request(`http://localhost/admin/export/${kind}`), { params: Promise.resolve({ kind }) });
 
 // A guest name that a spreadsheet would run as a formula.

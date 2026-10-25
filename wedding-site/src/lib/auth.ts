@@ -4,7 +4,9 @@ import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { createAttemptLimiter } from "./attempts";
+import { db, dbConfigured, nowIso } from "./db";
 import { createLimiter } from "./limit";
 import { createToken, verifyToken } from "./session";
 
@@ -41,8 +43,8 @@ export async function startSession(): Promise<void> {
   const secret = sessionSecret();
   const password = adminPassword();
   if (!secret || !password) throw new Error("ADMIN_PASSWORD or ADMIN_SESSION_SECRET is missing or too short");
-  const expires = Math.floor(Date.now() / 1000) + MAX_AGE_S;
-  (await cookies()).set(COOKIE, createToken(secret, password, expires), {
+  const now = Math.floor(Date.now() / 1000);
+  (await cookies()).set(COOKIE, createToken(secret, password, now, now + MAX_AGE_S), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
@@ -55,12 +57,46 @@ export async function endSession(): Promise<void> {
   (await cookies()).delete({ name: COOKIE, path: COOKIE_PATH });
 }
 
+// „Odhlásiť všetky zariadenia“: sessions issued before this time (seconds) no longer
+// count. A row in the content table, under a key the guest pages ignore, so it
+// takes effect at once on every server instance, with no deploy.
+const CUTOFF_KEY = "admin_sessions_after";
+
+/** The cut-off, read once per request. 0 if never set; also if the database can't answer, as nothing else works then either. */
+const sessionsAfter = cache(async (): Promise<number> => {
+  if (!dbConfigured()) return 0;
+  try {
+    const { rows } = await (await db()).execute({ sql: "SELECT value FROM content WHERE key = ?", args: [CUTOFF_KEY] });
+    return Number(rows[0]?.value ?? 0) || 0;
+  } catch (err) {
+    console.error(`Session cut-off unavailable: ${err instanceof Error ? err.message : "unknown error"}`);
+    return 0;
+  }
+});
+
+/** Signs out every device: sessions issued until now stop counting. False if the database can't store it. */
+export async function revokeSessions(): Promise<boolean> {
+  if (!dbConfigured()) return false;
+  try {
+    await (await db()).execute({
+      sql: "INSERT INTO content (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at",
+      args: [CUTOFF_KEY, String(Math.floor(Date.now() / 1000)), nowIso()],
+    });
+    return true;
+  } catch (err) {
+    console.error(`Session cut-off not saved: ${err instanceof Error ? err.message : "unknown error"}`);
+    return false;
+  }
+}
+
 export async function isAdmin(): Promise<boolean> {
   const secret = sessionSecret();
   const password = adminPassword();
   const value = (await cookies()).get(COOKIE)?.value;
   if (!secret || !password || !value) return false;
-  return verifyToken(value, secret, password, Date.now() / 1000);
+  const now = Date.now() / 1000;
+  // The cut-off costs a query, so only for a token that is valid otherwise.
+  return verifyToken(value, secret, password, now) && verifyToken(value, secret, password, now, await sessionsAfter());
 }
 
 /** Call at the top of every admin page and admin server action. */

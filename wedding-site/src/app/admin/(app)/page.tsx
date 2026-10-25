@@ -6,6 +6,7 @@ import { formatDay, plural, ago } from "@/components/admin/format";
 import { Icon } from "@/components/admin/Icon";
 import { Notice, PageHead } from "@/components/admin/PageHead";
 import { RepliesChart } from "@/components/admin/RepliesChart";
+import { SignOutEverywhere } from "@/components/admin/SignOutEverywhere";
 import { SidesChart } from "@/components/admin/SidesChart";
 import { loadBoard } from "../data";
 
@@ -245,6 +246,11 @@ export default async function OverviewPage() {
           </dl>
         </section>
       </div>
+
+      <section className="adm-devices" aria-label="Prihlásené zariadenia">
+        <p>Stratený telefón alebo prihlásenie na cudzom počítači? Odhláste všetky zariadenia okrem tohto.</p>
+        <SignOutEverywhere />
+      </section>
     </main>
   );
 }

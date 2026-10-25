@@ -4,7 +4,7 @@ import { after } from "next/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { adminConfigured, endSession, loginFailures, MIN_PASSWORD, passwordMatches, requireAdmin, startSession } from "@/lib/auth";
+import { adminConfigured, endSession, loginFailures, MIN_PASSWORD, passwordMatches, requireAdmin, revokeSessions, startSession } from "@/lib/auth";
 import { dbConfigured } from "@/lib/db";
 import { clientIp } from "@/lib/limit";
 import { parseRsvp } from "@/lib/rsvp";
@@ -70,6 +70,15 @@ async function withinTries(ip: string): Promise<boolean> {
 export async function logout(): Promise<void> {
   await endSession();
   redirect("/admin/login");
+}
+
+/** For a lost phone or a borrowed computer: every other device has to sign in again; this one stays. */
+export async function signOutEverywhere(): Promise<AdminFormState> {
+  await requireAdmin();
+  if (!dbConfigured()) return { status: "error", errors: {}, message: storeMessage.not_configured, at: stamp() };
+  if (!(await revokeSessions())) return { status: "error", errors: {}, message: storeMessage.failed, at: stamp() };
+  await startSession();
+  return { status: "saved", errors: {}, message: "Ostatné zariadenia sú odhlásené.", at: stamp() };
 }
 
 // ---- answers ----
