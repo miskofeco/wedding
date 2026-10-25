@@ -2,6 +2,7 @@
 // shares one count and a restart doesn't reset it (the counters in limit.ts
 // can't do either). Rows are keyed by a SHA-256 of the IP, so no address is
 // stored, and are dropped once their window is over. Server-only.
+import "server-only";
 import { createHash } from "node:crypto";
 import { db } from "./db";
 

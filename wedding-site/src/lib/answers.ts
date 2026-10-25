@@ -1,6 +1,7 @@
 // RSVP answers: the database is the record, the Google Sheet a copy kept in
 // step by `mirrorAnswer`. A write that can't reach the Sheet stays marked
 // `sheet_pending` and is retried by the next sync. Server-only.
+import "server-only";
 import { randomUUID } from "node:crypto";
 import type { Row } from "@libsql/client";
 import { db, dbConfigured, nowIso } from "./db";

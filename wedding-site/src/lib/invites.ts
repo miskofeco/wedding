@@ -1,6 +1,7 @@
 // The guest list: one row per invitation (household). Same pattern as
 // answers.ts: the database is the record, the Sheet tab „Pozvaní“ a copy.
 // Server-only.
+import "server-only";
 import { randomUUID } from "node:crypto";
 import type { Row } from "@libsql/client";
 import { db, dbConfigured, nowIso } from "./db";

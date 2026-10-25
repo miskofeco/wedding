@@ -1,6 +1,7 @@
 // Copies every row waiting for the Google Sheet. Runs after each write (via
 // `after`) and from the „Synchronizovať“ button in /admin. With no Sheet
 // connected it only removes deleted rows for good. Server-only.
+import "server-only";
 import { mirrorAnswer, pendingAnswerIds, purgeDeletedAnswers } from "./answers";
 import { mirrorInvite, pendingInviteIds, purgeDeletedInvites } from "./invites";
 import { sheetConfigured } from "./sheet";

@@ -1,5 +1,6 @@
 // Admin session: one shared password (ADMIN_PASSWORD) and an HMAC-signed,
 // HttpOnly cookie (ADMIN_SESSION_SECRET). Server-only.
+import "server-only";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

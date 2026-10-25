@@ -2,6 +2,7 @@
 // Marketplace, reached over HTTPS (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN).
 // Development: the same SQL in a local file, `.data/svadba.db` (git-ignored),
 // unless TURSO_DATABASE_URL says otherwise. Server-only.
+import "server-only";
 import type { Client, InStatement } from "@libsql/client";
 
 const LOCAL_URL = "file:.data/svadba.db";
