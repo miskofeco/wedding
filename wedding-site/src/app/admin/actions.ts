@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { adminConfigured, endSession, loginFailures, MIN_PASSWORD, passwordMatches, requireAdmin, startSession } from "@/lib/auth";
+import { dbConfigured } from "@/lib/db";
 import { clientIp } from "@/lib/limit";
 import { parseRsvp } from "@/lib/rsvp";
 import { createAnswer, deleteAnswer, setAnswerInvite, updateAnswer, type StoreResult } from "@/lib/answers";
@@ -38,7 +39,8 @@ export async function login(_prev: LoginState, form: FormData): Promise<LoginSta
     return { error: `Prihlásenie nie je nastavené. Chýba ADMIN_PASSWORD (aspoň ${MIN_PASSWORD} znakov) alebo ADMIN_SESSION_SECRET.` };
   }
   const ip = clientIp(await headers());
-  if (loginFailures.perIp.blocked(ip) || loginFailures.all.blocked("all")) {
+  // Counted before the password is checked, so parallel tries can't race past the limit.
+  if (loginFailures.perIp.blocked(ip) || loginFailures.all.blocked("all") || !(await withinTries(ip))) {
     return { error: "Príliš veľa pokusov. Skúste to znova o 15 minút." };
   }
 
@@ -50,8 +52,20 @@ export async function login(_prev: LoginState, form: FormData): Promise<LoginSta
     return { error: "Nesprávne heslo." };
   }
   loginFailures.perIp.clear(ip);
+  await loginFailures.tries.clear(ip).catch(() => {}); // a stale count only expires with its window
   await startSession();
   redirect("/admin");
+}
+
+/** The database count of tries. If the database can't answer, the in-memory brakes still hold. */
+async function withinTries(ip: string): Promise<boolean> {
+  if (!dbConfigured()) return true;
+  try {
+    return await loginFailures.tries.attempt(ip);
+  } catch (err) {
+    console.error(`Login limit unavailable: ${err instanceof Error ? err.message : "unknown error"}`);
+    return true;
+  }
 }
 
 export async function logout(): Promise<void> {

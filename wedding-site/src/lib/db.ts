@@ -62,6 +62,12 @@ const SCHEMA = [
     value TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )`,
+  // Login tries per address (attempts.ts): key is a SHA-256 of the IP, since the window start in ms.
+  `CREATE TABLE IF NOT EXISTS login_attempts (
+    key TEXT PRIMARY KEY,
+    count INTEGER NOT NULL,
+    since INTEGER NOT NULL
+  )`,
 ];
 const MIGRATIONS: string[] = [];
 
