@@ -52,6 +52,8 @@
 }
 /* a stop turns sage once its required answer is given */
 .step:has(#name:valid)::before, .step:has(input[name="attending"]:checked)::before { background: var(--sage); color: var(--ink); }
+/* each step title is an h2 for screen-reader navigation; the label or legend inside it carries the look */
+.step__heading { font: inherit; letter-spacing: inherit; }
 .step__title { display: block; padding: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.5rem, 1.2rem + 1vw, 2.1rem); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
 .step__set { min-width: 0; margin: 0; padding: 0; border: 0; }
 .step__set legend { margin-bottom: 14px; }
