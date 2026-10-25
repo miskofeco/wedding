@@ -49,7 +49,8 @@ Three layers. Components reference semantic or component tokens, never primitive
 | `--ink` | black | Text, drawings, primary button |
 | `--ink-soft` | black-soft | Secondary text on white and ivory only |
 | `--surface-quiet` | ivory | Quiet bands, FAQ rows, triptych sides |
-| `--accent-underline` | apricot | Nav current-section underline |
+| `--accent-underline` | apricot | Hover underlines (decoration) |
+| `--accent-current` | ink | Nav current-section underline (a state, so 3:1 or more) |
 | `--selection` | butter | Text selection |
 
 Contrast: black on every palette colour passes AA for body text (lowest is black on sage, 6.9:1). White text is never set on palette colours. `--ink-soft` is used only on white and ivory (on sage or apricot it falls to 3.2:1).
@@ -108,7 +109,7 @@ Language: drawings **stamp**, riso colour **settles** into register, the road **
 | --- | --- |
 | Tint | Wrapper around a black drawing with `--c` (large blob) and `--c2` (small blob). Mirrored variant for even programme rows. |
 | Button | Pill, no border. Variants: solid (ink), tint (`--c`, default ivory). Hover (mouse): ink background, white text. Press: scale 0.97; on touch the press also inverts. Focus: 3px ink outline, 3px offset. |
-| Nav | Sticky, white at 92% with blur. Mark „B & M“, five anchors, peony pill to RSVP. Under 760px a Menu button opens a panel; Escape closes it. Current section gets the apricot underline. |
+| Nav | Sticky, white at 92% with blur. Mark „B & M“, five anchors, peony pill to RSVP. Under 760px a Menu button opens a panel; Escape or a press outside closes it. Current section gets the ink underline; hover sweeps apricot. |
 | Programme | `<ol>` of events from `content/events.ts`. Desktop: landmarks alternate left and right of the centre with text opposite; the dashed road is an SVG path through landmark centres. Phone: landmark left, text right. Unknown time renders „Čas upresníme“. |
 | Milestone | Where the hero's road leaves the first screen: the dashed road passes a large Fraunces number of days left („217 dní do svadby“; „Dnes“ on the day; „Svoji“ after), the save-the-date drawing tinted peony and butter, and a butter „Pridať do kalendára“ disclosure with Google and .ics links. No JavaScript: the date instead of the number. |
 | Places | Triptych: ivory, apricot (couple-kiss only), ivory. Oversized coloured drawings cropped by the panel. Map button only when a verified URL exists. |

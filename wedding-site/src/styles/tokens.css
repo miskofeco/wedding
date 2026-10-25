@@ -22,7 +22,8 @@
   --ink: var(--black);
   --ink-soft: var(--black-soft); /* only on white and ivory */
   --surface-quiet: var(--ivory);
-  --accent-underline: var(--apricot);
+  --accent-underline: var(--apricot); /* hover sweeps; decoration only */
+  --accent-current: var(--ink); /* where you are: a state, so it needs 3:1 (apricot is 2.7:1 on white) */
   --selection: var(--butter);
 
   /* type (families come from next/font variables set on <html>) */

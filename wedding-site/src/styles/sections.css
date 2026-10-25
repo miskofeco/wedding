@@ -9,6 +9,7 @@
 .nav__links a { position: relative; display: inline-block; padding: 8px 0; font-size: var(--text-small); text-decoration: none; }
 .nav__links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 3px; background: var(--accent-underline); transform: scaleX(0); transform-origin: left; transition: transform var(--t-hover) var(--ease-out); }
 .nav__links a:focus-visible::after, .nav__links a[aria-current]::after { transform: scaleX(1); }
+.nav__links a[aria-current]::after { background: var(--accent-current); }
 @media (hover: hover) { .nav__links a:hover::after { transform: scaleX(1); } }
 .menu-panel a { transition: color var(--t-hover); }
 .menu-panel a:active { color: var(--ink-soft); }

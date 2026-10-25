@@ -233,7 +233,7 @@ html.mo .reply-end > :nth-child(6) { animation-delay: 1040ms; }
 
 /* ===== nav: one underline slides to the current section (Nav sets --bar-*); hover keeps its own ===== */
 html.mo .nav__links::after {
-  content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 3px; background: var(--accent-underline);
+  content: ""; position: absolute; left: 0; top: 0; width: 1px; height: 3px; background: var(--accent-current);
   transform-origin: left; transform: translate(var(--bar-x, 0px), var(--bar-y, 0px)) scaleX(var(--bar-w, 0));
   opacity: 0; pointer-events: none; transition: transform 260ms var(--ease-out), opacity var(--t-hover);
 }
