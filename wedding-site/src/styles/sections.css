@@ -188,6 +188,7 @@
 .photos__cam { grid-column: 2; grid-row: 1 / 4; justify-self: end; width: clamp(120px, 15vw, 220px); transform: rotate(6deg); }
 .photos__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(18px, 3vw, 36px); }
 /* Instax card: flat white print with a deep bottom strip for the caption. */
+/* Instax card: 6px card, 2px frame, the one place smaller than the radius tokens (DESIGN.md) */
 .photos figure { margin: 0; padding: 7% 7% 0; background: var(--white); border-radius: 6px; rotate: -2deg; transition: rotate var(--t-nudge) var(--ease-out), transform var(--t-nudge) var(--ease-out); }
 .photos figure:nth-child(2) { margin-top: clamp(24px, 4vw, 64px); rotate: 1.5deg; }
 .photos figure:nth-child(3) { rotate: -1deg; }

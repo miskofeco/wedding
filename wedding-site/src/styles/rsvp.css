@@ -137,7 +137,7 @@
 .infotip__btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .infotip__bubble {
   position: absolute; z-index: 2; left: 50%; bottom: calc(100% + 10px); translate: -50% 0; width: max-content; max-width: min(260px, 70vw);
-  padding: 10px 14px; border-radius: 12px; background: var(--ink); color: var(--white); font: 400 var(--text-caption)/1.4 var(--font-text); text-align: left;
+  padding: 10px 14px; border-radius: var(--tip-radius); background: var(--ink); color: var(--white); font: 400 var(--text-caption)/1.4 var(--font-text); text-align: left;
   visibility: hidden; opacity: 0; transition: opacity var(--t-hover), visibility var(--t-hover), translate var(--t-hover) var(--ease-out);
 }
 /* the bubble rises 4px as it fades in */
@@ -187,7 +187,7 @@
 .field label, .field legend { padding: 0; font-weight: 600; }
 .field legend { margin-bottom: 8px; }
 .field input:not([type="radio"]), .field textarea, .step input:not([type="radio"]), .step textarea {
-  width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: 14px 14px 4px 4px;
+  width: 100%; min-height: 52px; padding: 14px 16px; border: 0; border-radius: var(--field-radius);
   background: var(--surface-quiet); box-shadow: inset 0 -2px 0 var(--ink);
   font-size: var(--text-body); line-height: 1.4; transition: background-color var(--t-hover);
 }

@@ -47,6 +47,9 @@
   --btn-radius: 999px;
   --card-radius: 20px;
   --photo-radius: 18px;
+  --field-radius: 14px 14px 4px 4px; /* inputs: soft top, square foot over the underline */
+  --tip-radius: 12px;
+  --focus-radius: 4px;
   --route-width: 2.5px;
   --route-dash: 7 9;
 
