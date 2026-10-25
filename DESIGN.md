@@ -77,8 +77,8 @@ Fraunces (variable, opsz, weight 600 for display, 300 italic for the ampersand) 
 | h3 | Fraunces 600 | 1.4rem → 2rem | |
 | Date | Fraunces 500 | 1.5rem → 2.8rem | tabular figures |
 | Lead | DM Sans 400 | 1.1rem → 1.35rem | max 46ch |
-| Body | DM Sans 400 | 17px | line-height 1.5 |
-| Small | DM Sans | 14–15px | captions, places |
+| Body | DM Sans 400 | 1.0625rem (17px) | line-height 1.5; rem so it follows the guest's font-size setting |
+| Small | DM Sans | 0.9375rem (15px) | places, notes; `--text-caption` 0.875rem (14px) for captions and hints, never smaller |
 
 ### Space and layout
 

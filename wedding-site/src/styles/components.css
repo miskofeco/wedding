@@ -19,7 +19,7 @@
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   min-height: var(--btn-h); padding: 14px 26px; border: 0; border-radius: var(--btn-radius);
-  font: 500 16px/1 var(--font-text); text-decoration: none; cursor: pointer;
+  font: 500 1rem/1 var(--font-text); text-decoration: none; cursor: pointer;
   color: var(--ink); background: var(--c, var(--ivory));
   transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover), color var(--t-hover);
 }

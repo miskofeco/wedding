@@ -28,8 +28,9 @@
   /* type (families come from next/font variables set on <html>) */
   --font-display: var(--font-fraunces), Georgia, serif;
   --font-text: var(--font-dm-sans), system-ui, sans-serif;
-  --text-body: 17px;
-  --text-small: 15px;
+  --text-body: 1.0625rem;
+  --text-small: 0.9375rem;
+  --text-caption: 0.875rem;
   --text-lead: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
   --text-h2: clamp(2.4rem, 1.4rem + 4vw, 5rem);
   --text-h3: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
