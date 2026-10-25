@@ -116,6 +116,10 @@ npm run fills      # only if the palette figures changed
 npm run deploy     # pulls the settings, builds here, uploads the build to production
 ```
 
+`npm run deploy` (`scripts/deploy.mjs`) refuses to start while `wedding-site/` has uncommitted or untracked changes, or while the branch has commits that aren't pushed, so production always matches a pushed commit. The short commit hash is recorded on the deployment (`commit` under the deployment's metadata in Vercel). Changes outside `wedding-site/` don't count.
+
+**Rollback:** in Vercel → Deployments, open the previous production deployment and choose „Promote to Production“ (or `npx vercel@63.1.2 promote <deployment-url>`). It switches back at once, without a build. Answers, invitations and content edited in `/admin` live in the database, so nothing is lost. The promoted build's guest pages show the content as it was when that build was made, until the next save in „Obsah webu“ refreshes them.
+
 After the first deploy, submit one test RSVP, check it appears in `/admin` and in the Sheet, then delete it. While „Pripravujeme“ is on, `/rsvp` is closed in production, so add the test answer in `/admin` → Odpovede → „Pridať odpoveď“ instead.
 
 ### „Pripravujeme“ (coming soon)
