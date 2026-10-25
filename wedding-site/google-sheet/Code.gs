@@ -7,6 +7,9 @@
  * Answers: { ok: true, ... } or { ok: false, error }.
  * The site only ever talks to this script from its server; the secret never
  * reaches a browser.
+ *
+ * Optional script property NOTIFY_EMAIL: an address that gets a short e-mail
+ * (name, yes/no, number of guests) for every answer sent from the website.
  */
 
 var SHEET_NAME = 'Odpovede';
@@ -22,8 +25,10 @@ var COLUMNS = [
   { key: 'dietary', header: 'Strava a alergie' },
   { key: 'message', header: 'Odkaz' },
   { key: 'source', header: 'Zdroj' },
-  // Appended last so sheets created before this column keep their layout.
-  { key: 'kids', header: 'Dospelý / dieťa' }
+  // Appended last so sheets created before these columns keep their layout.
+  { key: 'kids', header: 'Dospelý / dieťa' },
+  // The browser's key for one answer: a retry with the same key returns the stored row instead of adding one.
+  { key: 'submission', header: 'Kľúč odoslania' }
 ];
 var LIMITS = { name: 100, dietary: 500, message: 1000, guestsMax: 10 };
 
@@ -32,10 +37,11 @@ function doPost(e) {
   try {
     var req = JSON.parse((e && e.postData && e.postData.contents) || '{}');
     var secret = PropertiesService.getScriptProperties().getProperty('RSVP_SECRET');
-    if (!secret || typeof req.secret !== 'string' || req.secret !== secret) return reply({ ok: false, error: 'unauthorized' });
-    lock.waitLock(10000);
+    if (!secret || !sameText(req.secret, secret)) return reply({ ok: false, error: 'unauthorized' });
+    // Shorter than the site's 15 s timeout, so a busy moment ends in an answer, not a timeout.
+    lock.waitLock(8000);
     switch (req.action) {
-      case 'create': return reply(create(req.answer, req.source === 'admin' ? 'admin' : 'web'));
+      case 'create': return reply(create(req.answer, req.source === 'admin' ? 'admin' : 'web', req.submission));
       case 'list': return reply({ ok: true, answers: list() });
       case 'update': return reply(update(req.id, req.answer));
       case 'delete': return reply(remove(req.id));
@@ -52,13 +58,19 @@ function doGet() {
   return reply({ ok: false, error: 'use_post' });
 }
 
-function create(answer, source) {
+function create(answer, source, submission) {
   var a = clean(answer);
   if (!a) return { ok: false, error: 'invalid' };
+  var key = typeof submission === 'string' && /^[0-9a-f-]{36}$/.test(submission) ? submission : '';
+  if (key) {
+    var stored = findRowBy('submission', key);
+    if (stored) return { ok: true, id: stored.answer.id };
+  }
   var now = new Date().toISOString();
-  var row = { id: Utilities.getUuid(), submittedAt: now, updatedAt: now, source: source };
+  var row = { id: Utilities.getUuid(), submittedAt: now, updatedAt: now, source: source, submission: key };
   for (var k in a) row[k] = a[k];
   sheet().appendRow(toRow(row));
+  if (source === 'web') notify(row);
   return { ok: true, id: row.id };
 }
 
@@ -75,7 +87,7 @@ function list() {
 function update(id, answer) {
   var a = clean(answer);
   if (!a) return { ok: false, error: 'invalid' };
-  var found = findRow(id);
+  var found = findRowBy('id', id);
   if (!found) return { ok: false, error: 'not_found' };
   var row = found.answer;
   for (var k in a) row[k] = a[k];
@@ -85,7 +97,7 @@ function update(id, answer) {
 }
 
 function remove(id) {
-  var found = findRow(id);
+  var found = findRowBy('id', id);
   if (!found) return { ok: false, error: 'not_found' };
   sheet().deleteRow(found.index);
   return { ok: true };
@@ -98,23 +110,58 @@ function sheet() {
   var sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
-    sh.getRange('A:K').setNumberFormat('@'); // keep everything as plain text
+    plainText(sh);
     sh.getRange(1, 1, 1, COLUMNS.length).setValues([COLUMNS.map(function (c) { return c.header; })]);
     sh.setFrozenRows(1);
-  } else if (String(sh.getRange(1, COLUMNS.length, 1, 1).getValues()[0][0]) === '') {
-    // A sheet from before the last column existed: add its header.
-    sh.getRange(1, COLUMNS.length, 1, 1).setValues([[COLUMNS[COLUMNS.length - 1].header]]);
+  } else {
+    // A sheet from before the last columns existed (or one made by hand): add the missing headers.
+    var headers = sh.getRange(1, 1, 1, COLUMNS.length).getValues()[0];
+    var added = false;
+    COLUMNS.forEach(function (c, i) {
+      if (String(headers[i]) === '') {
+        sh.getRange(1, i + 1, 1, 1).setValues([[c.header]]);
+        added = true;
+      }
+    });
+    if (added) plainText(sh);
   }
   return sh;
 }
 
-function findRow(id) {
-  if (typeof id !== 'string' || id === '') return null;
+// Keep every column plain text, so Sheets never reads guest text as a formula or a date.
+function plainText(sh) {
+  sh.getRange(1, 1, sh.getMaxRows(), COLUMNS.length).setNumberFormat('@');
+}
+
+function findRowBy(key, value) {
+  if (typeof value !== 'string' || value === '') return null;
+  var col = COLUMNS.map(function (c) { return c.key; }).indexOf(key);
   var values = sheet().getDataRange().getValues();
   for (var i = 1; i < values.length; i++) {
-    if (String(values[i][0]) === id) return { index: i + 1, answer: fromRow(values[i]) };
+    if (String(values[i][col]) === value) return { index: i + 1, answer: fromRow(values[i]) };
   }
   return null;
+}
+
+// Compares the whole string every time, so the reply time says nothing about how much of a guess was right.
+function sameText(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+  var diff = 0;
+  for (var i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
+// A short e-mail per web answer, if NOTIFY_EMAIL is set. Only the summary: the details stay in the Sheet.
+// A failed e-mail never fails the answer.
+function notify(row) {
+  var to = PropertiesService.getScriptProperties().getProperty('NOTIFY_EMAIL');
+  if (!to) return;
+  try {
+    var summary = row.attending ? 'príde, ' + row.guests + (row.guests === 1 ? ' osoba' : row.guests <= 4 ? ' osoby' : ' osôb') : 'nepríde';
+    MailApp.sendEmail(to, 'Nová odpoveď: ' + row.name, row.name + ' ' + summary + '.\n\nVšetko je v tabuľke ' + SHEET_NAME + '.');
+  } catch (err) {
+    // Quota or permission problem: the row is already stored.
+  }
 }
 
 // Validates again here, so the sheet stays clean even if called directly.

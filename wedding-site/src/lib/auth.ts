@@ -1,59 +1,64 @@
 // Admin session: one shared password (ADMIN_PASSWORD) and an HMAC-signed,
 // HttpOnly cookie (ADMIN_SESSION_SECRET). Server-only.
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createLimiter } from "./limit";
+import { createToken, verifyToken } from "./session";
 
 const COOKIE = "bm_admin";
+// Only /admin reads the cookie; the guest pages never receive it.
+const COOKIE_PATH = "/admin";
 const MAX_AGE_S = 60 * 60 * 24 * 7; // a week
+/** The login is the only lock on the guest list, so a short password counts as not set up. */
+export const MIN_PASSWORD = 12;
 
 function sessionSecret(): string | null {
   const s = process.env.ADMIN_SESSION_SECRET ?? "";
   return s.length >= 32 ? s : null;
 }
 
+function adminPassword(): string | null {
+  const p = process.env.ADMIN_PASSWORD ?? "";
+  return p.length >= MIN_PASSWORD ? p : null;
+}
+
 export function adminConfigured(): boolean {
-  return Boolean(process.env.ADMIN_PASSWORD) && sessionSecret() !== null;
+  return adminPassword() !== null && sessionSecret() !== null;
 }
 
 const digest = (s: string) => createHash("sha256").update(s, "utf8").digest();
-const sign = (payload: string, secret: string) => createHmac("sha256", secret).update(payload).digest("base64url");
 
 export function passwordMatches(candidate: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
+  const expected = adminPassword();
   if (!expected) return false;
   return timingSafeEqual(digest(candidate), digest(expected));
 }
 
 export async function startSession(): Promise<void> {
   const secret = sessionSecret();
-  if (!secret) throw new Error("ADMIN_SESSION_SECRET is missing or shorter than 32 characters");
+  const password = adminPassword();
+  if (!secret || !password) throw new Error("ADMIN_PASSWORD or ADMIN_SESSION_SECRET is missing or too short");
   const expires = Math.floor(Date.now() / 1000) + MAX_AGE_S;
-  const payload = `admin.${expires}`;
-  (await cookies()).set(COOKIE, `${payload}.${sign(payload, secret)}`, {
+  (await cookies()).set(COOKIE, createToken(secret, password, expires), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    path: "/",
+    path: COOKIE_PATH,
     maxAge: MAX_AGE_S,
   });
 }
 
 export async function endSession(): Promise<void> {
-  (await cookies()).delete(COOKIE);
+  (await cookies()).delete({ name: COOKIE, path: COOKIE_PATH });
 }
 
 export async function isAdmin(): Promise<boolean> {
   const secret = sessionSecret();
+  const password = adminPassword();
   const value = (await cookies()).get(COOKIE)?.value;
-  if (!secret || !value) return false;
-  const i = value.lastIndexOf(".");
-  const payload = value.slice(0, i);
-  const sig = Buffer.from(value.slice(i + 1));
-  const expected = Buffer.from(sign(payload, secret));
-  if (sig.length !== expected.length || !timingSafeEqual(sig, expected)) return false;
-  const [who, expires] = payload.split(".");
-  return who === "admin" && Number(expires) > Date.now() / 1000;
+  if (!secret || !password || !value) return false;
+  return verifyToken(value, secret, password, Date.now() / 1000);
 }
 
 /** Call at the top of every admin page and admin server action. */
@@ -61,23 +66,11 @@ export async function requireAdmin(): Promise<void> {
   if (!(await isAdmin())) redirect("/admin/login");
 }
 
-// Best-effort brake on password guessing (per server instance).
-const attempts = new Map<string, { count: number; since: number }>();
+// Best-effort brakes on password guessing (per server instance; the Vercel
+// Firewall rule in the README is the real one). Per address, and one for
+// everyone, since a guesser can spread tries over many addresses.
 const WINDOW_MS = 15 * 60 * 1000;
-const MAX_TRIES = 8;
-
-export function tooManyAttempts(key: string): boolean {
-  const a = attempts.get(key);
-  if (!a || Date.now() - a.since > WINDOW_MS) return false;
-  return a.count >= MAX_TRIES;
-}
-
-export function recordFailure(key: string): void {
-  const a = attempts.get(key);
-  if (!a || Date.now() - a.since > WINDOW_MS) attempts.set(key, { count: 1, since: Date.now() });
-  else a.count += 1;
-}
-
-export function clearFailures(key: string): void {
-  attempts.delete(key);
-}
+export const loginFailures = {
+  perIp: createLimiter(8, WINDOW_MS),
+  all: createLimiter(30, WINDOW_MS),
+};

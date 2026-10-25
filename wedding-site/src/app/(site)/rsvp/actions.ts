@@ -1,8 +1,13 @@
 "use server";
 
+import { headers } from "next/headers";
 import { rsvp } from "@/content";
-import { isPastDeadline, parseRsvp, type RsvpState } from "@/lib/rsvp";
+import { clientIp, createLimiter } from "@/lib/limit";
+import { isPastDeadline, parseRsvp, submissionKey, type RsvpState } from "@/lib/rsvp";
 import { createAnswer } from "@/lib/sheet";
+
+// A household sends one answer, maybe a retry or two; ten in ten minutes from one address is a script.
+const sends = createLimiter(10, 10 * 60 * 1000);
 
 /**
  * Validates an RSVP and stores it in the Google Sheet.
@@ -14,12 +19,17 @@ export async function submitRsvp(_prev: RsvpState, form: FormData): Promise<Rsvp
   const parsed = parseRsvp(form);
   if (!parsed.ok) return { status: "invalid", errors: parsed.errors, values: parsed.values };
 
-  // Honeypot: real guests never see or fill this field.
-  if (typeof form.get("company") === "string" && form.get("company") !== "") {
-    return { status: "failed", errors: {}, values: parsed.values };
+  // Honeypot: real guests never see or fill this field. A bot is told its answer arrived, and nothing is stored.
+  const trap = form.get("hp_note");
+  if (typeof trap === "string" && trap !== "") {
+    return { status: "sent", errors: {}, values: { attending: parsed.values.attending } };
   }
 
-  const result = await createAnswer(parsed.answer, "web");
+  const ip = clientIp(await headers());
+  if (sends.blocked(ip)) return { status: "failed", errors: {}, values: parsed.values };
+  sends.hit(ip);
+
+  const result = await createAnswer(parsed.answer, "web", submissionKey(form));
   if (!result.ok) {
     return { status: result.error === "not_configured" ? "unavailable" : "failed", errors: {}, values: parsed.values };
   }

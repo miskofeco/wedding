@@ -9,10 +9,7 @@
 import { readFileSync } from "node:fs";
 import http from "node:http";
 import https from "node:https";
-import path from "node:path";
-import vm from "node:vm";
-import { randomUUID } from "node:crypto";
-import { fileURLToPath } from "node:url";
+import { loadCodeGs } from "./sheet-fake.mjs";
 
 const args = process.argv.slice(2);
 const opt = (name) => { const i = args.indexOf(`--${name}`); return i === -1 ? null : args.slice(i + 1, i + 3); };
@@ -21,45 +18,17 @@ const tls = opt("tls");
 const secret = process.env.RSVP_SHEET_SECRET;
 if (!secret) { console.error("Set RSVP_SHEET_SECRET (the same value the site uses)."); process.exit(1); }
 
-// --- minimal fakes of the Apps Script services Code.gs uses ---
-const sheets = new Map();
-const textValue = (v) => { const s = String(v); return s.startsWith("'") ? s.slice(1) : s; }; // Sheets hides the apostrophe
-function makeSheet() {
-  const rows = [];
-  const range = (r, c, nr, nc) => ({
-    setValues(vals) { vals.forEach((row, i) => { rows[r - 1 + i] ??= []; row.forEach((v, j) => (rows[r - 1 + i][c - 1 + j] = textValue(v))); }); return this; },
-    setNumberFormat() { return this; },
-    getValues() { return rows.slice(r - 1, r - 1 + nr).map((row) => Array.from({ length: nc }, (_, j) => row[c - 1 + j] ?? "")); },
-  });
-  return {
-    getRange(r, c, nr, nc) { return typeof r === "string" ? range(1, 1, 0, 0) : range(r, c, nr ?? 1, nc ?? 1); },
-    appendRow(vals) { rows.push(vals.map(textValue)); },
-    getDataRange() { const w = Math.max(0, ...rows.map((r) => r.length)); return range(1, 1, rows.length, w); },
-    deleteRow(n) { rows.splice(n - 1, 1); },
-    setFrozenRows() {},
-  };
-}
-const context = vm.createContext({
-  SpreadsheetApp: { getActiveSpreadsheet: () => ({ getSheetByName: (n) => sheets.get(n) ?? null, insertSheet: (n) => { const s = makeSheet(); sheets.set(n, s); return s; } }) },
-  LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
-  PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => (k === "RSVP_SECRET" ? secret : null) }) },
-  ContentService: { MimeType: { JSON: "json" }, createTextOutput: (s) => ({ setMimeType() { return this; }, getContent: () => s }) },
-  Utilities: { getUuid: () => randomUUID() },
-  JSON, Date, String, Number, Math, Object, Array,
-});
-const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-vm.runInContext(readFileSync(path.join(root, "google-sheet/Code.gs"), "utf8"), context);
+const script = loadCodeGs({ secret });
 
 const handler = (req, res) => {
   let body = "";
   req.on("data", (c) => (body += c));
   req.on("end", () => {
-    const out = req.method === "POST" ? context.doPost({ postData: { contents: body } }) : context.doGet();
-    const text = out.getContent();
+    const out = req.method === "POST" ? script.post(body) : script.get();
     const action = (() => { try { return JSON.parse(body).action; } catch { return "-"; } })();
-    console.log(`${req.method} ${action ?? "-"} → ${JSON.parse(text).ok ? "ok" : JSON.parse(text).error}`); // never logs answers
+    console.log(`${req.method} ${action ?? "-"} → ${out.ok ? "ok" : out.error}`); // never logs answers
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(text);
+    res.end(JSON.stringify(out));
   });
 };
 const server = tls ? https.createServer({ cert: readFileSync(tls[0]), key: readFileSync(tls[1]) }, handler) : http.createServer(handler);

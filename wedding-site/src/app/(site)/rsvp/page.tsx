@@ -8,6 +8,7 @@ import { isPastDeadline } from "@/lib/rsvp";
 import { Tint } from "@/components/Tint";
 import { RsvpForm } from "@/components/RsvpForm";
 import { Closing } from "@/components/sections/Closing";
+import "@/styles/rsvp.css";
 
 export const metadata: Metadata = {
   title: `Potvrdiť účasť · ${site.couple.first} & ${site.couple.second}`,
@@ -36,7 +37,7 @@ export default function RsvpPage() {
           </div>
           <div className="reply__art" aria-hidden="true">
             <Tint className="sticker reply__envelope" src={art("sealed-envelope", "black")} c="peony" c2="butter" priority reveal={false} />
-            <Tint className="sticker reply__bloom" src={art("rose-corner", "black")} c="apricot" c2="butter" priority reveal={false} />
+            <Tint className="sticker reply__bloom" src={art("rose-corner", "black")} c="apricot" c2="butter" eager reveal={false} />
           </div>
         </header>
 
@@ -50,7 +51,7 @@ export default function RsvpPage() {
                 </p>
               </div>
             ) : (
-              <RsvpForm contact={rsvp.contact} calendarUrl={googleCalendarUrl()} />
+              <RsvpForm contact={rsvp.contact} calendarUrl={googleCalendarUrl()} privacy={rsvp.privacy} />
             )}
           </div>
 

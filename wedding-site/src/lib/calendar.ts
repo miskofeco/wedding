@@ -1,5 +1,6 @@
 // One source for the "add to calendar" event: the Google link and the .ics file.
 import { events, places, site } from "@/content";
+import { escapeText, fold } from "./ics";
 
 /** Public site address for the event description, e.g. https://svadba.example.sk (optional). */
 const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "") || null;
@@ -48,27 +49,6 @@ export function googleCalendarUrl(): string {
     ctz: "Europe/Bratislava",
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-const escapeText = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
-
-// RFC 5545: lines longer than 75 octets are folded with CRLF + space.
-function fold(line: string): string {
-  const out: string[] = [];
-  let current = "";
-  let bytes = 0;
-  for (const ch of line) {
-    const size = new TextEncoder().encode(ch).length;
-    if (bytes + size > (out.length === 0 ? 75 : 74)) {
-      out.push(current);
-      current = "";
-      bytes = 0;
-    }
-    current += ch;
-    bytes += size;
-  }
-  out.push(current);
-  return out.join("\r\n ");
 }
 
 export function icsFile(now = new Date()): string {

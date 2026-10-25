@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { adminConfigured, isAdmin } from "@/lib/auth";
+import { adminConfigured, isAdmin, MIN_PASSWORD } from "@/lib/auth";
 import { site } from "@/content";
 import { LoginForm } from "@/components/admin/LoginForm";
 
@@ -17,7 +17,7 @@ export default async function LoginPage() {
           <LoginForm />
         ) : (
           <p className="admin-note">
-            Prihlásenie ešte nie je nastavené. Doplňte premenné <code>ADMIN_PASSWORD</code> a{" "}
+            Prihlásenie ešte nie je nastavené. Doplňte premenné <code>ADMIN_PASSWORD</code> (aspoň {MIN_PASSWORD} znakov) a{" "}
             <code>ADMIN_SESSION_SECRET</code> (aspoň 32 znakov) a stránku obnovte.
           </p>
         )}

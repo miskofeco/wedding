@@ -3,16 +3,8 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import {
-  adminConfigured,
-  clearFailures,
-  endSession,
-  passwordMatches,
-  recordFailure,
-  requireAdmin,
-  startSession,
-  tooManyAttempts,
-} from "@/lib/auth";
+import { adminConfigured, endSession, loginFailures, MIN_PASSWORD, passwordMatches, requireAdmin, startSession } from "@/lib/auth";
+import { clientIp } from "@/lib/limit";
 import { parseRsvp } from "@/lib/rsvp";
 import { createAnswer, deleteAnswer, updateAnswer, type SheetError } from "@/lib/sheet";
 import type { AdminFormState, LoginState } from "@/lib/admin";
@@ -26,18 +18,22 @@ const sheetMessage: Record<SheetError, string> = {
 };
 
 export async function login(_prev: LoginState, form: FormData): Promise<LoginState> {
-  if (!adminConfigured()) return { error: "Prihlásenie nie je nastavené. Chýba ADMIN_PASSWORD alebo ADMIN_SESSION_SECRET." };
-  const h = await headers();
-  const key = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
-  if (tooManyAttempts(key)) return { error: "Príliš veľa pokusov. Skúste to znova o 15 minút." };
+  if (!adminConfigured()) {
+    return { error: `Prihlásenie nie je nastavené. Chýba ADMIN_PASSWORD (aspoň ${MIN_PASSWORD} znakov) alebo ADMIN_SESSION_SECRET.` };
+  }
+  const ip = clientIp(await headers());
+  if (loginFailures.perIp.blocked(ip) || loginFailures.all.blocked("all")) {
+    return { error: "Príliš veľa pokusov. Skúste to znova o 15 minút." };
+  }
 
   const password = form.get("password");
   if (typeof password !== "string" || !passwordMatches(password)) {
-    recordFailure(key);
+    loginFailures.perIp.hit(ip);
+    loginFailures.all.hit("all");
     await new Promise((r) => setTimeout(r, 600));
     return { error: "Nesprávne heslo." };
   }
-  clearFailures(key);
+  loginFailures.perIp.clear(ip);
   await startSession();
   redirect("/admin");
 }

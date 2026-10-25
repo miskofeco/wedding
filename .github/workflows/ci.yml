@@ -1,0 +1,32 @@
+# Checks every push and pull request. It doesn't build: the photos and palette
+# masks are not in git, so the site is built and deployed from a local machine
+# (`npm run deploy` in wedding-site/).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wedding-site
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: wedding-site/.nvmrc
+          cache: npm
+          cache-dependency-path: wedding-site/package-lock.json
+      - run: npm ci
+      # next-env.d.ts and the route types are generated, not committed.
+      - run: npx next typegen
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test

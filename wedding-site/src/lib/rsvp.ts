@@ -87,6 +87,14 @@ export function parseRsvp(form: FormData):
   return { ok: true, answer: { name, attending, guests, party, kids, dietary: attending ? dietary : "", message }, values };
 }
 
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** The answer's key from the form (a UUID the browser makes once per answer), or "" when missing or malformed. */
+export function submissionKey(form: FormData): string {
+  const value = form.get("submission");
+  return typeof value === "string" && UUID.test(value) ? value.toLowerCase() : "";
+}
+
 /** True once the deadline day (Slovak time) has passed. */
 export function isPastDeadline(deadline: string | null, now = new Date()): boolean {
   if (!deadline) return false;

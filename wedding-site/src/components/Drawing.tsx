@@ -5,12 +5,14 @@ interface DrawingProps {
   /** Empty for decoration (the default). */
   alt?: string;
   className?: string;
-  /** Above-the-fold drawings load eagerly with high priority. */
+  /** The page's main above-the-fold drawing: eager, high priority and preloaded. */
   priority?: boolean;
+  /** Other above-the-fold drawings: eager, without jumping the queue. */
+  eager?: boolean;
 }
 
 /** A line drawing from public/art. SVGs are served as-is (1080 × 1080 artboard). */
-export function Drawing({ src, alt = "", className, priority = false }: DrawingProps) {
+export function Drawing({ src, alt = "", className, priority = false, eager = false }: DrawingProps) {
   return (
     <Image
       src={src}
@@ -19,7 +21,7 @@ export function Drawing({ src, alt = "", className, priority = false }: DrawingP
       height={1080}
       unoptimized
       className={className}
-      loading={priority ? "eager" : "lazy"}
+      loading={priority || eager ? "eager" : "lazy"}
       fetchPriority={priority ? "high" : "auto"}
       draggable={false}
     />

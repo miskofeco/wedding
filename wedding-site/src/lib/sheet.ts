@@ -13,7 +13,8 @@ export interface StoredAnswer extends RsvpAnswer {
 export type SheetResult<T> = { ok: true; data: T } | { ok: false; error: SheetError };
 export type SheetError = "not_configured" | "unreachable" | "rejected" | "not_found" | "invalid";
 
-const TIMEOUT_MS = 10_000;
+// Longer than Code.gs waits for its lock (8 s), so a slow write still reports back.
+const TIMEOUT_MS = 15_000;
 
 function endpoint(): string | null {
   const url = process.env.RSVP_SHEET_URL ?? "";
@@ -60,12 +61,44 @@ async function call<T>(action: string, body: Record<string, unknown>, pick: (r: 
   }
 }
 
-export function createAnswer(answer: RsvpAnswer, source: "web" | "admin" = "web") {
-  return call("create", { answer, source }, (r) => String(r.id ?? ""));
+const text = (v: unknown) => (typeof v === "string" ? v : "");
+
+/** One row as the script sent it, checked. A row broken by a hand edit is dropped instead of breaking /admin. */
+export function toStoredAnswer(row: unknown): StoredAnswer | null {
+  if (!row || typeof row !== "object") return null;
+  const r = row as Record<string, unknown>;
+  const id = text(r.id);
+  if (!id) return null;
+  const party = Array.isArray(r.party) ? r.party.map((p) => String(p)) : [];
+  const kids = Array.isArray(r.kids) ? r.kids : [];
+  return {
+    id,
+    submittedAt: text(r.submittedAt),
+    updatedAt: text(r.updatedAt),
+    source: text(r.source),
+    name: text(r.name),
+    attending: r.attending === true,
+    guests: typeof r.guests === "number" && Number.isFinite(r.guests) ? r.guests : 0,
+    party,
+    kids: party.map((_, i) => kids[i] === true),
+    dietary: text(r.dietary),
+    message: text(r.message),
+  };
+}
+
+/**
+ * `submission` is the browser's key for this answer: the script stores an answer
+ * with a key it has already seen only once, so a retry after a timeout can't
+ * add a second row.
+ */
+export function createAnswer(answer: RsvpAnswer, source: "web" | "admin" = "web", submission = "") {
+  return call("create", { answer, source, submission }, (r) => String(r.id ?? ""));
 }
 
 export function listAnswers() {
-  return call("list", {}, (r) => (Array.isArray(r.answers) ? (r.answers as StoredAnswer[]) : []));
+  return call("list", {}, (r) =>
+    Array.isArray(r.answers) ? r.answers.map(toStoredAnswer).filter((a): a is StoredAnswer => a !== null) : [],
+  );
 }
 
 export function updateAnswer(id: string, answer: RsvpAnswer) {

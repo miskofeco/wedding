@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { submitRsvp } from "@/app/(site)/rsvp/actions";
 import { art } from "@/lib/art";
@@ -21,6 +21,19 @@ function FieldError({ id, state }: { id: Field; state: RsvpState }) {
 
 const described = (id: Field, state: RsvpState, hint?: string) =>
   [state.errors[id] ? `${id}-error` : null, hint].filter(Boolean).join(" ") || undefined;
+
+// One key per answer, made in the browser: a retry of the same answer sends the same key, so the
+// Sheet stores it once. A new key after "sent", so a second household on this device is a new answer.
+let answerKey: string | null = null;
+const keyStore = {
+  subscribe: () => () => {},
+  get: () => (answerKey ??= globalThis.crypto?.randomUUID?.() ?? ""),
+  // The static page is shared by every guest, so the server never renders a key.
+  server: () => "",
+  renew: () => {
+    answerKey = null;
+  },
+};
 
 /** 1 osoba, 2–4 osoby, 5 osôb */
 const persons = (n: number) => (n === 1 ? "osoba" : n >= 2 && n <= 4 ? "osoby" : "osôb");
@@ -150,7 +163,7 @@ function DietField({ state }: { state: RsvpState }) {
 }
 
 /** The numbered stops. Remounts with the form after each attempt, so its state starts from the echoed values. */
-function FormSteps({ state, pending }: { state: RsvpState; pending: boolean }) {
+function FormSteps({ state, pending, privacy }: { state: RsvpState; pending: boolean; privacy: string }) {
   const [name, setName] = useState(state.values.name ?? "");
   const [guests, setGuests] = useState(state.values.guests || "1");
   const n = Number.parseInt(guests, 10);
@@ -251,15 +264,16 @@ function FormSteps({ state, pending }: { state: RsvpState; pending: boolean }) {
       </li>
 
       <li className="step step--send">
-        {/* Honeypot for bots: hidden from people and assistive technology. */}
+        {/* Honeypot for bots: hidden from people and assistive technology. Its name and label match
+            nothing browsers or password managers autofill, so a guest's autofill never trips it. */}
         <div className="hp" aria-hidden="true">
-          <label htmlFor="company">Firma</label>
-          <input id="company" name="company" tabIndex={-1} autoComplete="off" />
+          <label htmlFor="hp_note">Nechajte prázdne</label>
+          <input id="hp_note" name="hp_note" tabIndex={-1} autoComplete="off" />
         </div>
         <button className="btn btn--solid btn--send" type="submit" disabled={pending} data-pending={pending || undefined}>
           {pending ? "Odosielam…" : "Odoslať odpoveď"}
         </button>
-        <p className="field__hint">Vaše údaje použijeme len na prípravu svadby.</p>
+        <p className="field__hint">{privacy}</p>
       </li>
     </ol>
   );
@@ -269,10 +283,13 @@ interface RsvpFormProps {
   contact: string | null;
   /** Google Calendar link for the thank-you screen (built on the server). */
   calendarUrl: string;
+  /** Who sees the answer, where it is kept and when it is deleted. */
+  privacy: string;
 }
 
-export function RsvpForm({ contact, calendarUrl }: RsvpFormProps) {
+export function RsvpForm({ contact, calendarUrl, privacy }: RsvpFormProps) {
   const [state, action, pending] = useActionState(submitRsvp, initialRsvpState);
+  const submission = useSyncExternalStore(keyStore.subscribe, keyStore.get, keyStore.server);
   const v = state.values;
   const form = useRef<HTMLFormElement>(null);
   const notice = useRef<HTMLDivElement>(null);
@@ -285,7 +302,10 @@ export function RsvpForm({ contact, calendarUrl }: RsvpFormProps) {
       (first?.matches("input, textarea") ? first : first?.querySelector<HTMLElement>("input"))?.focus();
     }
     else if (state.status === "failed" || state.status === "unavailable") notice.current?.focus();
-    else if (state.status === "sent" || state.status === "closed") done.current?.focus();
+    else if (state.status === "sent" || state.status === "closed") {
+      if (state.status === "sent") keyStore.renew();
+      done.current?.focus();
+    }
   }, [state]);
 
   if (state.status === "sent") {
@@ -377,7 +397,8 @@ export function RsvpForm({ contact, calendarUrl }: RsvpFormProps) {
         </div>
       )}
 
-      <FormSteps state={state} pending={pending} />
+      <input type="hidden" name="submission" value={submission} />
+      <FormSteps state={state} pending={pending} privacy={privacy} />
     </form>
   );
 }

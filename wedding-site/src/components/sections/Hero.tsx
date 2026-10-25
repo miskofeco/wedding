@@ -8,7 +8,7 @@ export function Hero() {
   const { couple } = site;
   return (
     <section className="hero" id="uvod" aria-labelledby="names">
-      <Tint className="sticker hero__bloom hero__bloom--left" src={art("rose-corner", "black")} c="apricot" c2="butter" priority reveal={false} />
+      <Tint className="sticker hero__bloom hero__bloom--left" src={art("rose-corner", "black")} c="apricot" c2="butter" eager reveal={false} />
       <Tint
         className="sticker hero__art"
         src={art("couple-cool", "black")}
@@ -18,7 +18,7 @@ export function Hero() {
         priority
         reveal={false}
       />
-      <Tint className="sticker hero__bloom hero__bloom--right" src={art("ranunculus-bouquet", "black")} c="sage" c2="peony" priority reveal={false} />
+      <Tint className="sticker hero__bloom hero__bloom--right" src={art("ranunculus-bouquet", "black")} c="sage" c2="peony" eager reveal={false} />
       <h1 id="names">
         {couple.first} <span className="amp">&amp;</span> {couple.second}
       </h1>
