@@ -92,7 +92,9 @@ Plain HTTP to localhost and a local database file are accepted only outside prod
 - `npm run photos` converts the three chosen originals from `../Photos/` into `src/assets/photos/` and fails if any location (GPS) metadata survives. Next.js serves AVIF and WebP sizes from them.
 - **Licence:** no licence terms were found in the illustration pack. Keep the purchase or licence record for web use and modification before publishing.
 
-## Deploy to Vercel (not done yet)
+## Deploy to Vercel
+
+Production: https://www.baskamisko.sk (`baskamisko.sk` redirects to it). The domain is registered at Websupport, whose DNS keeps an A record for `@` and a CNAME for `www` with the values shown in Vercel → Settings → Domains; `NEXT_PUBLIC_SITE_URL` is `https://www.baskamisko.sk`.
 
 The photos and palette masks are not in git, so Vercel can't build from the repository. The site is built on this machine and the finished build is uploaded. `vercel.json` turns off deploys on git push, so pushes never trigger a build that would fail.
 
