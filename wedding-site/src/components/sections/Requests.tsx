@@ -28,7 +28,7 @@ export async function Requests() {
         <ol className="asks__list" data-rv-stagger="110">
           {requests.map((r) => (
             <li className="ask" key={r.id} data-rv-group="" data-rv-threshold="0.25">
-              <Tint className="ask__art" src={art(r.drawing, "black")} c={r.tint[0]} c2={r.tint[1]} />
+              <Tint className="sticker ask__art"src={art(r.drawing, "black")} c={r.tint[0]} c2={r.tint[1]} />
               <p className="ask__when rv rv--brush" style={d(500)}>
                 {tie(r.when)}
               </p>

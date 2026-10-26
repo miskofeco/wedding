@@ -56,7 +56,7 @@ export function GoldenHour() {
         <ul className="tips" data-rv-stagger="110">
           {lightTips.map((t) => (
             <li key={t.title} className="tip rv">
-              <Tint src={art(t.drawing, "black")} c={t.tint[0]} c2={t.tint[1]} />
+              <Tint className="sticker" src={art(t.drawing, "black")} c={t.tint[0]} c2={t.tint[1]} />
               <div className="rv rv--write" style={{ "--d": "300ms" } as CSSProperties}>
                 <h4>
                   <Write text={tie(t.title)} />
