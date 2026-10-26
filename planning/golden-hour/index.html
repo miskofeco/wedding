@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zlatá hodina · prototyp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,300&display=swap&subset=latin-ext" rel="stylesheet">
+<style>
+/* Prototype of the „Zlatá hodina v Zlatníku“ section. Tokens copied from wedding-site/src/styles/tokens.css. */
+:root {
+  --white: #ffffff; --ivory: #f6f2ea; --sage: #93a17f; --peony: #d8a0a6; --apricot: #d98962;
+  --butter: #e4c765; --linen: #c7b69a; --blue: #7c9cbc; --olive: #46513d; --black: #111111; --black-soft: #4a4a4a;
+  --ground: var(--white); --ink: var(--black); --ink-soft: var(--black-soft);
+  --font-display: "Fraunces", Georgia, serif; --font-text: "DM Sans", system-ui, sans-serif;
+  --text-body: 1.0625rem; --text-small: 0.9375rem; --text-caption: 0.875rem;
+  --text-lead: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  --text-h2: clamp(2.4rem, 1.4rem + 4vw, 5rem);
+  --text-h3: clamp(1.4rem, 1.1rem + 1.2vw, 2rem);
+  --gutter: clamp(16px, 4vw, 64px); --content: 1200px; --section-pad: clamp(64px, 9vw, 140px);
+  --btn-radius: 999px; --card-radius: 20px; --route-width: 2.5px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); --ease-stamp: cubic-bezier(0.2, 0.9, 0.3, 1.08);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--ground); color: var(--ink); font: 400 var(--text-body)/1.5 var(--font-text); }
+h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.025em; line-height: 0.96; text-wrap: balance; }
+h2 { font-size: var(--text-h2); }
+h3 { font-size: var(--text-h3); }
+img { display: block; max-width: 100%; }
+.wrap { width: min(100% - 2 * var(--gutter), var(--content)); margin: 0 auto; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.note { padding: 18px var(--gutter); background: var(--ivory); font-size: var(--text-caption); color: var(--ink-soft); text-align: center; }
+
+/* ===== gold: the evening of 29 May over Zlatník ===== */
+.gold { padding: var(--section-pad) 0 0; overflow: clip; }
+.gold__head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: end; gap: 24px clamp(24px, 5vw, 80px); margin-bottom: clamp(32px, 5vw, 64px); }
+.gold__head h2 { max-width: 9ch; }
+.gold__lead { max-width: 44ch; font-size: var(--text-lead); text-wrap: pretty; }
+.gold__lead strong { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* the sky: flat fields of the palette, one per phase of light, widths to scale in time */
+.sky { position: relative; height: clamp(380px, 40vw, 600px); }
+.sky svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
+.sky__lab { position: absolute; top: clamp(16px, 2vw, 28px); padding-left: 10px; font-size: var(--text-small); line-height: 1.3; pointer-events: none; }
+.sky__lab b { display: block; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.sky__lab--night { color: var(--white); }
+.sky__lantern { position: absolute; width: clamp(64px, 6vw, 96px); pointer-events: none; }
+.sky__moon { position: absolute; right: var(--gutter); top: 44%; max-width: 20ch; color: var(--white); font-size: var(--text-small); text-align: right; }
+
+/* the readout: a row under the scrubber, time | what is happening | the numbers */
+.read { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 12px clamp(24px, 4vw, 64px); margin-top: clamp(20px, 3vw, 36px); }
+.read__time { font-family: var(--font-display); font-weight: 600; font-size: clamp(3.4rem, 2rem + 5vw, 7rem); line-height: 0.86; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; min-width: 4.1ch; }
+.read__phase { font-family: var(--font-display); font-weight: 600; font-size: var(--text-h3); line-height: 1.05; }
+.read__say { margin-top: 8px; max-width: 44ch; text-wrap: pretty; }
+.read__facts { display: grid; grid-template-columns: repeat(3, auto); grid-auto-flow: column; grid-template-rows: auto auto; gap: 0 28px; font-variant-numeric: tabular-nums; }
+.read__facts dt { color: var(--ink-soft); font-size: var(--text-small); }
+.read__facts dd { font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; letter-spacing: -0.01em; }
+
+/* the scrubber: its track spans exactly the sky's time axis, so the thumb sits under the sun */
+.scrub { position: relative; padding: 18px 0 0; }
+.scrub label { display: block; margin: 0 var(--gutter) 6px; font-weight: 600; font-size: var(--text-small); }
+.scrub input { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 44px; background: transparent; cursor: pointer; }
+.scrub input::-webkit-slider-runnable-track { height: 2.5px; background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
+.scrub input::-moz-range-track { height: 2.5px; background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
+.scrub input::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -14px; border: 0; border-radius: 50%; background: var(--ink); transition: transform 140ms var(--ease-out); }
+.scrub input::-moz-range-thumb { width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--ink); }
+.scrub input:active::-webkit-slider-thumb { transform: scale(0.94); }
+.scrub input:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+.ticks { position: relative; height: 22px; font-size: var(--text-small); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.ticks span { position: absolute; transform: translateX(-50%); }
+
+/* phones: the moments as a list (on desktop the sky's labels carry them, the list stays for screen readers) */
+.moments { list-style: none; display: grid; gap: 14px; margin-top: 28px; }
+.moment { display: grid; grid-template-columns: 22px 3.4rem 1fr; gap: 0 12px; align-items: baseline; }
+.moment i { width: 18px; height: 18px; border-radius: 58% 42% 55% 45% / 50% 60% 40% 50%; background: var(--c); transform: translateY(3px); }
+.moment b { font-variant-numeric: tabular-nums; }
+.moment span { text-wrap: pretty; }
+
+/* below the sky: where the light comes from, and what it means for the guests */
+.where { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: center; padding: clamp(56px, 8vw, 120px) 0 var(--section-pad); }
+.compass { position: relative; width: min(100%, 520px); aspect-ratio: 1; justify-self: center; }
+.compass svg { width: 100%; height: 100%; overflow: visible; }
+.where__copy { display: grid; gap: 18px; max-width: 52ch; }
+.where__copy > p { text-wrap: pretty; }
+.tips { list-style: none; display: grid; gap: 22px; margin-top: 14px; }
+.tip { display: grid; grid-template-columns: 104px 1fr; gap: 18px; align-items: center; }
+.tip h4 { font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; letter-spacing: -0.01em; line-height: 1.1; margin-bottom: 4px; }
+.tip p { font-size: var(--text-small); color: var(--ink-soft); text-wrap: pretty; }
+.tint { position: relative; display: block; }
+.tint img { position: relative; z-index: 1; width: 100%; aspect-ratio: 1; object-fit: contain; }
+.tint::before, .tint::after { content: ""; position: absolute; z-index: 0; background: var(--c, var(--peony)); border-radius: 58% 42% 55% 45% / 50% 60% 40% 50%; }
+.tint::before { left: 18%; top: 22%; width: 62%; height: 64%; }
+.tint::after { background: var(--c2, var(--butter)); left: 8%; bottom: 6%; width: 30%; height: 24%; border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%; }
+.src { padding: 0 0 clamp(40px, 5vw, 64px); max-width: 75ch; font-size: var(--text-small); color: var(--ink-soft); }
+.src a { color: inherit; }
+
+@media (min-width: 761px) { .moments { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } }
+@media (max-width: 900px) {
+  .gold__head, .where { grid-template-columns: 1fr; }
+  .read { grid-template-columns: auto minmax(0, 1fr); }
+  .read__facts { grid-column: 1 / -1; justify-content: start; }
+}
+@media (max-width: 760px) {
+  .sky { height: 300px; }
+  .sky__lab, .sky__lantern, .sky__moon { display: none; }
+  .moments { margin-left: var(--gutter); margin-right: var(--gutter); }
+}
+</style>
+</head>
+<body>
+<p class="note">Prototyp sekcie pre DESIGN review · údaje vypočítané pre Stodolu Zlatník, 29. 5. 2027 · nie je súčasťou webu</p>
+
+<section class="gold" id="zlata-hodina" aria-labelledby="gold-h">
+  <div class="wrap gold__head">
+    <h2 id="gold-h">Zlatá hodina v Zlatníku</h2>
+    <p class="gold__lead">Zlatník má zlato už v mene. 29. mája zapadá slnko o <strong>20:26</strong>, no za kopcom nad dedinou sa schová už okolo <strong>20:00</strong>. Polhodina pred tým je najkrajšie svetlo celého dňa.</p>
+  </div>
+
+  <div class="sky" id="sky" aria-hidden="true">
+    <svg id="sky-svg"></svg>
+  </div>
+
+  <div class="scrub">
+    <label for="t" class="sr">Posuňte večer a pozrite sa, kde bude slnko</label>
+    <input type="range" id="t" min="1110" max="1350" step="1" value="1185" aria-valuetext="19:45, zlatá hodina">
+    <div class="ticks" id="ticks"></div>
+  </div>
+
+  <div class="wrap read" aria-live="polite">
+    <p class="read__time" id="r-time">19:45</p>
+    <div><p class="read__phase" id="r-phase">Zlatá hodina</p><p class="read__say" id="r-say"></p></div>
+    <dl class="read__facts">
+      <dt>Výška slnka</dt><dd id="r-el">5,9°</dd>
+      <dt>Smer</dt><dd id="r-az">SZ · 297°</dd>
+      <dt>Váš tieň</dt><dd id="r-sh">16 m</dd>
+    </dl>
+  </div>
+
+  <ol class="moments" id="moments"></ol>
+
+  <div class="wrap where">
+    <div class="compass" id="compass"></div>
+    <div class="where__copy">
+      <h3>Odkiaľ bude svietiť</h3>
+      <p>Slnko v máji zapadá ďaleko na severozápade, na azimute 305°. Stodola má presklenú západnú stenu, takže sa večer celá rozsvieti a svetlo prejde šikmo cez sálu. Okolo ôsmej zájde slnko za kopec a dvor ostane v mäkkom svetle bez tieňov.</p>
+      <ul class="tips">
+        <li class="tip">
+          <span class="tint" style="--c: var(--peony); --c2: var(--butter)"><img src="../../wedding-site/public/art/black/couple-cool.svg" alt=""></span>
+          <div><h4>Okuliare sa zídu</h4><p>Podvečer bude slnko nízko a priamo v očiach, keď sa pozriete k sadu a jazierku.</p></div>
+        </li>
+        <li class="tip">
+          <span class="tint" style="--c: var(--butter); --c2: var(--apricot)"><img src="../../wedding-site/public/art/black/camera.svg" alt=""></span>
+          <div><h4>Fotky medzi 19:30 a 20:00</h4><p>Vtedy sú tiene dlhé a teplé. Po ôsmej je svetlo mäkké, dobré na portréty.</p></div>
+        </li>
+        <li class="tip">
+          <span class="tint" style="--c: var(--blue); --c2: var(--sage)"><img src="../../wedding-site/public/art/black/lantern.svg" alt=""></span>
+          <div><h4>Sveter do auta</h4><p>O desiatej večer býva v Zlatníku okolo 13 °C, v chladnejšie roky aj 10 °C.</p></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="wrap src">Poloha slnka vypočítaná (NOAA) pre Stodolu Zlatník, 48,9685° s. š., 21,5480° v. d., letný čas; časy súhlasia so sunrise-sunset.org na minútu. Kopec: výškový model Copernicus cez Open-Meteo, odhad ±10 min. Teploty: ERA5, večery 26. 5.–1. 6. v rokoch 2021–2025. Budova: © prispievatelia OpenStreetMap.</p>
+</section>
+
+<script>
+// ---- data: computed for Zlatník 28, 29 May 2027 (CEST) ----
+const LAT = 48.96848, LNG = 21.54797, TZ = 2;
+const rad = (d) => (d * Math.PI) / 180, deg = (r) => (r * 180) / Math.PI;
+function sun(min) { // minutes after local midnight → { el (refracted), az }
+  const date = new Date(Date.UTC(2027, 4, 29, 0, 0) + (min - TZ * 60) * 60000);
+  const jd = date.getTime() / 86400000 + 2440587.5, T = (jd - 2451545) / 36525;
+  const L0 = (280.46646 + T * (36000.76983 + T * 0.0003032)) % 360, M = 357.52911 + T * (35999.05029 - 0.0001537 * T);
+  const e = 0.016708634 - T * (0.000042037 + 0.0000001267 * T);
+  const C = Math.sin(rad(M)) * (1.914602 - T * (0.004817 + 0.000014 * T)) + Math.sin(rad(2 * M)) * (0.019993 - 0.000101 * T) + Math.sin(rad(3 * M)) * 0.000289;
+  const om = 125.04 - 1934.136 * T, lam = L0 + C - 0.00569 - 0.00478 * Math.sin(rad(om));
+  const eps = 23 + (26 + (21.448 - T * (46.815 + T * (0.00059 - T * 0.001813))) / 60) / 60 + 0.00256 * Math.cos(rad(om));
+  const dec = deg(Math.asin(Math.sin(rad(eps)) * Math.sin(rad(lam)))), y = Math.tan(rad(eps / 2)) ** 2;
+  const eqt = 4 * deg(y * Math.sin(2 * rad(L0)) - 2 * e * Math.sin(rad(M)) + 4 * e * y * Math.sin(rad(M)) * Math.cos(2 * rad(L0)) - 0.5 * y * y * Math.sin(4 * rad(L0)) - 1.25 * e * e * Math.sin(2 * rad(M)));
+  const utc = date.getUTCHours() * 60 + date.getUTCMinutes();
+  const ha = (((utc + eqt + 4 * LNG) % 1440) + 1440) % 1440 / 4 - 180;
+  const zen = deg(Math.acos(Math.sin(rad(LAT)) * Math.sin(rad(dec)) + Math.cos(rad(LAT)) * Math.cos(rad(dec)) * Math.cos(rad(ha))));
+  let el = 90 - zen; const te = Math.tan(rad(el));
+  const r = el > 85 ? 0 : el > 5 ? 58.1 / te - 0.07 / te ** 3 + 0.000086 / te ** 5 : el > -0.575 ? 1735 + el * (-518.2 + el * (103.4 + el * (-12.79 + el * 0.711))) : -20.774 / te;
+  el += r / 3600;
+  let az = deg(Math.acos((Math.sin(rad(LAT)) * Math.cos(rad(zen)) - Math.sin(rad(dec))) / (Math.cos(rad(LAT)) * Math.sin(rad(zen)))));
+  az = ha > 0 ? (az + 180) % 360 : (540 - az) % 360;
+  return { el, az };
+}
+// terrain horizon (degrees above flat) by azimuth, from the Copernicus DEM profiles
+const HZ = [[270, 3.2], [290, 3.1], [296, 3.3], [301, 3.2], [306, 3.0], [310, 2.8], [330, 2.4]];
+const horizon = (az) => { for (let i = 1; i < HZ.length; i++) if (az <= HZ[i][0]) { const [a0, h0] = HZ[i - 1], [a1, h1] = HZ[i]; return h0 + ((h1 - h0) * (az - a0)) / (a1 - a0); } return HZ.at(-1)[1]; };
+// phases: [start minute, name, colour, ink, label for the sky, what it means]
+const PH = [
+  [1110, "Podvečer", "--ivory", "ink", null, "Slnko svieti ešte vysoko nad sadom a hreje."],
+  [1177, "Zlatá hodina", "--butter", "ink", "Zlatá hodina", "Slnko je nízko, tiene sú dlhé a teplé. Najkrajšie svetlo dňa."],
+  [1200, "Za kopcom", "--apricot", "ink", "Za kopcom", "Slnko zašlo za kopec na severozápade. Na dvore je mäkké svetlo bez tieňov, obloha ešte žiari."],
+  [1226, "Západ slnka", "--peony", "ink", "Západ", "Oficiálny západ slnka. Obloha nad kopcom sa farbí do ružova."],
+  [1250, "Modrá hodina", "--blue", "ink", "Modrá hodina", "Krátka chvíľa, keď je všetko modré. Pre fotografov vzácna."],
+  [1267, "Súmrak", "--olive", "white", "Súmrak", "Zotmie sa. Sad rozžiaria svetelné reťaze a lampáše."],
+];
+const MOMENTS = [
+  [1177, "--butter", "Začína zlatá hodina, slnko je 6° nad obzorom."],
+  [1200, "--apricot", "Slnko zájde za kopec nad Zlatníkom (odhad z terénu)."],
+  [1226, "--peony", "Západ slnka za rovným obzorom, azimut 305°."],
+  [1250, "--blue", "Začína modrá hodina."],
+  [1267, "--olive", "Koniec občianskeho súmraku. Sad rozžiaria svetielka."],
+  [1409, "--olive", "Úplná tma. Mesiac vyjde až o 1:32, nad parketom budú hviezdy."],
+];
+const T0 = 1110, T1 = 1350; // 18:30 → 22:30
+const EL0 = -7, EL1 = 17;
+const hm = (m) => `${Math.floor(m / 60)}:${String(Math.round(m % 60)).padStart(2, "0")}`;
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const phaseAt = (m) => PH.reduce((p, ph) => (m >= ph[0] ? ph : p), PH[0]);
+const compassWord = (a) => ["S", "SV", "V", "JV", "J", "JZ", "Z", "SZ"][Math.round(a / 45) % 8];
+const fmt1 = (n) => n.toFixed(1).replace(".", ",").replace("-", "−");
+
+// ---- sky ----
+const sky = document.getElementById("sky"), svg = document.getElementById("sky-svg");
+let W, H, X, Y;
+function drawSky() {
+  W = sky.clientWidth; H = sky.clientHeight;
+  X = (m) => ((m - T0) / (T1 - T0)) * W; Y = (el) => H - ((el - EL0) / (EL1 - EL0)) * H;
+  const ns = "http://www.w3.org/2000/svg";
+  let s = "";
+  PH.forEach((ph, i) => { const x0 = X(ph[0]), x1 = i + 1 < PH.length ? X(PH[i + 1][0]) : W; s += `<rect x="${x0}" y="0" width="${x1 - x0 + 0.5}" height="${H}" fill="${css(ph[2])}"/>`; });
+  // the land: the real horizon along the sun's azimuth, then flat ground below 0°
+  let hill = `M0 ${H}`;
+  for (let m = T0; m <= T1; m += 2) hill += ` L${X(m).toFixed(1)} ${Y(horizon(sun(m).az)).toFixed(1)}`;
+  hill += ` L${W} ${H} Z`;
+  // the sun's road: dashed, ink over the light fields, white over the night
+  let road = "";
+  for (let m = T0; m <= T1; m += 2) road += `${m === T0 ? "M" : "L"}${X(m).toFixed(1)} ${Y(sun(m).el).toFixed(1)}`;
+  const sr = Math.max(13, Math.min(24, W / 60));
+  const dash = `fill="none" stroke-width="2.5" stroke-dasharray="7 9" stroke-linecap="round"`;
+  s += `<defs><clipPath id="land"><path d="${hill}"/></clipPath></defs>`;
+  // in the sky the road is ink; the sun is a line drawing with two riso plates under it
+  s += `<path d="${road}" stroke="${css("--ink")}" ${dash}/>`;
+  s += `<g id="sun"><ellipse cx="${sr * 0.38}" cy="${sr * 0.34}" rx="${sr * 0.95}" ry="${sr * 0.9}" fill="${css("--apricot")}"/><ellipse rx="${sr}" ry="${sr * 0.97}" fill="${css("--butter")}"/><circle r="${sr}" fill="none" stroke="${css("--ink")}" stroke-width="2.5"/></g>`;
+  // the land covers the sun when it drops behind the hill; under the ground the road goes on in white
+  s += `<path d="${hill}" fill="${css("--sage")}"/>`;
+  s += `<path d="${road}" stroke="#fff" ${dash} clip-path="url(#land)"/>`;
+  // how deep under the horizon: the two depths that end the golden and the blue hour
+  for (const [m, t] of [[1250, "−4°"], [1267, "−6°"]]) s += `<text x="${X(m) + 8}" y="${Y(sun(m).el) + 4}" font-family="DM Sans" font-weight="600" font-size="15" fill="#fff">${t}</text>`;
+  for (const d of [5, 10, 15]) s += `<text x="12" y="${Y(d) + 5}" font-family="DM Sans" font-size="15" fill="${css("--ink-soft")}">${d}°</text>`;
+  s += `<text x="${Math.max(12, X(1110) + 12)}" y="${Y(0) + 26}" font-family="DM Sans" font-size="15" fill="${css("--ink")}">Obzor · kopec nad Zlatníkom 3° nad ním</text>`;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = s;
+  // labels for each phase (desktop), the lantern in the night, the moon note
+  sky.querySelectorAll(".sky__lab, .sky__lantern, .sky__moon").forEach((n) => n.remove());
+  PH.forEach((ph) => { if (!ph[4]) return; const d = document.createElement("p"); d.className = "sky__lab" + (ph[3] === "white" ? " sky__lab--night" : ""); d.style.left = X(ph[0]) + "px"; d.style.maxWidth = (X(PH[PH.indexOf(ph) + 1]?.[0] ?? T1) - X(ph[0]) - 4) + "px"; d.innerHTML = `<b>${hm(ph[0])}</b>${ph[4]}`; sky.append(d); });
+  const lan = document.createElement("img"); lan.className = "sky__lantern"; lan.src = "../../wedding-site/public/art/white/lantern.svg"; lan.alt = ""; lan.style.left = X(1290) + "px"; lan.style.top = "34%"; sky.append(lan);
+  const moon = document.createElement("p"); moon.className = "sky__moon"; moon.textContent = "Úplná tma o 23:29. Mesiac vyjde až o 1:32."; sky.append(moon);
+  // ticks under the scrubber, aligned to the same axis
+  const ticks = document.getElementById("ticks"); ticks.innerHTML = "";
+  for (let m = 1140; m <= 1320; m += 60) { const t = document.createElement("span"); t.style.left = X(m) + "px"; t.textContent = hm(m); ticks.append(t); }
+  place(+input.value);
+}
+
+// ---- readout ----
+const input = document.getElementById("t");
+function place(m) {
+  const p = sun(m), hz = horizon(p.az), ph = phaseAt(m);
+  const g = document.getElementById("sun");
+  if (g) g.setAttribute("transform", `translate(${X(m)} ${Y(p.el)})`);
+  document.getElementById("r-time").textContent = hm(m);
+  document.getElementById("r-phase").textContent = ph[1];
+  document.getElementById("r-el").textContent = `${fmt1(p.el)}°`;
+  document.getElementById("r-az").textContent = `${compassWord(p.az)} · ${Math.round(p.az)}°`;
+  const shadow = p.el > hz ? `${Math.round(1.7 / Math.tan(rad(p.el)))} m` : "žiadny";
+  document.getElementById("r-sh").textContent = shadow;
+  document.getElementById("r-say").textContent = ph[5];
+  input.setAttribute("aria-valuetext", `${hm(m)}, ${ph[1].toLowerCase()}`);
+  drawCompass(p.az, p.el > hz);
+}
+input.addEventListener("input", () => place(+input.value));
+
+// ---- compass: the barn's real footprint (OSM way 69609630), north up ----
+const BARN = [[21.5478258, 48.9685307], [21.5478635, 48.9684162], [21.5479297, 48.9684256], [21.5479183, 48.96846], [21.5481899, 48.9684986], [21.5482036, 48.9684572], [21.5482967, 48.9684704], [21.548268, 48.9685574], [21.5479159, 48.9685073], [21.5479045, 48.9685419]];
+function drawCompass(az, lit) {
+  const box = document.getElementById("compass"), S = 520, c = S / 2, R = 214;
+  const kx = 111320 * Math.cos(rad(48.9685)), ky = 110540, cx0 = 21.54806, cy0 = 48.96849, px = 4.4; // px per metre
+  const P = ([lo, la]) => [c + (lo - cx0) * kx * px, c - (la - cy0) * ky * px];
+  const pol = BARN.map(P);
+  const pt = (a, r) => [c + r * Math.sin(rad(a)), c - r * Math.cos(rad(a))];
+  const arc = (a0, a1, r) => { const [x0, y0] = pt(a0, r), [x1, y1] = pt(a1, r); return `M${x0} ${y0} A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1} ${y1}`; };
+  let s = `<svg viewBox="0 0 ${S} ${S}" role="img" aria-label="Stodola zhora, sever hore. Slnko vychádza na severovýchode (55°) a zapadá na severozápade (305°). Zlatá hodina svieti zo smeru 296° až 301° na presklenú západnú stenu.">`;
+  s += `<circle cx="${c}" cy="${c}" r="${R + 34}" fill="${css("--ivory")}"/>`;
+  // the day's arc from sunrise to sunset, dashed like the road; golden sector thick
+  s += `<path d="${arc(55, 305, R)}" fill="none" stroke="${css("--ink")}" stroke-width="2.5" stroke-dasharray="7 9" stroke-linecap="round"/>`;
+  s += `<path d="${arc(296, 302, R)}" fill="none" stroke="${css("--butter")}" stroke-width="22" stroke-linecap="round"/>`;
+  s += `<path d="${arc(302, 305.4, R)}" fill="none" stroke="${css("--apricot")}" stroke-width="22" stroke-linecap="round"/>`;
+  // rays: parallel bands from the current azimuth, ending at the barn
+  if (lit) {
+    const ux = Math.sin(rad(az)), uy = -Math.cos(rad(az)), nx = -uy, ny = ux;
+    for (let k = -2; k <= 2; k++) {
+      const ox = c + nx * k * 18, oy = c + ny * k * 18;
+      s += `<line x1="${ox + ux * 180}" y1="${oy + uy * 180}" x2="${ox}" y2="${oy}" stroke="${css("--butter")}" stroke-width="9" stroke-linecap="round"/>`;
+    }
+  }
+  s += `<polygon points="${pol.map((p) => p.join(",")).join(" ")}" fill="${css("--ink")}"/>`;
+  // the glazed west gable: the short WSW wall, in butter
+  s += `<line x1="${pol[0][0]}" y1="${pol[0][1]}" x2="${pol[1][0]}" y2="${pol[1][1]}" stroke="${css("--butter")}" stroke-width="6" stroke-linecap="round"/>`;
+  const [sx, sy] = pt(az, R);
+  s += `<g transform="translate(${sx} ${sy})"><ellipse cx="4" cy="4" rx="17" ry="16" fill="${css("--apricot")}"/><ellipse rx="18" ry="17.5" fill="${css("--butter")}"/><circle r="18" fill="none" stroke="${css("--ink")}" stroke-width="2.5"/></g>`;
+  const lab = (a, r, t, w = 600, size = 18, anchor = "middle") => { const [x, y] = pt(a, r); return `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="central" font-family="DM Sans" font-weight="${w}" font-size="${size}">${t}</text>`; };
+  s += lab(0, R + 62, "S") + lab(90, R + 62, "V") + lab(180, R + 62, "J") + lab(270, R + 62, "Z");
+  s += lab(55, R - 30, "východ 4:37", 500, 15, "end") + lab(312, R - 34, "západ 20:26", 500, 15, "start");
+  s += `<text x="${c}" y="${c + 46}" text-anchor="middle" font-family="DM Sans" font-size="15">stodola</text>`;
+  s += `<text x="${pol[1][0] - 6}" y="${pol[1][1] + 40}" text-anchor="end" font-family="DM Sans" font-size="15">presklená stena</text>`;
+  s += `</svg>`;
+  box.innerHTML = s;
+}
+
+// ---- moments list (phones; screen readers everywhere) ----
+document.getElementById("moments").innerHTML = MOMENTS.map(([m, c, t]) => `<li class="moment"><i style="--c: var(${c})"></i><b>${hm(m)}</b><span>${t}</span></li>`).join("");
+
+new ResizeObserver(drawSky).observe(sky);
+drawSky();
+</script>
+</body>
+</html>
