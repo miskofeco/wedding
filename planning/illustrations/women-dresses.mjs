@@ -150,13 +150,29 @@ function brush(d, w) {
 // ---------------------------------------------------------------- parts
 // A part is { region, ink, fill, solid }: `region` hides whatever lies behind the part,
 // `ink` is a list of [path, width] strokes, `fill` a dress shape, `solid` filled ink shapes.
-// Local coordinates: figure centred near x = 0, top of the head at y = 0, soles near y = 770.
+// Poses are sketched in a long figure frame (top of the head at y = 0, soles near 770) and
+// warped to natural proportions: about eight heads tall, with real shoulder, waist and hip
+// widths. Body and dress points go through bodyW, arm joints through armW (arms keep their
+// own spacing so they hang clear of the waist). A point given as { abs: [x, y] } is already
+// in final coordinates, e.g. a fold of skirt held in a hand.
 
 const part = (region, ink = [], extra = {}) => ({ region: [].concat(region ?? []), ink, ...extra });
 
+const WIDEN = [[100, 1.12], [140, 1.15], [175, 1.28], [255, 1.4], [330, 1.36], [420, 1.3], [600, 1.2], [800, 1.12]];
+const widenAt = (y) => {
+  let k = 1;
+  while (k < WIDEN.length - 1 && WIDEN[k][0] < y) k++;
+  const [y0, a] = WIDEN[k - 1];
+  const [y1, b] = WIDEN[k];
+  return lerp(a, b, clamp((y - y0) / (y1 - y0), 0, 1));
+};
+const wy = (y) => (y <= 100 ? y : 100 + (y - 100) * 0.9);
+const bodyW = (pts) => pts.map((p) => (p.abs ? p.abs : [p[0] * widenAt(p[1]), wy(p[1]), ...(p[2] ? [p[2]] : [])]));
+const armW = (pts) => pts.map(([x, y, c]) => [x * 1.15, wy(y), ...(c ? [c] : [])]);
+
 // Limb outline along a spline through `joints`. `widths` rows are [u, a, b]: half widths on
 // the a side (+x for a limb running down the page) and the b side, at u along the limb.
-function limb(joints, widths, n = 30) {
+function limb(joints, widths, n = 34) {
   const at = track(sample(spline(joints))[0]);
   const prof = (u) => {
     let k = 1;
@@ -178,63 +194,79 @@ function limb(joints, widths, n = 30) {
   return { A, B, end: at(1) };
 }
 
-// Hand outlines in a wrist frame: u runs along the hand, v (in wrist half-widths) across it,
-// from the a side round the fingertips to the b side; the thumb sits on the b side.
-const HANDS = {
-  open: [[5, 1.05], [13, 1.25], [22, 1.2], [31, 0.85], [38, 0.35], [40.5, -0.15], [37.5, -0.7], [30, -1.05], [22, -1.25], [16, -1.75], [10, -1.7], [4, -1.1]],
-  rest: [[5, 1.05], [13, 1.25], [21, 1.15], [28, 0.8], [32, 0.25], [33, -0.3], [30, -0.85], [24, -1.15], [17, -1.6], [11, -1.65], [4, -1.1]],
-  fist: [[5, 1.1], [12, 1.5], [19, 1.45], [24, 0.9], [25.5, 0], [24, -0.9], [19, -1.5], [12, -1.6], [5, -1.15]],
+// Hands in a wrist frame, in figure units: u runs from the wrist to the fingertips, v across
+// it with the thumb on -v. A relaxed hand is seen from the side: back of the hand on +v, the
+// thumb lying along the index finger, two lines for the fingers and one for the thumb.
+const OPEN = {
+  outline: [[2, 6.6], [10, 9.6], [20, 11.6], [30, 12], [38, 11.2], [46, 9.6], [52, 7.4], [56, 4.6], [57, 2.4, 1], [60.4, 1.2], [61.8, -1.4], [60.4, -3.9], [58.4, -5, 1], [59.6, -7.2], [58.2, -9.8], [54.2, -11.2], [47.6, -11.6], [41.6, -11.4], [37.8, -11.6, 1], [38.4, -14.6], [35, -16.4], [27, -16], [18, -14], [10, -10.8], [3, -7.2]],
+  hints: [[[37.8, -11.6], [30, -11.2], [22, -11.8]], [[57, 2.4], [50.4, 1.4], [45, 1.2]], [[58.4, -5], [52.4, -5.6], [47, -6]]],
 };
-const HAND_HINT = { open: [[9, -1.05], [15, -0.95], [21, -1.2]], rest: [[9, -1.05], [14, -0.95], [19, -1.15]], fist: [[13, -1.2], [16, 0], [13, 1.2]] };
+// Fingers bent at the knuckles, for a hand resting on a hip or a thigh.
+const curl = (pts) => mapPts(pts, (u, v) => (u > 34 ? [34 + (u - 34) * 0.7, v + (u - 34) * 0.2] : [u, v]));
+const HANDS = {
+  open: OPEN,
+  rest: { outline: curl(OPEN.outline), hints: OPEN.hints.map(curl) },
+  // A loose fist closed on a fold of fabric: knuckles, finger joints and the thumb on top.
+  fist: {
+    outline: [[2, 6.8], [10, 10.6], [19, 12.6], [28, 12.6], [35, 10.4], [39.2, 6], [40, 1.2], [39, -3.6], [36, -8, 1], [33.6, -13], [27, -15.4], [18, -14.6], [10, -11.6], [3, -7.4]],
+    hints: [[[36.6, 7.4], [30, 6.8]], [[39.4, 2], [32.4, 1.6]], [[38, -3], [31, -3.4]], [[34.6, -10.8], [23, -11.4]]],
+  },
+};
 
-// Rows are [u, inner, outer] for the viewer's left arm.
-const ARM_WIDTHS = [[0, 9.5, 11], [0.14, 8.6, 10], [0.3, 8, 8.6], [0.47, 6, 6.4], [0.6, 7, 7.2], [0.84, 4.8, 5], [1, 4.3, 4.5]];
+// Rows are [u, inner, outer] for the viewer's left arm: deltoid, biceps, elbow, forearm, wrist.
+const ARM_WIDTHS = [[0, 13, 15], [0.14, 12.4, 14], [0.3, 11.2, 12.4], [0.47, 8.4, 9], [0.58, 10, 10.6], [0.84, 7.2, 7.4], [1, 6.4, 6.6]];
 
-// side: -1 for the viewer's left arm, 1 for the right. Returns the part and the shoulder tip.
+// side: -1 for the viewer's left arm, 1 for the right. Returns the part, the shoulder tip,
+// both outlines and `grip`, the middle of the hand (where a fist holds fabric).
 function arm({ joints, hand = 'open', side }) {
   const widths = side < 0 ? ARM_WIDTHS : ARM_WIDTHS.map(([u, a, b]) => [u, b, a]);
-  const { A, B, end } = limb(joints, widths);
-  const hw = 4.9;
+  const { A, B, end } = limb(armW(joints), widths);
   const thumb = side < 0 ? -1 : 1; // thumb towards the body
   const n = [end.t[1], -end.t[0]];
-  const toWorld = ([u, v]) => [end.p[0] + end.t[0] * u + n[0] * v * hw * thumb, end.p[1] + end.t[1] * u + n[1] * v * hw * thumb];
-  let pts = HANDS[hand].map(toWorld);
+  const toWorld = ([u, v]) => [end.p[0] + end.t[0] * u * 1.1 + n[0] * v * thumb, end.p[1] + end.t[1] * u * 1.1 + n[1] * v * thumb];
+  let pts = HANDS[hand].outline.map(([u, v, c]) => [...toWorld([u, v]), ...(c ? [c] : [])]);
   if (thumb < 0) pts = pts.reverse();
   const outline = [...A, ...pts, ...[...B].reverse()];
-  const d = spline(outline);
   return {
-    part: part(shape(outline), [[d, MAIN], [spline(HAND_HINT[hand].map(toWorld)), HAIRLINE]]),
+    part: part(shape(outline), [[spline(outline), MAIN], ...HANDS[hand].hints.map((h) => [spline(h.map(toWorld)), HAIRLINE])]),
     tip: side < 0 ? B[0] : A[0],
+    grip: toWorld([22, -1]),
     A,
     B,
   };
 }
 
-// Pump seen from the front, relative to the ankle; turned by `angle` for a foot pointing out.
-const PUMP = [[-8.5, 14, 1], [0, 19.5], [8.5, 14, 1], [9.6, 30], [5.5, 46], [0, 57, 1], [-5.5, 46], [-9.6, 30]];
-const INSTEP = [[5.5, 0], [7.2, 9], [8.2, 17], [-8.2, 17], [-7.2, 9], [-5.5, 0]];
-// Rows are [u, inner, outer] for the viewer's left leg; the calf swells on the outer side.
-const LEG_WIDTHS = [[0, 17, 17], [0.2, 15, 15.5], [0.42, 10.5, 11], [0.5, 8.6, 9], [0.6, 9, 10.6], [0.8, 6.6, 7], [1, 5, 5.2]];
+// A foot in a pointed pump seen from the front, in figure units from the ankle, for the
+// viewer's left foot (+x is the big-toe side). The instep runs down into the vamp, the toe
+// narrows to a point and a stiletto heel shows behind the outer edge.
+const INSTEP = [[8, 0], [10.8, 9], [13, 19.5], [-11.6, 18], [-9.6, 9], [-8, 0]];
+const PUMP = [[12.4, 19.5, 1], [3, 26], [-10.8, 18, 1], [-12, 28], [-9.8, 41], [-5, 52], [1.6, 60, 1], [7, 51], [11.6, 40], [13.8, 28]];
+const HEEL = [[-8.6, 8], [-11.8, 10], [-13.2, 22], [-12.8, 40], [-12.2, 56, 1], [-11.2, 56, 1], [-10.8, 40], [-10.2, 24], [-9.2, 14]];
+const ANKLE = [[7.8, -10], [9.8, -5.5], [8.8, -1]];
+// Rows are [u, inner, outer] for the viewer's left leg: thigh, knee, calf (on the outer side), ankle.
+const LEG_WIDTHS = [[0, 26, 26], [0.2, 22, 24], [0.42, 15.5, 17], [0.5, 13, 14], [0.6, 13.5, 16], [0.8, 9.6, 10.6], [1, 7.4, 7.8]];
 
 function leg({ joints, angle = 0, side }) {
   const widths = side < 0 ? LEG_WIDTHS : LEG_WIDTHS.map(([u, a, b]) => [u, b, a]);
-  const { A, B, end } = limb(joints, widths);
+  const { A, B, end } = limb(bodyW(joints), widths);
   const [ax, ay] = end.p;
-  const place = (pts) => mapPts(pts, (x, y) => rotate(ax + x, ay + y, angle, ax, ay));
-  const instep = place(INSTEP);
+  const mirror = (pts) => (side < 0 ? pts : flipPts(pts));
+  const place = (pts) => mapPts(mirror(pts), (x, y) => rotate(ax + x, ay + y, angle, ax, ay));
+  const instep = side < 0 ? place(INSTEP) : place(INSTEP).reverse();
   const outline = [...A, ...instep, ...[...B].reverse()];
   const pump = shape(place(PUMP));
-  return part([shape(outline), pump], [[spline(outline), MAIN]], { solid: [pump] });
+  const heel = shape(place(HEEL));
+  return part([shape(outline), pump, heel], [[spline(outline), MAIN], [spline(place(ANKLE)), HAIRLINE]], { solid: [heel, pump] });
 }
 
 // Neck, shoulder slopes and collarbones, joining the head to the two shoulder tips.
 function body(pose, tips) {
-  const [px, py] = pose.pit;
-  const jaw = (s) => headPoint(pose.head, s * 9.5, 74);
-  const neck = (s) => [jaw(s), [px + s * 10.5, py - 22], [px + s * 12, py - 5]];
-  const slope = (s, tip) => [[px + s * 12, py - 5], [lerp(px + s * 12, tip[0], 0.45), py + 3], [tip[0] - s * 7, tip[1] - 11], [tip[0] - s * 1.5, tip[1] - 4], tip];
-  const collar = (s) => [[px + s * 5, py + 12], [px + s * 16, py + 15], [px + s * 28, py + 13]];
-  const region = shape([jaw(-1), [px - 12, py - 5], tips[0], [tips[0][0] + 4, py + 60], [px - 38, py + 100], [px + 38, py + 100], [tips[1][0] - 4, py + 60], tips[1], [px + 12, py - 5], jaw(1)]);
+  const [px, py] = [pose.pit[0] * 1.15, pose.pit[1]];
+  const jaw = (s) => headPoint(pose.head, s * 11.5, 74);
+  const neck = (s) => [jaw(s), [px + s * 13, py - 20], [px + s * 15.5, py - 4]];
+  const slope = (s, tip) => [[px + s * 15.5, py - 4], [lerp(px + s * 15.5, tip[0], 0.42), py + 3], [tip[0] - s * 13, tip[1] - 15], [tip[0] - s * 4, tip[1] - 9], [tip[0] - s * 0.6, tip[1] - 2], tip];
+  const collar = (s) => [[px + s * 6, py + 13], [px + s * 20, py + 16], [px + s * 36, py + 13]];
+  const region = shape([jaw(-1), [px - 15, py - 4], tips[0], [tips[0][0] + 6, py + 60], [px - 56, py + 100], [px + 56, py + 100], [tips[1][0] - 6, py + 60], tips[1], [px + 15, py - 4], jaw(1)]);
   return part(region, [
     [spline(neck(-1)), MAIN],
     [spline(neck(1)), MAIN],
@@ -252,8 +284,8 @@ function body(pose, tips) {
 
 function headPoint(h, x, y, gravity = false) {
   const k = gravity ? clamp((150 - y) / 90, 0, 1) : 1;
-  const [rx, ry] = rotate(x, y, h.tilt * k, 0, 96);
-  return [rx + h.x, ry];
+  const [rx, ry] = rotate(x * 1.08, 96 + (y - 96) * 1.08, h.tilt * k, 0, 96);
+  return [rx + h.x * 1.15, ry];
 }
 const headPts = (h, pts, gravity) => mapPts(pts, (x, y) => headPoint(h, x, y, gravity));
 
@@ -402,10 +434,22 @@ function ruffleFolds(x0, y0, x1, y1, n, rise, toX = 0) {
   return out;
 }
 
-const dress = (pts, folds, color) => {
-  const d = shape(pts);
-  return part(d, [[open(d), BOLD], ...folds.map((f) => [spline(f), FINE])], { fill: { d, color } });
+// Soft hem between two corners: the edge dips a little wherever a fold reaches it.
+function hem(a, b, n, depth = 3.5) {
+  const out = [];
+  for (let i = 1; i < 2 * n; i++) {
+    const t = i / (2 * n);
+    const swell = 0.55 + 0.45 * Math.abs(Math.sin(i * 2.3 + a[0] / 17)); // uneven, like real fabric
+    out.push([lerp(a[0], b[0], t) + (i % 2 ? 0 : 2.5 * Math.sin(i + b[0])), lerp(a[1], b[1], t) + (i % 2 ? depth * swell : -depth * 0.3 * swell)]);
+  }
+  return out;
+}
+
+const dress = (pts, folds, color, warp = bodyW) => {
+  const d = shape(warp(pts));
+  return part(d, [[open(d), BOLD], ...folds.map((f) => [spline(warp(f)), FINE])], { fill: { d, color } });
 };
+const asIs = (pts) => pts;
 
 // ---------------------------------------------------------------- the six women
 // Each pose: head { x, tilt, turn, hair, mirror }, the neck pit, and joints for the limbs.
@@ -420,13 +464,13 @@ function woman1(color) {
     leg({ side: -1, angle: -18, joints: [[-20, 350], [-20, 542], [-38, 718]] }),
     leg({ side: 1, angle: 6, joints: [[20, 338], [12, 545], [6, 724]] }),
     dress(
-      [[-44, 348, 1], [-50, 420], [-56, 500], [-64, 580], [-80, 654], [-106, 714], [-144, 762, 1], [-110, 773], [-76, 775], [-48, 770, 1], [-45, 720], [-40, 640], [-28, 540], [-14, 470], [0, 432, 1], [-22, 398]],
-      [[[-62, 600], [-80, 672], [-100, 724], [-122, 758]], [[-50, 652], [-56, 702], [-62, 740], [-68, 768]]],
+      [[-44, 348, 1], [-50, 420], [-56, 500], [-64, 580], [-76, 654], [-96, 716], [-126, 762, 1], ...hem([-126, 762], [-48, 770], 3), [-48, 770, 1], [-45, 720], [-40, 640], [-28, 540], [-14, 470], [0, 432, 1], [-22, 398]],
+      [[[-62, 600], [-76, 672], [-92, 724], [-108, 758]], [[-50, 652], [-56, 702], [-62, 740], [-68, 768]]],
       color,
     ),
     body(pose, [L.tip, R.tip]),
     dress(
-      [[-46, 162, 1], [-38, 154], [-24, 153], [-12, 158], [-2, 171, 1], [8, 160], [24, 157], [38, 160], [48, 172, 1], [46, 198], [38, 226], [32, 254], [38, 284], [48, 312], [51, 342], [47, 410], [41, 480], [37, 550], [39, 620], [47, 686], [58, 734], [68, 768, 1], [40, 773], [10, 772], [-14, 768, 1], [-10, 700], [-6, 620], [-2, 540], [2, 470], [0, 432, 1], [-14, 410], [-30, 384], [-44, 354, 1], [-48, 330], [-44, 300], [-34, 272], [-31, 252], [-38, 222], [-46, 192]],
+      [[-46, 162, 1], [-38, 154], [-24, 153], [-12, 158], [-2, 171, 1], [8, 160], [24, 157], [38, 160], [48, 172, 1], [46, 198], [38, 226], [32, 254], [38, 284], [48, 312], [51, 342], [47, 410], [41, 480], [37, 550], [39, 620], [47, 686], [58, 734], [68, 768, 1], ...hem([68, 768], [-14, 768], 3), [-14, 768, 1], [-10, 700], [-6, 620], [-2, 540], [2, 470], [0, 432, 1], [-14, 410], [-30, 384], [-44, 354, 1], [-48, 330], [-44, 300], [-34, 272], [-31, 252], [-38, 222], [-46, 192]],
       [[[-2, 171], [-2, 192], [-1, 212]], [[-40, 302], [-10, 292], [14, 278], [32, 258]], [[-42, 342], [-12, 330], [18, 312], [44, 290]], [[12, 440], [15, 540], [21, 650], [31, 764]]],
       color,
     ),
@@ -447,13 +491,13 @@ function woman2(color) {
     leg({ side: -1, angle: -6, joints: [[-20, 334], [-12, 540], [-4, 722]] }),
     leg({ side: 1, angle: 14, joints: [[20, 350], [16, 542], [26, 716]] }),
     dress(
-      [[30, 256, 1], [38, 300], [44, 380], [50, 470], [58, 570], [70, 670], [92, 770, 1], [70, 776], [46, 774, 1], [44, 690], [40, 590], [34, 480], [26, 410], [16, 376, 1]],
+      [[30, 256, 1], [38, 300], [44, 380], [50, 470], [58, 570], [70, 670], [92, 770, 1], ...hem([92, 770], [46, 774], 2, 4), [46, 774, 1], [44, 690], [40, 590], [34, 480], [26, 410], [16, 376, 1]],
       [[[38, 340], [44, 470], [54, 610], [70, 760]]],
       color,
     ),
     body(pose, [L.tip, R.tip]),
     dress(
-      [[-46, 172, 1], [-38, 162], [-24, 158], [-12, 162], [-2, 174, 1], [8, 162], [24, 155], [38, 156], [46, 164, 1], [46, 190], [38, 222], [30, 254, 1], [29, 290], [24, 330], [16, 376, 1], [10, 450], [4, 540], [-2, 640], [-6, 770, 1], [-40, 777], [-90, 779], [-132, 772], [-178, 760, 1], [-138, 702], [-106, 624], [-84, 530], [-64, 430], [-46, 336], [-32, 262, 1], [-40, 230], [-48, 198]],
+      [[-46, 172, 1], [-38, 162], [-24, 158], [-12, 162], [-2, 174, 1], [8, 162], [24, 155], [38, 156], [46, 164, 1], [46, 190], [38, 222], [30, 254, 1], [29, 290], [24, 330], [16, 376, 1], [10, 450], [4, 540], [-2, 640], [-6, 770, 1], ...hem([-6, 770], [-178, 760], 5), [-178, 760, 1], [-138, 702], [-106, 624], [-84, 530], [-64, 430], [-46, 336], [-32, 262, 1], [-40, 230], [-48, 198]],
       [[[-44, 192], [-18, 200], [8, 214], [28, 238]], [[-38, 222], [-14, 232], [10, 242], [28, 252]], [[-31, 262], [-6, 258], [28, 256]], [[-14, 300], [-26, 420], [-46, 560], [-70, 690], [-90, 774]], [[-2, 300], [-6, 430], [-18, 580], [-34, 772]], [[-56, 470], [-74, 590], [-108, 700], [-148, 764]]],
       color,
     ),
@@ -474,19 +518,19 @@ function woman3(color) {
     leg({ side: -1, angle: -24, joints: [[-20, 350], [-14, 546], [-30, 720]] }),
     leg({ side: 1, angle: 6, joints: [[20, 336], [10, 544], [4, 724]] }),
     dress(
-      [[-42, 356, 1], [-46, 430], [-46, 520], [-46, 600], [-50, 680], [-60, 740], [-76, 770, 1], [-56, 774], [-40, 772, 1], [-37, 700], [-31, 600], [-20, 500], [2, 440, 1], [-18, 400]],
+      [[-42, 356, 1], [-46, 430], [-46, 520], [-46, 600], [-50, 680], [-60, 740], [-76, 770, 1], ...hem([-76, 770], [-40, 772], 2, 3), [-40, 772, 1], [-37, 700], [-31, 600], [-20, 500], [2, 440, 1], [-18, 400]],
       [],
       color,
     ),
     body(pose, [L.tip, R.tip]),
     dress(
-      [[-46, 166, 1], [-24, 161], [0, 162], [24, 165], [48, 172, 1], [48, 200], [40, 228], [32, 256], [42, 286], [52, 316], [52, 350], [46, 420], [40, 500], [36, 580], [40, 660], [50, 720], [62, 768, 1], [40, 772], [14, 772], [-6, 770, 1], [-4, 700], [-2, 600], [0, 500], [2, 440, 1], [-12, 416], [-28, 388], [-42, 362, 1], [-46, 340], [-42, 306], [-34, 276], [-32, 254], [-40, 226], [-48, 196]],
-      [[[-22, 168], [-18, 200], [-16, 236]], [[24, 171], [20, 200], [17, 236]], [[-36, 372], [-22, 392], [-8, 416]], [[12, 450], [16, 560], [19, 660], [26, 766]]],
+      [[-46, 166, 1], [-24, 161], [0, 162], [24, 165], [48, 172, 1], [48, 200], [40, 228], [32, 256], [42, 286], [52, 316], [52, 350], [46, 420], [40, 500], [36, 580], [40, 660], [50, 720], [62, 768, 1], ...hem([62, 768], [-6, 770], 3, 4), [-6, 770, 1], [-4, 700], [-2, 600], [0, 500], [2, 440, 1], [-12, 416], [-28, 388], [-42, 362, 1], [-46, 340], [-42, 306], [-34, 276], [-32, 254], [-40, 226], [-48, 196]],
+      [[[-22, 168], [-18, 200], [-16, 236]], [[24, 171], [20, 200], [17, 236]], [[-36, 372], [-22, 392], [-8, 416]], [[12, 450], [16, 560], [19, 660], [26, 766]], [[22, 296], [36, 290], [48, 300]], [[16, 318], [32, 314], [46, 326]]],
       color,
     ),
     L.part,
     R.part,
-    part(shape(bag), [[open(shape(bag)), MAIN], [spline([[78, 300], [80, 270], [88, 250], [98, 246], [106, 256], [110, 278], [108, 298]]), FINE], [spline([[66, 314], [94, 318], [120, 312]]), HAIRLINE], [spline([[90, 314, 1], [91, 322, 1], [99, 321, 1], [98, 314, 1]]), HAIRLINE]]),
+    part(shape(armW(bag)), [[open(shape(armW(bag))), MAIN], [spline(armW([[78, 300], [80, 270], [88, 250], [98, 246], [106, 256], [110, 278], [108, 298]])), FINE], [spline(armW([[66, 314], [94, 318], [120, 312]])), HAIRLINE], [spline(armW([[90, 314, 1], [91, 322, 1], [99, 321, 1], [98, 314, 1]])), HAIRLINE]]),
     face(pose.head),
     hd.front,
   ];
@@ -507,10 +551,10 @@ function woman4(color) {
       color,
     ),
     body(pose, [L.tip, R.tip]),
-    part(null, straps.map((p) => [spline(p), FINE])),
+    part(null, straps.map((p) => [spline(bodyW(p)), FINE])),
     dress(
       [[-44, 170, 1], [-34, 162], [-20, 164], [-10, 176], [0, 204, 1], [10, 174], [22, 162], [34, 160], [42, 166, 1], [44, 192], [38, 224], [30, 254, 1], [32, 300], [26, 340], [16, 376, 1], [10, 460], [6, 560], [4, 660], [2, 772, 1], [-20, 776], [-44, 770], [-66, 778], [-90, 770], [-112, 774], [-136, 758, 1], [-104, 690], [-80, 600], [-62, 500], [-48, 400], [-38, 320], [-30, 256, 1], [-38, 228], [-46, 196]],
-      [[[-26, 236], [-14, 246], [0, 254]], [[26, 236], [14, 246], [0, 254]], [[-10, 272], [-20, 400], [-34, 560], [-58, 760]], [[-24, 282], [-40, 420], [-64, 600], [-104, 760]]],
+      [[[-26, 236], [-14, 246], [0, 254]], [[26, 236], [14, 246], [0, 254]], [[-10, 272], [-20, 400], [-34, 560], [-58, 760]], [[24, 190], [26, 220], [22, 248]], [[-24, 282], [-40, 420], [-64, 600], [-104, 760]]],
       color,
     ),
     L.part,
@@ -525,7 +569,7 @@ function woman5(color) {
   const L = arm({ side: -1, hand: 'fist', joints: [[-54, 136], [-80, 236], [-92, 316]] });
   const R = arm({ side: 1, hand: 'open', joints: [[56, 144], [69, 250], [62, 348]] });
   const hd = hair(pose.head);
-  const pinch = [-98, 338, 1];
+  const pinch = { abs: [...L.grip, 1] };
   const lower = [[-30, 256, 1], [-60, 300], pinch, [-108, 420], [-116, 520], [-122, 630], [-120, 726, 1], ...scallops(-120, 726, 118, 748, 9, 15).slice(1, -1), [118, 748, 1], [114, 680], [106, 600], [94, 520], [80, 440], [62, 350], [30, 256, 1]];
   const upper = [[-30, 256, 1], [-60, 300], pinch, [-106, 400], [-112, 470], [-114, 524, 1], ...scallops(-114, 524, 104, 552, 7, 17).slice(1, -1), [104, 552, 1], [96, 500], [86, 440], [70, 360], [50, 300], [30, 256, 1]];
   const bodice = [[-58, 148, 1], [-40, 146], [-20, 153], [0, 161, 1], [20, 154], [40, 150], [58, 154, 1], [56, 186], [44, 222], [32, 256, 1], [-30, 256, 1], [-42, 220], [-56, 184]];
@@ -555,12 +599,12 @@ function woman5(color) {
     leg({ side: 1, angle: 8, joints: [[20, 336], [12, 544], [6, 724]] }),
     body(pose, [L.tip, R.tip]),
     dress(lower, ruffleFolds(-120, 734, 118, 756, 9, 70), color),
-    dress(upper, [...ruffleFolds(-114, 532, 104, 560, 7, 90), [[-96, 342], [-80, 400], [-66, 460]], [[-96, 342], [-94, 410], [-92, 470]]], color),
+    dress(upper, [...ruffleFolds(-114, 532, 104, 560, 7, 90), [{ abs: L.grip }, [-80, 404], [-68, 466]], [{ abs: L.grip }, [-98, 414], [-96, 476]]], color),
     dress(bodice, [[[0, 161], [0, 200], [0, 248]]], color),
     L.part,
     R.part,
-    dress(sleeve(L, -1), [sleeveFold(L, -1)], color),
-    dress(sleeve(R, 1), [sleeveFold(R, 1)], color),
+    dress(sleeve(L, -1), [sleeveFold(L, -1)], color, asIs),
+    dress(sleeve(R, 1), [sleeveFold(R, 1)], color, asIs),
     face(pose.head),
     hd.front,
   ];
@@ -574,7 +618,7 @@ function woman6(color) {
   const hd = hair(pose.head);
   return [
     dress(
-      [[-34, 250, 1], [-50, 330], [-70, 450], [-88, 580], [-102, 700], [-112, 770, 1], [-60, 778], [0, 780], [60, 778], [106, 768, 1], [106, 680], [98, 560], [94, 440], [92, 340, 1], [64, 300], [34, 250, 1]],
+      [[-34, 250, 1], [-50, 330], [-70, 450], [-88, 580], [-102, 700], [-112, 770, 1], ...hem([-112, 770], [106, 768], 6), [106, 768, 1], [106, 680], [100, 560], [96, 440], { abs: [...R.grip, 1] }, [64, 300], [34, 250, 1]],
       [[[-80, 600], [-78, 680], [-72, 772]], [[70, 580], [74, 680], [76, 772]]],
       color,
     ),
@@ -587,8 +631,8 @@ function woman6(color) {
       color,
     ),
     dress(
-      [[-34, 250, 1], [-46, 320], [-58, 400], [-76, 468, 1], [-62, 500], [-40, 540], [-12, 566, 1], [12, 556], [44, 520], [72, 460], [92, 338, 1], [64, 296], [34, 250, 1]],
-      [[[90, 342], [62, 420], [34, 498], [12, 552]], [[90, 342], [44, 380], [4, 432], [-28, 500]], [[-28, 282], [-40, 380], [-56, 462]]],
+      [[-34, 250, 1], [-46, 320], [-60, 404], [-74, 462], [-70, 486], [-56, 506], [-36, 538], [-12, 566, 1], [12, 556], [44, 520], [72, 460], { abs: [...R.grip, 1] }, [64, 296], [34, 250, 1]],
+      [[{ abs: R.grip }, [62, 420], [34, 498], [12, 552]], [{ abs: R.grip }, [44, 384], [4, 436], [-28, 500]], [[-28, 282], [-40, 380], [-56, 462]]],
       color,
     ),
     L.part,
@@ -610,8 +654,8 @@ const WOMEN = [
 
 // ---------------------------------------------------------------- output
 
-const SLOT = 280;
-const TOP = 70;
+const SLOT = 300;
+const TOP = 90;
 const BOX = 'x="-320" y="-160" width="640" height="1080"';
 
 function figure(i, filled, at) {
@@ -652,7 +696,7 @@ if (outDir) {
   mkdirSync(outDir, { recursive: true });
   WOMEN.forEach((w, i) => {
     const file = `${String(i + 1).padStart(2, '0')}-${w.name}.svg`;
-    writeFileSync(join(outDir, file), doc('-190 -30 380 830', w.name.replaceAll('-', ' '), figure(i, true)));
+    writeFileSync(join(outDir, file), doc('-215 -30 430 790', w.name.replaceAll('-', ' '), figure(i, true)));
   });
   console.log(`wrote ${WOMEN.length} figures to ${outDir}`);
 }
