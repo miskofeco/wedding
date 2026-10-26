@@ -33,6 +33,12 @@ test("with a ceremony time, the event is timed in UTC (summer time, UTC+2)", () 
   assert.match(plain.googleCalendarUrl(at("14:30")), /dates=20270529T123000Z%2F20270529T215900Z/);
 });
 
+test("the title keeps its emoji in the file and the Google link", () => {
+  const ics = lines(plain.icsFile(at(null), now));
+  assert.ok(ics.includes("SUMMARY:💒 Baška a Mišo svadba"));
+  assert.equal(new URL(plain.googleCalendarUrl(at(null))).searchParams.get("text"), "💒 Baška a Mišo svadba");
+});
+
 test("URL: only when NEXT_PUBLIC_SITE_URL is set, without its trailing slash", () => {
   const without = lines(plain.icsFile(at(null), now));
   assert.ok(!without.some((l) => l.startsWith("URL:")));

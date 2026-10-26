@@ -6,7 +6,7 @@ export const site: Site = {
   dateLabel: "29. 05. 2027",
   weekday: "sobota",
   where: "sobota · Kostol Najsvätejšieho Srdca Ježišovho v Hlinnom · Stodola Zlatník",
-  calendarTitle: "Svadba Barbory a Michala",
+  calendarTitle: "💒 Baška a Mišo svadba",
   description: "Svadba Barbory a Michala, 29. mája 2027. Obrad v kostole v Hlinnom, oslava v Stodole Zlatník.",
   intro: "Pozývame vás zdieľať s nami deň, na ktorý sa budeme pamätať celý život.",
 };
