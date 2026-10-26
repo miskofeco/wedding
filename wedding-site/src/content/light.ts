@@ -71,7 +71,7 @@ export const weather = {
   /** Its first sentence is set in bold. */
   watch: ["Ešte sa môže zmeniť.", "Keď sa svadba priblíži, sledujte predpoveď. Spoľahlivá býva asi týždeň vopred."],
   slots: [
-    { at: "Popoludní", lo: 21, hi: 23, colour: "butter" },
+    { at: "Popoludní", lo: 22, hi: 25, colour: "butter" },
     { at: "Večer", lo: 17, hi: 19, colour: "apricot" },
     { at: "O 23:00", lo: 14, hi: 16, colour: "blue" },
     { at: "Nad ránom", lo: 10, hi: 13, colour: "olive" },

@@ -11,7 +11,7 @@ import { Write } from "../Write";
 const fill = (text: string, values: Record<string, string>) => text.replace(/\{(\w+)\}/g, (_, k: string) => values[k]);
 // the weather chart's scale, °C: every range of the day fits between
 const WX_LO = 9;
-const WX_HI = 24;
+const WX_HI = 26;
 const wxY = (t: number) => ((WX_HI - t) / (WX_HI - WX_LO)) * 100;
 
 /**

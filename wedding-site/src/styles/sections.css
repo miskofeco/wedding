@@ -322,7 +322,7 @@
 .tip { display: grid; grid-template-columns: 136px 1fr; align-items: center; gap: 18px; }
 .tip h4 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.1; letter-spacing: -0.01em; }
 .tip p { color: var(--ink-soft); font-size: var(--text-small); text-wrap: pretty; }
-/* the day's weather: the words beside four times of day, each a capsule of its usual range on one scale (9–24 °C),
+/* the day's weather: the words beside four times of day, each a capsule of its usual range on one scale (9–26 °C),
    joined by the page's dashed road as the evening cools */
 .wx { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; gap: clamp(32px, 6vw, 96px); padding-block: clamp(40px, 6vw, 88px) clamp(24px, 3vw, 40px); }
 .wx__copy { display: grid; gap: 16px; max-width: 50ch; }
