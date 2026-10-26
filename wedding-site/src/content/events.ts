@@ -18,7 +18,7 @@ export const events: ProgrammeEvent[] = [
     time: null,
     relativeTime: "Po obrade",
     place: "Hlinné → Stodola Zlatník",
-    description: "Z kostola sa presunieme do Zlatníka. Informácie o doprave a parkovaní doplníme.",
+    description: "Z kostola sa presunieme do Zlatníka. Parkovať môžete priamo pri stodole, informácie o doprave doplníme.",
     drawing: "car-vintage",
     tint: ["sage", "butter"],
   },
