@@ -3,9 +3,10 @@ import { churchToBarn, churchToVranov, stays, toplaRiver } from "@/content";
 import { getSiteContent } from "@/lib/content";
 import type { Place, Stay } from "@/content/types";
 import { art } from "@/lib/art";
-import { formatKm } from "@/lib/format";
+import { formatKm, tie } from "@/lib/format";
 import { projection, smoothPath } from "@/lib/geo";
 import { MapCar } from "../MapCar";
+import { Write } from "../Write";
 
 // A verified link when the couple confirms it; until then, the village itself
 // (a real place, not a guessed address).
@@ -39,11 +40,17 @@ export async function Journey() {
   return (
     <section className="journey" id="mapa" aria-labelledby="journey-h">
       <div className="wrap">
-        <div className="journey__head rv">
-          <h2 id="journey-h">Z Hlinného do Zlatníka</h2>
-          <p className="lead">
-            Po obrade sa presunieme z&nbsp;kostola v&nbsp;Hlinnom do Stodoly Zlatník, 4,5 km autom. Mapa je v&nbsp;mierke: kostol,
-            stodola aj miesta na prespanie ležia tam, kde naozaj sú. Na cestu si aj tak zapnite navigáciu.
+        <div className="journey__head" data-rv-group="">
+          <h2 id="journey-h" className="rv rv--write">
+            <Write text={tie("Z Hlinného do Zlatníka")} />
+          </h2>
+          <p className="lead rv rv--write" style={{ "--d": "900ms" } as CSSProperties}>
+            <Write
+              mode="prose"
+              text={tie(
+                "Po obrade sa presunieme z kostola v Hlinnom do Stodoly Zlatník, 4,5 km autom. Mapa je v mierke: kostol, stodola aj miesta na prespanie ležia tam, kde naozaj sú. Na cestu si aj tak zapnite navigáciu.",
+              )}
+            />
           </p>
         </div>
       </div>
@@ -158,7 +165,9 @@ export async function Journey() {
       <div className="wrap">
         <ul className="journey__stops" data-rv-stagger="90">
           <li className="rv" data-stop="church" style={{ "--c": "var(--apricot)" } as CSSProperties}>
-            <h3>Hlinné</h3>
+            <h3>
+              <Write text="Hlinné" />
+            </h3>
             <p>
               {church.name ?? "Kostol"}
               {church.address && <span className="journey__addr">{church.address}</span>}
@@ -170,7 +179,9 @@ export async function Journey() {
             </a>
           </li>
           <li className="rv" data-stop="barn" style={{ "--c": "var(--sage)" } as CSSProperties}>
-            <h3>Zlatník</h3>
+            <h3>
+              <Write text="Zlatník" />
+            </h3>
             <p>
               {venue.name ?? "Stodola"}
               {venue.address && <span className="journey__addr">{venue.address}</span>}
@@ -182,7 +193,9 @@ export async function Journey() {
             </a>
           </li>
           <li className="rv" data-stop="stay" style={{ "--c": "var(--white)" } as CSSProperties}>
-            <h3>Nocľah</h3>
+            <h3>
+              <Write text="Nocľah" />
+            </h3>
             {stays.map((s) => (
               <p key={s.name}>
                 {s.name}

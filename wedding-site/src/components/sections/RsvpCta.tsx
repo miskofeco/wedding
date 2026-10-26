@@ -4,24 +4,30 @@ import { getSiteContent } from "@/lib/content";
 import { art } from "@/lib/art";
 import { formatDayMonth, tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
+import { Write } from "../Write";
 
 export async function RsvpCta() {
   const { rsvp } = await getSiteContent();
   return (
     // The band reveals as one: the envelope slides in from its cropped corner, the rose follows, the text rises.
     <section className="rsvp" id="rsvp" aria-labelledby="rsvp-h" data-rv-group="" data-rv-threshold="0.25">
-      <Drawing className="corner rv rv--fade" src={art("rose-corner", "white")} />
+      <Drawing className="corner rv rv--ink" src={art("rose-corner", "white")} />
       <Drawing className="rsvp__envelope rv" src={art("sealed-envelope", "white")} />
       <div className="wrap">
-        <h2 id="rsvp-h" className="rv">
-          Prídete?
+        <h2 id="rsvp-h" className="rv rv--write" style={{ "--d": "500ms" } as CSSProperties}>
+          <Write text="Prídete?" pace={110} />
         </h2>
-        <p className="lead rv" style={{ "--d": "100ms" } as CSSProperties}>
-          {rsvp.deadline
-            ? tie(`Dajte nám, prosím, vedieť do ${formatDayMonth(rsvp.deadline)}. Potvrdenie zaberie minútu.`)
-            : "Dajte nám, prosím, vedieť, či prídete. Potvrdenie zaberie minútu."}
+        <p className="lead rv rv--write" style={{ "--d": "1500ms" } as CSSProperties}>
+          <Write
+            mode="prose"
+            text={
+              rsvp.deadline
+                ? tie(`Dajte nám, prosím, vedieť do ${formatDayMonth(rsvp.deadline)}. Potvrdenie zaberie minútu.`)
+                : "Dajte nám, prosím, vedieť, či prídete. Potvrdenie zaberie minútu."
+            }
+          />
         </p>
-        <p className="rv" style={{ "--d": "200ms" } as CSSProperties}>
+        <p className="rv rv--brush" style={{ "--d": "2700ms" } as CSSProperties}>
           <Link className="btn btn--solid" href="/rsvp">
             Potvrdiť účasť
           </Link>

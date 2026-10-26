@@ -92,7 +92,7 @@ Gutter `clamp(16px, 4vw, 64px)`, content width 1200px, section padding `clamp(64
 
 ### Motion
 
-Language: drawings **stamp**, riso colour **settles** into register, the road **draws** with scroll, text **rises**. On interaction drawings **nudge**, colour **slips** off register, underlines **draw** from the left, and a choice **nods** once. The full inventory, mechanics, rules and the checklist for new components live in `MOTION.md`; the reasoning behind phases A–D is in `planning/MOTION-PROPOSAL.md`.
+Language („Pozvánka sa kreslí“: the invitation is drawn as it is read): each drawing is **inked** first and its colour dabs are then **painted** one by one with a round brush stroke, headings are **written** live behind a moving nib, running text, dates and times are **typed** behind a caret at a hand's uneven pace, cards, pills and buttons are **brushed** in, the prints **develop**, the road **draws** with scroll. On interaction drawings **nudge**, colour **slips** off register and **drifts** with the mouse, ink is **brushed** across a button, underlines **draw** from the left, and a choice **nods** once. The full inventory, mechanics, rules and the checklist for new components live in `MOTION.md`; the reasoning behind phases A–D is in `planning/MOTION-PROPOSAL.md`.
 
 | Token | Value |
 | --- | --- |
@@ -101,6 +101,8 @@ Language: drawings **stamp**, riso colour **settles** into register, the road **
 | `--ease-settle` | cubic-bezier(.3, .7, .2, 1) (riso fills) |
 | `--t-press` / `--t-hover` / `--t-sweep` / `--t-nudge` | 140 / 180 / 260 / 450ms |
 | `--t-reveal` / `--t-stamp` / `--t-settle` | 700 / 600 / 700ms (phones 550 / 550 / 600) |
+| `--t-ink` / `--t-paint` / `--t-pen` | 1100 / 900 / 460ms (phones 950 / 800 / 460) |
+| `--ease-ink` | cubic-bezier(.45, .05, .25, 1) |
 | `--rv-y` / `--rv-x` | 22px (phones 12px) / 16px |
 | `--press` / `--press-card` / `--press-small` | 0.97 / 0.985 / 0.94 |
 

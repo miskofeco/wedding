@@ -3,6 +3,7 @@ import { art } from "@/lib/art";
 import { CalendarMenu } from "@/components/CalendarMenu";
 import { Drawing } from "@/components/Drawing";
 import { Tint } from "@/components/Tint";
+import { Names, Write } from "@/components/Write";
 import "@/styles/soon.css";
 
 /**
@@ -25,15 +26,24 @@ export default function ComingSoon() {
         reveal={false}
       />
       <Tint className="sticker soon__bloom soon__bloom--right" src={art("ranunculus-bouquet", "black")} c="sage" c2="peony" eager reveal={false} />
-      <p className="soon__kicker">Pozvánka sa ešte kreslí</p>
+      {/* The page says what it is: the kicker is typed, then the names are written in. */}
+      <p className="soon__kicker">
+        <Write text="Pozvánka sa ešte kreslí" mode="type" caret />
+      </p>
       <h1>
-        {couple.first} <span className="amp">&amp;</span> {couple.second}
+        <Names first={couple.first} second={couple.second} />
       </h1>
       <p className="soon__date">
-        <time dateTime={site.date}>{site.dateLabel}</time>
+        <time dateTime={site.date}>
+          <Write text={site.dateLabel} mode="type" />
+        </time>
       </p>
-      <p className="soon__where">{site.where}</p>
-      <p className="soon__intro">Program, miesta aj potvrdenie účasti sem pridáme čoskoro. Dovtedy si, prosím, nechajte tento deň voľný.</p>
+      <p className="soon__where">
+        <Write mode="prose" text={site.where} />
+      </p>
+      <p className="soon__intro">
+        <Write mode="prose" text="Program, miesta aj potvrdenie účasti sem pridáme čoskoro. Dovtedy si, prosím, nechajte tento deň voľný." />
+      </p>
       <CalendarMenu className="soon__cal" />
       <div className="soon__road" aria-hidden="true">
         <span className="soon__car">

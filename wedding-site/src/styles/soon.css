@@ -41,23 +41,26 @@
 @media (min-width: 760px) { .soon__car { margin-left: calc(22% - var(--car) / 2); } }
 
 /* ===== motion (hidden states only under html.mo; reduced motion snaps through motion.css) ===== */
-html.mo .soon > :is(.soon__kicker, h1, .soon__date, .soon__where, .soon__intro, .soon__cal) { animation: rise 800ms var(--ease-out) both; }
-html.mo .soon > h1 { animation-delay: 40ms; }
-html.mo .soon > .soon__date { animation-delay: 100ms; }
-html.mo .soon > .soon__where { animation-delay: 420ms; }
-html.mo .soon > .soon__intro { animation-delay: 480ms; }
-html.mo .soon > .soon__cal { animation-delay: 560ms; }
-.soon__art { --sd: 120ms; }
-.soon__bloom--left { --sd: 200ms; }
-.soon__bloom--right { --sd: 320ms; }
-html.mo .soon .tint img { animation: stamp var(--t-stamp) var(--ease-stamp) var(--sd) both; }
-html.mo .soon .tint::before, html.mo .soon .tint::after { animation: settle var(--t-settle) var(--ease-settle) calc(var(--sd) + 120ms) both; }
+/* the invitation being drawn: the couple is inked with colour brushed under them, the kicker is typed and
+   its caret blinks, the names are written, date and lines are written on, the blooms inked either side */
+.soon__kicker { --w0: 200ms; }
+.soon h1 { --w0: 1300ms; }
+.soon__date { --w0: 2500ms; }
+.soon__where { --w0: 2900ms; }
+.soon__intro { --w0: 3400ms; }
+html.mo .soon > .soon__cal { animation: brush 800ms var(--ease-out) 4300ms backwards; }
+.soon__art { --sd: 0ms; }
+.soon__bloom--left { --sd: 900ms; }
+.soon__bloom--right { --sd: 1200ms; }
+html.mo .soon .tint img { animation: ink var(--t-ink) var(--ease-ink) var(--sd) backwards; }
+html.mo .soon .tint::before { animation: settle var(--t-settle) var(--ease-settle) var(--p1) both, paint var(--t-paint) var(--ease-settle) var(--p1) backwards; }
+html.mo .soon .tint::after { animation: settle var(--t-settle) var(--ease-settle) var(--p2) both, paint var(--t-paint) var(--ease-settle) var(--p2) backwards; }
 
 /* the road draws in from the right, the car follows it in and brakes with a small nod onto its front wheel,
    then the road marches under the parked car (march-x, motion.css), so it still looks on its way */
-html.mo .soon__road::before { animation: soon-draw 900ms var(--ease-out) 700ms both, march-x 1.2s linear 2600ms infinite; }
-html.mo .soon__car { animation: soon-drive 1500ms var(--ease-out) 1100ms both; }
-html.mo .soon__car img { transform-origin: 22% 74%; animation: soon-brake 520ms var(--ease-stamp) 2350ms both; }
+html.mo .soon__road::before { animation: soon-draw 900ms var(--ease-out) 3600ms both, march-x 1.2s linear 5500ms infinite; }
+html.mo .soon__car { animation: soon-drive 1500ms var(--ease-out) 4000ms both; }
+html.mo .soon__car img { transform-origin: 22% 74%; animation: soon-brake 520ms var(--ease-stamp) 5250ms both; }
 @keyframes soon-draw { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
 @keyframes soon-drive { from { translate: 100vw 0; } }
 @keyframes soon-brake { 40% { rotate: -2.5deg; } }

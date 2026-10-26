@@ -4,6 +4,7 @@ import type { Place } from "@/content/types";
 import { art } from "@/lib/art";
 import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
+import { Write, writeTime } from "../Write";
 
 /** Name, address and time, one per line; the time line waits until there is a time. */
 function details(place: Place): string[] {
@@ -23,18 +24,23 @@ function PlacePanel({ place, drawing }: { place: Place; drawing: string }) {
       <div className="rv">
         {/* Lines as blocks, not <br>, so the heading reads „Sobáš v Hlinnom“ and not „Sobášv Hlinnom“. */}
         <h3>
-          <span className="panel__line">{place.title[0]}</span> <span className="panel__line">{tie(place.title[1])}</span>
+          <span className="panel__line">
+            <Write text={place.title[0]} />
+          </span>{" "}
+          <span className="panel__line">
+            <Write text={tie(place.title[1])} start={writeTime(place.title[0]) + 200} />
+          </span>
         </h3>
         <p className="panel__sub">
-          {details(place).map((line) => (
+          {details(place).map((line, i) => (
             <span className="panel__line" key={line}>
-              {line}
+              <Write mode="prose" text={line} budget={700} start={1300 + i * 750} />
             </span>
           ))}
         </p>
       </div>
       <Drawing className="panel__art rv" src={drawing} />
-      <div className="panel__foot rv" style={d(60)}>
+      <div className="panel__foot rv rv--brush" style={d(2400)}>
         {place.mapUrl ? (
           <a className="btn" href={place.mapUrl} target="_blank" rel="noopener noreferrer">
             Otvoriť mapu<span className="sr-only"> (otvorí sa v novom okne)</span>

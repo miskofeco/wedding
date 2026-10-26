@@ -6,16 +6,22 @@ import { tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
 import { Tint } from "../Tint";
 import { RouteTimeline } from "../RouteTimeline";
+import { Write, writeTime } from "../Write";
+
+// A row's title is written first (at most 800 ms); its time, place and description are typed after it.
+const titleTime = (title: string) => writeTime(tie(title), "pen", undefined, 800);
 
 export async function Programme() {
   const { events } = await getSiteContent();
   return (
     <section className="prog" id="program" aria-labelledby="prog-h">
-      <header className="prog__head rv">
-        <h2 id="prog-h">Chvíle nášho dňa</h2>
-        <Drawing className="sprig" src={art("rose-border", "black")} />
-        <p className="lead">
-          Jedna cesta, jeden deň: z&nbsp;kostola v&nbsp;Hlinnom do záhrady v&nbsp;Zlatníku. Časy doplníme, len čo budú isté.
+      <header className="prog__head" data-rv-group="">
+        <h2 id="prog-h" className="rv rv--write">
+          <Write text="Chvíle nášho dňa" />
+        </h2>
+        <Drawing className="sprig rv rv--ink" src={art("rose-border", "black")} style={{ "--d": "1000ms" } as CSSProperties} />
+        <p className="lead rv rv--write" style={{ "--d": "800ms" } as CSSProperties}>
+          <Write mode="prose" text={tie("Jedna cesta, jeden deň: z kostola v Hlinnom do záhrady v Zlatníku. Časy doplníme, len čo budú isté.")} />
         </p>
       </header>
       <RouteTimeline>
@@ -24,20 +30,32 @@ export async function Programme() {
             // Each row waits for the road: it reveals as it crosses 70 % of the viewport, where the road's drawn end is.
             <li className="ev" key={e.id} data-rv-group="" data-rv-margin="0px 0px -30% 0px" data-rv-threshold="0">
               <div className={`ev__txt rv ${i % 2 ? "rv--right" : "rv--left"}`} style={{ "--d": "90ms" } as CSSProperties}>
-                <h3>{tie(e.title)}</h3>
+                <h3>
+                  <Write text={tie(e.title)} budget={800} />
+                </h3>
                 {/* Without a time the lead's „Časy doplníme“ speaks for every row; only a relative time is shown. */}
                 {e.time ? (
                   <p className="ev__time">
-                    <time dateTime={`${site.date}T${e.time}`}>{e.time}</time>
+                    <time dateTime={`${site.date}T${e.time}`}>
+                      <Write text={e.time} mode="type" start={titleTime(e.title) + 220} />
+                    </time>
                   </p>
                 ) : (
-                  e.relativeTime && <p className="ev__time ev__time--pending">{tie(e.relativeTime)}</p>
+                  e.relativeTime && (
+                    <p className="ev__time ev__time--pending">
+                      <Write text={tie(e.relativeTime)} mode="type" pace={40} start={titleTime(e.title) + 220} />
+                    </p>
+                  )
                 )}
-                <p className="ev__place">{tie(e.place)}</p>
-                <p className="ev__desc">{tie(e.description)}</p>
+                <p className="ev__place">
+                  <Write mode="prose" text={tie(e.place)} start={titleTime(e.title) + 600} />
+                </p>
+                <p className="ev__desc">
+                  <Write mode="prose" text={tie(e.description)} budget={1200} start={titleTime(e.title) + 1000} />
+                </p>
               </div>
               {e.playlist && (
-                <div className={`ev__playlist rv ${i % 2 ? "rv--left" : "rv--right"}`} style={{ "--d": "180ms" } as CSSProperties}>
+                <div className={`ev__playlist rv rv--brush ${i % 2 ? "rv--left" : "rv--right"}`} style={{ "--d": "900ms" } as CSSProperties}>
                   <h4>{e.playlist.title}</h4>
                   <p>{tie(e.playlist.note)}</p>
                   <a className="btn ev__playlist-btn" href={e.playlist.url} target="_blank" rel="noopener noreferrer">

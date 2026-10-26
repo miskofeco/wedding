@@ -3,6 +3,7 @@ import { DM_Sans, Fraunces } from "next/font/google";
 import { site } from "@/content";
 import { AnchorScroll } from "@/components/AnchorScroll";
 import { RevealObserver } from "@/components/RevealObserver";
+import { Registration } from "@/components/Registration";
 import { bootScript } from "@/lib/boot";
 import "@/styles/tokens.css";
 import "@/styles/base.css";
@@ -96,6 +97,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </svg>
         {children}
         <RevealObserver />
+        <Registration />
         <AnchorScroll />
       </body>
     </html>

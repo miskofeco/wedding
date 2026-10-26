@@ -4,6 +4,10 @@ import { site } from "@/content";
 import { art } from "@/lib/art";
 import { tie } from "@/lib/format";
 import { Tint } from "../Tint";
+import { Names, Write, writeTime } from "../Write";
+
+/** Where each fact of the „where“ line starts, so the line is typed in one go across its parts. */
+const whereAt = (parts: string[], i: number) => parts.slice(0, i).reduce((t, p) => t + writeTime(`${tie(p)}\u00a0·`, "prose", undefined, 500) + 120, 0);
 
 export function Hero() {
   const { couple } = site;
@@ -20,11 +24,14 @@ export function Hero() {
         reveal={false}
       />
       <Tint className="sticker hero__bloom hero__bloom--right" src={art("ranunculus-bouquet", "black")} c="sage" c2="peony" eager reveal={false} />
+      {/* The names are written in, the ampersand last with a flourish; the date is typed under them. */}
       <h1 id="names">
-        {couple.first} <span className="amp">&amp;</span> {couple.second}
+        <Names first={couple.first} second={couple.second} />
       </h1>
       <p className="hero__date">
-        <time dateTime={site.date}>{site.dateLabel}</time>
+        <time dateTime={site.date}>
+          <Write text={site.dateLabel} mode="type" caret />
+        </time>
       </p>
       {/* Each fact keeps together, so lines break at the dots and never inside the church's name. */}
       <p className="hero__where">
@@ -32,13 +39,14 @@ export function Hero() {
           <Fragment key={part}>
             {i > 0 && " "}
             <span>
-              {tie(part)}
-              {i < all.length - 1 && " ·"}
+              <Write mode="prose" text={tie(part) + (i < all.length - 1 ? "\u00a0·" : "")} budget={500} start={whereAt(all, i)} />
             </span>
           </Fragment>
         ))}
       </p>
-      <p className="hero__intro">{tie(site.intro)}</p>
+      <p className="hero__intro">
+        <Write mode="prose" text={tie(site.intro)} budget={1200} />
+      </p>
       <div className="hero__actions">
         <a className="btn btn--solid" href="#program">
           Pozrieť program

@@ -9,24 +9,27 @@
 }
 .tint::before { left: 18%; top: 22%; width: 62%; height: 64%; }
 .tint::after { background: var(--c2, var(--butter)); left: 8%; bottom: 6%; width: 30%; height: 24%; border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%; }
+/* The plates drift off register away from the mouse (Registration sets --rx / --ry; 0 without it). */
+.tint::before { transform: translate(var(--rx, 0px), var(--ry, 0px)); }
+.tint::after { transform: translate(calc(var(--rx, 0px) * -0.8), calc(var(--ry, 0px) * -0.8)); }
 /* hover: the colour slips off register under the ink (also when the card that holds it is hovered) */
 @media (hover: hover) {
-  .tint:hover::before, .tile:hover .tint::before, .ask:hover .tint::before { transform: rotate(-4deg) scale(1.04); }
-  .tint:hover::after, .tile:hover .tint::after, .ask:hover .tint::after { transform: translate(-3px, 3px) rotate(6deg); }
+  .tint:hover::before, .tile:hover .tint::before, .ask:hover .tint::before { transform: translate(var(--rx, 0px), var(--ry, 0px)) rotate(-4deg) scale(1.04); }
+  .tint:hover::after, .tile:hover .tint::after, .ask:hover .tint::after { transform: translate(calc(var(--rx, 0px) * -0.8 - 3px), calc(var(--ry, 0px) * -0.8 + 3px)) rotate(6deg); }
 }
 
-/* Button: flat pill, no border. Hover inverts to ink. */
+/* Button: flat pill, no border. Hover inverts to ink: on a mouse the ink is brushed in from the left. */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   min-height: var(--btn-h); padding: 14px 26px; border: 0; border-radius: var(--btn-radius);
   font: 500 1rem/1 var(--font-text); text-decoration: none; cursor: pointer;
-  color: var(--ink); background: var(--c, var(--ivory));
-  transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover), color var(--t-hover);
+  color: var(--ink); background: linear-gradient(var(--ink) 0 0) left / 0 100% no-repeat var(--c, var(--ivory));
+  transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover), background-size var(--t-sweep) var(--ease-out), color var(--t-hover);
 }
 .btn--solid { background: var(--ink); color: var(--white); }
 /* hover inverts on a mouse; on touch the press inverts instead, so nothing stays inverted after a tap */
 @media (hover: hover) {
-  .btn:hover { background: var(--ink); color: var(--white); }
+  .btn:hover { background-size: 100% 100%; color: var(--white); }
   .btn--solid:hover { background: #000; }
 }
 @media (hover: none) {

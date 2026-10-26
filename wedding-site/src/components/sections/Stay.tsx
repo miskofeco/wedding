@@ -3,6 +3,7 @@ import { stays } from "@/content";
 import { art } from "@/lib/art";
 import { formatKm, tie } from "@/lib/format";
 import { Drawing } from "../Drawing";
+import { Write } from "../Write";
 
 // Each stop waits for the road, which draws with scroll and ends at 70 % of the viewport:
 // its pin drops as the road reaches it and the card slides in 90 ms later.
@@ -13,12 +14,16 @@ export function Stay() {
   return (
     <section className="stay" id="ubytovanie" aria-labelledby="stay-h">
       <div className="wrap stay__grid">
-        <div className="stay__copy rv">
-          <Drawing className="stay__lantern" src={art("lantern", "white")} />
-          <h2 id="stay-h">Cesta domov môže počkať</h2>
-          <p className="lead">
-            Zábava potrvá do noci, a&nbsp;tak sme pre vás vybrali zopár miest na prespanie blízko stodoly. Ráno sa potom
-            nikam neponáhľajte.
+        <div className="stay__copy" data-rv-group="">
+          <Drawing className="stay__lantern rv rv--ink" src={art("lantern", "white")} />
+          <h2 id="stay-h" className="rv rv--write" style={{ "--d": "700ms" } as CSSProperties}>
+            <Write text={tie("Cesta domov môže počkať")} />
+          </h2>
+          <p className="lead rv rv--write" style={{ "--d": "1600ms" } as CSSProperties}>
+            <Write
+              mode="prose"
+              text={tie("Zábava potrvá do noci, a tak sme pre vás vybrali zopár miest na prespanie blízko stodoly. Ráno sa potom nikam neponáhľajte.")}
+            />
           </p>
         </div>
         <ol className="stops">
@@ -26,8 +31,10 @@ export function Stay() {
             stays.map((s) => (
               <li className="stop" key={s.name} {...stop}>
                 <span className="stop__pin rv" aria-hidden="true" />
-                <div className="stop__card rv rv--right" style={card}>
-                  <h3>{tie(s.name)}</h3>
+                <div className="stop__card rv rv--right rv--brush" style={card}>
+                  <h3>
+                    <Write text={tie(s.name)} budget={800} start={300} />
+                  </h3>
                   {s.address && <p className="stop__addr">{s.address}</p>}
                   {s.distanceKm !== null && <p className="stop__dist">{formatKm(s.distanceKm)} od Stodoly Zlatník</p>}
                   {s.note && <p>{tie(s.note)}</p>}
@@ -42,8 +49,10 @@ export function Stay() {
           ) : (
             <li className="stop" {...stop}>
               <span className="stop__pin rv" aria-hidden="true" />
-              <div className="stop__card rv rv--right" style={card}>
-                <h3>Miesta práve vyberáme</h3>
+              <div className="stop__card rv rv--right rv--brush" style={card}>
+                <h3>
+                  <Write text="Miesta práve vyberáme" budget={800} start={300} />
+                </h3>
                 <p>Zoznam ubytovania so vzdialenosťou od stodoly a&nbsp;kontaktmi doplníme čoskoro.</p>
               </div>
             </li>
@@ -51,9 +60,9 @@ export function Stay() {
           <li className="stop stop--morning" {...stop}>
             <span className="stop__pin rv" aria-hidden="true" />
             <div className="stop__morning">
-              <Drawing className="rv rv--stamp" src={art("coffee", "white")} />
-              <p className="rv rv--right" style={card}>
-                Ráno bez ponáhľania.
+              <Drawing className="rv rv--ink" src={art("coffee", "white")} />
+              <p className="rv rv--write" style={card}>
+                <Write text="Ráno bez ponáhľania." pace={55} start={600} />
               </p>
             </div>
           </li>

@@ -4,12 +4,13 @@ import { site } from "@/content";
 import { art } from "@/lib/art";
 import { googleCalendarUrl } from "@/lib/calendar";
 import { getSiteContent } from "@/lib/content";
-import { formatDayMonth } from "@/lib/format";
+import { formatDayMonth, tie } from "@/lib/format";
 import { isPastDeadline } from "@/lib/rsvp";
 import { Tint } from "@/components/Tint";
 import { RsvpForm } from "@/components/RsvpForm";
 import { Closing } from "@/components/sections/Closing";
 import "@/styles/rsvp.css";
+import { Write } from "@/components/Write";
 
 export const metadata: Metadata = {
   title: `Potvrdiť účasť · ${site.couple.first} & ${site.couple.second}`,
@@ -30,11 +31,17 @@ export default async function RsvpPage() {
       <main id="obsah" className="reply">
         <header className="reply__cover wrap">
           <div className="reply__intro">
-            <p className="reply__kicker">Posledná zastávka na ceste</p>
-            <h1>Prídete?</h1>
+            <p className="reply__kicker">
+              <Write text="Posledná zastávka na ceste" mode="type" pace={45} />
+            </p>
+            <h1>
+              <Write text="Prídete?" pace={110} />
+            </h1>
             <p className="lead">
-              Pozvánku už máte. Teraz je rad na vás: jedna odpoveď za celú domácnosť a&nbsp;my budeme vedieť, koľko stoličiek
-              pristaviť k&nbsp;stolu. Zaberie to minútu.
+              <Write
+                mode="prose"
+                text={tie("Pozvánku už máte. Teraz je rad na vás: jedna odpoveď za celú domácnosť a my budeme vedieť, koľko stoličiek pristaviť k stolu. Zaberie to minútu.")}
+              />
             </p>
             {until && <p className="reply__until">Odpoveď prosíme do {until}</p>}
           </div>
