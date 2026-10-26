@@ -44,7 +44,7 @@ export async function Journey() {
           <h2 id="journey-h" className="rv rv--write">
             <Write text={tie("Z Hlinného do Zlatníka")} />
           </h2>
-          <p className="lead rv rv--write" style={{ "--d": "900ms" } as CSSProperties}>
+          <p className="lead rv rv--write" style={{ "--d": "650ms" } as CSSProperties}>
             <Write
               mode="prose"
               text={tie(

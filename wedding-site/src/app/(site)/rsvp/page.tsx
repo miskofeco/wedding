@@ -32,10 +32,10 @@ export default async function RsvpPage() {
         <header className="reply__cover wrap">
           <div className="reply__intro">
             <p className="reply__kicker">
-              <Write text="Posledná zastávka na ceste" mode="type" pace={45} />
+              <Write text="Posledná zastávka na ceste" mode="type" pace={34} />
             </p>
             <h1>
-              <Write text="Prídete?" pace={110} />
+              <Write text="Prídete?" pace={70} />
             </h1>
             <p className="lead">
               <Write

@@ -14,10 +14,10 @@ export async function RsvpCta() {
       <Drawing className="corner rv rv--ink" src={art("rose-corner", "white")} />
       <Drawing className="rsvp__envelope rv" src={art("sealed-envelope", "white")} />
       <div className="wrap">
-        <h2 id="rsvp-h" className="rv rv--write" style={{ "--d": "500ms" } as CSSProperties}>
-          <Write text="Prídete?" pace={110} />
+        <h2 id="rsvp-h" className="rv rv--write" style={{ "--d": "350ms" } as CSSProperties}>
+          <Write text="Prídete?" pace={70} />
         </h2>
-        <p className="lead rv rv--write" style={{ "--d": "1500ms" } as CSSProperties}>
+        <p className="lead rv rv--write" style={{ "--d": "850ms" } as CSSProperties}>
           <Write
             mode="prose"
             text={
@@ -27,7 +27,7 @@ export async function RsvpCta() {
             }
           />
         </p>
-        <p className="rv rv--brush" style={{ "--d": "2700ms" } as CSSProperties}>
+        <p className="rv rv--brush" style={{ "--d": "1650ms" } as CSSProperties}>
           <Link className="btn btn--solid" href="/rsvp">
             Potvrdiť účasť
           </Link>

@@ -7,7 +7,7 @@ import { Tint } from "../Tint";
 import { Names, Write, writeTime } from "../Write";
 
 /** Where each fact of the „where“ line starts, so the line is typed in one go across its parts. */
-const whereAt = (parts: string[], i: number) => parts.slice(0, i).reduce((t, p) => t + writeTime(`${tie(p)}\u00a0·`, "prose", undefined, 500) + 120, 0);
+const whereAt = (parts: string[], i: number) => parts.slice(0, i).reduce((t, p) => t + writeTime(`${tie(p)}\u00a0·`, "prose", undefined, 360) + 60, 0);
 
 export function Hero() {
   const { couple } = site;
@@ -39,13 +39,13 @@ export function Hero() {
           <Fragment key={part}>
             {i > 0 && " "}
             <span>
-              <Write mode="prose" text={tie(part) + (i < all.length - 1 ? "\u00a0·" : "")} budget={500} start={whereAt(all, i)} />
+              <Write mode="prose" text={tie(part) + (i < all.length - 1 ? "\u00a0·" : "")} budget={360} start={whereAt(all, i)} />
             </span>
           </Fragment>
         ))}
       </p>
       <p className="hero__intro">
-        <Write mode="prose" text={tie(site.intro)} budget={1200} />
+        <Write mode="prose" text={tie(site.intro)} budget={900} />
       </p>
       <div className="hero__actions">
         <a className="btn btn--solid" href="#program">

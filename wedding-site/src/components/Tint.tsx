@@ -12,7 +12,7 @@ interface TintProps {
   className?: string;
   priority?: boolean;
   eager?: boolean;
-  /** Reveal on scroll: the ink stamps, the colour settles under it 120 ms later. Off where a section runs its own sequence (hero). */
+  /** Reveal on scroll: the drawing is inked, then its colours drop onto the paper under it. Off where a section runs its own sequence (hero). */
   reveal?: boolean;
 }
 

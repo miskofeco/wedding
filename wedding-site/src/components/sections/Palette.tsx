@@ -12,10 +12,10 @@ export function Palette() {
           <h2 id="pal-h" className="rv rv--write">
             <Write text="Farby nášho dňa" />
           </h2>
-          <p className="lead rv rv--write" style={{ "--d": "800ms" } as CSSProperties}>
+          <p className="lead rv rv--write" style={{ "--d": "550ms" } as CSSProperties}>
             <Write mode="prose" text={tie(paletteIntro)} />
           </p>
-          <p className="pal__hint rv rv--write" style={{ "--d": "2400ms" } as CSSProperties}>
+          <p className="pal__hint rv rv--write" style={{ "--d": "1500ms" } as CSSProperties}>
             <span className="pal__hint--hover">
               <Write mode="prose" text={tie("Prejdite myšou po farbách a vyskúšajte si ich.")} />
             </span>

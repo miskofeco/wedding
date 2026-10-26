@@ -62,12 +62,11 @@
   --ease-stamp: cubic-bezier(0.2, 0.9, 0.3, 1.08); /* stamps and pin drops: a hair of overshoot */
   --ease-settle: cubic-bezier(0.3, 0.7, 0.2, 1); /* riso fills sliding into register */
   --t-stamp: 600ms;
-  --t-settle: 700ms;
   --rv-y: 22px; /* rise distance */
   --rv-x: 16px; /* directional slide */
-  --t-ink: 1100ms; /* a drawing inked in */
-  --t-paint: 900ms; /* riso colour brushed in under it */
-  --t-pen: 460ms; /* one letter written */
+  --t-ink: 950ms; /* a drawing inked in */
+  --t-drop: 720ms; /* a riso colour drop falls, splashes and rests under it */
+  --t-dry: 1600ms; /* the drop dries from wet to its riso tone */
   --ease-ink: cubic-bezier(0.45, 0.05, 0.25, 1); /* a hand drawing: unhurried start, steady line, gentle stop */
   --t-nudge: 450ms; /* hover on drawings, cards and pins: slower than colour, like paper moving */
   --t-sweep: 260ms; /* underlines drawing from the left */
@@ -77,5 +76,5 @@
 }
 /* phones: half the distance, a little quicker */
 @media (max-width: 760px) {
-  :root { --rv-y: 12px; --t-reveal: 550ms; --t-stamp: 550ms; --t-settle: 600ms; --t-ink: 950ms; --t-paint: 800ms; }
+  :root { --rv-y: 12px; --t-reveal: 550ms; --t-stamp: 550ms; --t-ink: 850ms; --t-drop: 660ms; }
 }

@@ -14,8 +14,8 @@ export function Photos() {
           <h2 id="ph-h" className="rv rv--write">
             <Write text="Naše chvíle doteraz" />
           </h2>
-          <Drawing className="sprig rv rv--ink" src={art("rose-border", "black")} style={{ "--d": "1100ms" } as CSSProperties} />
-          <p className="lead rv rv--write" style={{ "--d": "900ms" } as CSSProperties}>
+          <Drawing className="sprig rv rv--ink" src={art("rose-border", "black")} style={{ "--d": "700ms" } as CSSProperties} />
+          <p className="lead rv rv--write" style={{ "--d": "650ms" } as CSSProperties}>
             <Write mode="prose" text={tie("Pár momentov z cesty, ktorá nás priviedla až sem.")} />
           </p>
           <Drawing className="photos__cam rv rv--ink" src={art("camera", "black")} style={{ "--d": "120ms" } as CSSProperties} />
@@ -33,7 +33,7 @@ export function Photos() {
                   quality={80}
                 />
               </div>
-              <figcaption>{p.caption && <Write text={p.caption} pace={55} start={900} />}</figcaption>
+              <figcaption>{p.caption && <Write text={p.caption} pace={40} start={700} />}</figcaption>
             </figure>
           ))}
         </div>

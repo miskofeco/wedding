@@ -20,8 +20,8 @@ export async function Requests() {
           <h2 id="asks-h" className="rv rv--write">
             <Write text="Pár prosieb" />
           </h2>
-          <Drawing className="sprig rv rv--ink" src={art("rose-border", "black")} style={d(800)} />
-          <p className="lead rv rv--write" style={d(650)}>
+          <Drawing className="sprig rv rv--ink" src={art("rose-border", "black")} style={d(450)} />
+          <p className="lead rv rv--write" style={d(380)}>
             <Write mode="prose" text={tie(requestsIntro)} />
           </p>
         </header>
@@ -29,14 +29,14 @@ export async function Requests() {
           {requests.map((r) => (
             <li className="ask" key={r.id} data-rv-group="" data-rv-threshold="0.25">
               <Tint className="ask__art" src={art(r.drawing, "black")} c={r.tint[0]} c2={r.tint[1]} />
-              <p className="ask__when rv rv--brush" style={d(1300)}>
+              <p className="ask__when rv rv--brush" style={d(700)}>
                 {tie(r.when)}
               </p>
-              <h3 className="rv rv--write" style={d(1500)}>
-                <Write text={tie(r.title)} budget={900} />
+              <h3 className="rv rv--write" style={d(850)}>
+                <Write text={tie(r.title)} budget={600} />
               </h3>
-              <p className="ask__text rv rv--write" style={d(2300)}>
-                <Write mode="prose" text={tie(r.text)} budget={1300} />
+              <p className="ask__text rv rv--write" style={d(1350)}>
+                <Write mode="prose" text={tie(r.text)} budget={900} />
               </p>
             </li>
           ))}

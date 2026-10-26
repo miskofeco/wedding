@@ -6,8 +6,8 @@ interface WriteProps {
   /** The text, as shown (run it through `tie` first where Slovak line breaks matter). */
   text: string;
   /**
-   * „pen“ draws each letter behind a moving nib (headings); „type“ sets each letter at once behind a caret
-   * (dates, times, kickers); „prose“ types a paragraph quickly.
+   * „pen“ draws each letter behind a moving nib (headings); „type“ presses each letter in behind a caret
+   * (dates, times, kickers); „prose“ lets a paragraph flow on, letters soft-landing in the direction of reading.
    */
   mode?: Mode;
   /** Average milliseconds per letter (defaults per mode). */
@@ -20,10 +20,10 @@ interface WriteProps {
   caret?: boolean;
 }
 
-const PACE: Record<Mode, number> = { pen: 68, type: 62, prose: 15 };
-const BUDGET: Record<Mode, number> = { pen: 1150, type: 900, prose: 1700 };
+const PACE: Record<Mode, number> = { pen: 44, type: 36, prose: 8 };
+const BUDGET: Record<Mode, number> = { pen: 700, type: 520, prose: 850 };
 /** How long the caret lingers after the last letter. */
-const LINGER = 260;
+const LINGER = 140;
 
 /** A fixed pseudo-random number in [0, 1) for a letter, so server and browser agree. */
 const wobble = (i: number, code: number) => {
@@ -42,11 +42,11 @@ function rhythm(chars: string[], pace: number, budget: number) {
   chars.forEach((ch, i) => {
     times.push(t);
     if (ch === " ") return;
-    let gap = pace * (0.55 + 0.9 * wobble(i, ch.codePointAt(0) ?? 0));
+    let gap = pace * (0.7 + 0.6 * wobble(i, ch.codePointAt(0) ?? 0));
     const next = chars[i + 1];
-    if (next === " ") gap += pace * 0.9;
-    if (/[,;:]/.test(ch)) gap += Math.max(90, pace * 4);
-    if (/[.!?→·]/.test(ch) && next !== undefined) gap += Math.max(140, pace * 6);
+    if (next === " ") gap += pace * 0.6;
+    if (/[,;:]/.test(ch)) gap += Math.max(50, pace * 3);
+    if (/[.!?→·]/.test(ch) && next !== undefined) gap += Math.max(90, pace * 4);
     if (next !== undefined) t += gap;
   });
   const end = t;
@@ -63,7 +63,7 @@ const ms = (v: number) => `${Math.round(v)}ms`;
 
 /**
  * Text that is written or typed in live once its reveal fires (motion.css, „hand-made layer“): letters land
- * one by one at a hand's pace, with a caret or nib moving along the line. Screen readers get one plain copy
+ * one by one at a hand's pace, behind a nib (pen), a caret (type) or a soft leading edge (prose). Screen readers get one plain copy
  * and the split letters are hidden from them. Words never break inside, and a no-break space from `tie`
  * keeps two words together. Without motion (no JavaScript, reduced motion, ?static) the letters simply sit
  * in place.
@@ -112,7 +112,7 @@ export function Write({ text, mode = "pen", pace, budget, start = 0, caret = fal
 }
 
 /** „Barbora & Michal“ written by hand: the first name, the second, and the ampersand last as the flourish. */
-export function Names({ first, second, pace = 68 }: { first: string; second: string; pace?: number }) {
+export function Names({ first, second, pace = 44 }: { first: string; second: string; pace?: number }) {
   // each word waits for the caret of the one before to leave
   const secondAt = writeTime(first, "pen", pace) + LINGER + pace;
   const ampAt = secondAt + writeTime(second, "pen", pace) + LINGER + pace;

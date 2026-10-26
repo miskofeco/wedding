@@ -8,15 +8,16 @@ Code: `wedding-site/src/styles/motion.css` (entrances, scroll, loops, keyframed 
 
 The page is black ink on paper, coloured by soft risograph fills and tied together by one dashed road. Motion comes from those three things and nothing else.
 
-**„Pozvánka sa kreslí“** (the coming-soon page's own words): the invitation is drawn in front of the guest as they read it. Every entrance is one of the hand's tools at work: the pen writes, the brush inks and paints, the typewriter types, the print develops. Nothing slides in from nowhere.
+**„Pozvánka sa kreslí“** (the coming-soon page's own words): the invitation is drawn in front of the guest as they read it. Every entrance is one of the hand's tools at work: the pen writes, the brush inks, the paint drops, the typewriter types, the print develops. Nothing slides in from nowhere.
 
 | Verb | What it looks like | Used for |
 | --- | --- | --- |
-| **Ink** | The line drawing comes first, on its own: a soft nib edge sweeps from its top left to its bottom right while the line settles from 1.025 scale (1100ms, phones 950ms). The oversized cropped drawings are inked from the edge that crops them, bottom up; map landmarks are drawn in from their top left corner | Every black or white drawing, the map landmarks, the palette figure |
-| **Paint** | Then each colour dab is painted on its own with one round stroke of the brush (a conic mask opens around it, 900ms) while it slides 6px into register: the large dab once three quarters of the ink is down (`--p1`), the small one 420ms later (`--p2`). The palette dabs are painted the same way; the palette figure's colour pours in only after its ink | Every `Tint`, the palette dabs and figure |
-| **Write** | A heading is written live: a slanted nib moves along the line and each letter is drawn in behind it, at a hand's uneven pace (about 68ms a letter, a breath between words, a pause after a comma or full stop; a line takes at most 1150ms). The ampersand in the names comes last, as the flourish; the footer's names are signed slower (95ms) | Every h1, h2 and h3 on the guest pages, the photo captions |
-| **Type** | Running text is typed live: letters land one at a time with a caret after the newest one, at the same uneven pace — dates, times and kickers at about 62ms a letter (the hero date and the „Pripravujeme“ kicker keep the caret for three blinks), paragraphs fast, at about 15ms (at most 1.7s). FAQ answers are typed again each time a row opens | Leads, hero lines, programme times, places and descriptions, request text, FAQ answers, footer lines, RSVP and „Pripravujeme“ copy |
-| **Brush** | A card, pill or button is painted in left to right behind a soft edge, rising 6px (800ms) | Hero and band buttons, „when“ pills, places map buttons, playlist card, stay cards, FAQ rows, calendar on „Pripravujeme“, footer links |
+| **Ink** | The line drawing comes first, on its own: a soft nib edge sweeps from its top left to its bottom right while the line settles from 1.025 scale (950ms, phones 850ms). The oversized cropped drawings are inked from the edge that crops them, bottom up; map landmarks are drawn in from their top left corner | Every black or white drawing, the map landmarks, the palette figure |
+| **Drop** | Then each colour lands under the ink as a drop of paint: it falls in small and round (from 30%, 18px higher), hits the paper and splashes 15% wider than its shape, surface tension pulls it back, it wobbles once and rests in its own blob outline (720ms, phones 660ms). It lands wet, deeper and richer, and dries to the riso tone (1.6s). The large drop once a third of the ink is down (`--p1`), the small one 140ms later (`--p2`); the palette swatches drop one after another along their stagger, and the palette figure's colour pours in only after its ink | Every `Tint`, the palette dabs and figure |
+| **Write** | A heading is written live: a slanted nib moves along the line and each letter is drawn in behind it, at a hand's slightly uneven pace (about 44ms a letter, a short breath between words, a pause after a comma or full stop; a line takes at most 700ms). The ampersand in the names comes last, as the flourish (480ms); the footer's names are signed a little slower (64ms) | Every h1, h2 and h3 on the guest pages, the photo captions |
+| **Type** | Dates, times and kickers are typed: each letter is pressed in (140ms, 0.06em) with a caret after the newest one, about 36ms a letter, at most 520ms a line (the hero date and the „Pripravujeme“ kicker keep the caret for three blinks) | Dates, programme times, kickers, the footer date line |
+| **Flow** | Paragraphs flow on in the direction of reading, without a caret: each letter lands softly (opacity and 0.16em, 300ms) while the next ones start, about 8ms apart, so the leading edge is a soft gradient a few words wide; a paragraph takes at most 850ms. FAQ answers flow on again each time a row opens | Leads, hero lines, places and descriptions, request text, FAQ answers, RSVP and „Pripravujeme“ copy |
+| **Brush** | A card, pill or button is painted in left to right behind a soft edge, rising 6px (640ms) | Hero and band buttons, „when“ pills, places map buttons, playlist card, stay cards, FAQ rows, calendar on „Pripravujeme“, footer links |
 | **Develop** | A photo, once it has landed, comes up from pale and flat to its full colour like an instant print (2.6s) | The three Instax prints |
 | **Draw** | The road grows along its direction of travel with scroll, and what sits on the road appears only once the road reaches it | Hero → milestone → programme → map → stay → RSVP form |
 | **Rise** | Blocks come up 22px (phones 12px) while fading in; where the layout has a side, they slide 16px from that side | Wrappers around written text, the programme and stay cards' side slide |
@@ -41,17 +42,16 @@ Source: `wedding-site/src/styles/tokens.css`. Use these, never raw values, for a
 | --- | --- | --- |
 | `--ease-out` | `cubic-bezier(.22, 1, .36, 1)` | Default for everything that moves |
 | `--ease-stamp` | `cubic-bezier(.2, .9, .3, 1.08)` | Stamps, pin drops, pops, nods (4% overshoot at most) |
-| `--ease-settle` | `cubic-bezier(.3, .7, .2, 1)` | Riso fills sliding into register |
+| `--ease-settle` | `cubic-bezier(.3, .7, .2, 1)` | Prints developing |
 | `--t-press` | 140ms | Press down and release |
 | `--t-hover` | 180ms | Colour changes on hover and state |
 | `--t-sweep` | 260ms | Underlines drawing in |
 | `--t-nudge` | 450ms | Hover motion on drawings, cards and pins |
 | `--t-reveal` | 700ms (phones 550ms) | Text rise |
 | `--t-stamp` | 600ms (phones 550ms) | Drawing stamp |
-| `--t-settle` | 700ms (phones 600ms) | Colour settle |
-| `--t-ink` | 1100ms (phones 950ms) | A drawing inked in |
-| `--t-paint` | 900ms (phones 800ms) | Riso colour brushed in |
-| `--t-pen` | 460ms | One letter written |
+| `--t-ink` | 950ms (phones 850ms) | A drawing inked in |
+| `--t-drop` | 720ms (phones 660ms) | A colour drop falls, splashes and rests |
+| `--t-dry` | 1600ms | The drop dries from wet to its riso tone |
 | `--ease-ink` | `cubic-bezier(.45, .05, .25, 1)` | Ink: unhurried start, steady line, gentle stop |
 | `--rv-y` / `--rv-x` | 22px (phones 12px) / 16px | Rise and side-slide distance |
 | `--press` | 0.97 | Buttons and pills while pressed |
@@ -66,9 +66,9 @@ One-shot keyframed responses have their duration written in place, because each 
 | --- | --- |
 | 140–260ms | Press (140), colour hover (180), crossfade between pages (240), check pop (240), underline draw and nav bar slide (260) |
 | 300–520ms | FAQ and calendar open and close (300), FAQ answer rise (360), pop (360), squash (360), notice rise and dot drop (420), nudge (450), nod and hop (520), palette pour (520) |
-| 550–900ms | Entrances: rise, stamp, settle, paint, hero beats (800), places push-in and envelope (900), count-up (900) |
-| 900–1700ms | Ink (1100), paint (900), places ink from the edge (1100), brush (800), a written heading (at most 1150), a typed paragraph (at most 1700) |
-| Over 2s, once | The hero sequence (about 4s; names and date readable by 2.3s), the „Pripravujeme“ sequence (about 5s before the car parks), the footer signature (about 4.2s), caret blinks (2.1s), develop (2.6s) |
+| 550–900ms | Entrances: rise, stamp, brush (640), drop (720), a written heading (at most 700), a flowing paragraph (at most 850), places push-in and envelope (900), count-up (900) |
+| 900–1600ms | Ink (950), places ink from the edge (1100), a drop drying (1600) |
+| Over 2s, once | The hero sequence (about 2.8s; names and date readable by 1.6s), the „Pripravujeme“ sequence (about 3.8s before the car parks; text done by 2.6s), the footer signature (about 3s), caret blinks (2.1s), develop (2.6s) |
 | Scroll-linked | Every road draw, the car, the desktop drift. No duration; they follow the scrollbar |
 | Loops | Hero road march (1.6s per step), „Pripravujeme“ road march (1.2s per step), hero breathing (7s), lantern sway (4.5s), palette cycle (4s per colour), playlist logo while hovered (2.4s), send button road while sending (0.8s) |
 
@@ -99,7 +99,7 @@ Add `.rv` and the observer adds `.in` once, when the element scrolls into view.
 | `.rv` | Rise |
 | `.rv--left` / `.rv--right` | Slide in from that side |
 | `.rv--stamp` | Stamp (a drawing) |
-| `.rv--settle` | Ink stamps, colour settles 120ms later. `Tint` adds this itself; pass `reveal={false}` where a section runs its own sequence (hero, RSVP cover, RSVP tiles) |
+| `.rv--settle` | The drawing is inked, then its colour drops land one by one. `Tint` adds this itself; pass `reveal={false}` where a section runs its own sequence (hero, RSVP cover, RSVP tiles) |
 | `.rv--draw` | Grows down from its top |
 | `.rv--fade` | Opacity only |
 | `.rv--ink` | Ink (a `Drawing` that is not a `Tint`) |
@@ -127,7 +127,7 @@ Add `.rv` and the observer adds `.in` once, when the element scrolls into view.
 | `PaletteStory` | `components/PaletteStory.tsx` | Auto-cycles colours every 4s while on screen until the first hover, tap, click or focus |
 | `Nav` | `components/Nav.tsx` | Positions the sliding underline (`--bar-x`, `--bar-y`, `--bar-w`) under the current section |
 | `<ViewTransition>` | `app/(site)/layout.tsx` | Home ↔ `/rsvp` crossfade, 240ms; the nav stays outside it |
-| `Write` | `components/Write.tsx` | Splits text into letters (`.ch`) inside words that never break, with one plain copy for screen readers. Gives every letter its moment (`--t`), its wipe (`--w`) and how long the caret then waits (`--h`) from a fixed pseudo-random rhythm, so server and browser agree. `mode` is `pen` (headings), `type` (dates, times, kickers) or `prose` (paragraphs); `pace` and `budget` set the speed, `start` (with `writeTime()`) chains one text after another, `caret` keeps the caret blinking. `Names` writes „Barbora & Michal“ with the ampersand last. `--w0` on an ancestor delays a line. Without motion the letters sit in place |
+| `Write` | `components/Write.tsx` | Splits text into letters (`.ch`) inside words that never break, with one plain copy for screen readers. Gives every letter its moment (`--t`), its wipe (`--w`) and how long the caret then waits (`--h`) from a fixed pseudo-random rhythm, so server and browser agree. `mode` is `pen` (headings, a nib), `type` (dates, times, kickers, a caret) or `prose` (paragraphs, flowing on without a caret); `pace` and `budget` set the speed, `start` (with `writeTime()`) chains one text after another, `caret` keeps the caret blinking. `Names` writes „Barbora & Michal“ with the ampersand last. `--w0` on an ancestor delays a line. Without motion the letters sit in place |
 | `Registration` | `components/Registration.tsx` | Mouse only, under `html.mo`: sets `--rx` / `--ry` on each `Tint` on screen from the pointer's distance (6px at most, full at 420px); the plates' `transform` transition smooths it |
 
 ### Property lanes
@@ -136,11 +136,11 @@ Each kind of motion owns its own CSS properties, so they never overwrite each ot
 
 | Lane | Properties | Who uses it |
 | --- | --- | --- |
-| Entrances and one-shot responses | `opacity`, `translate`, `scale`, `rotate` | `.rv*`, `stamp`, `settle`, `rise`, `nod`, `hop`, `pop`, `drop`, `squash` keyframes |
+| Entrances and one-shot responses | `opacity`, `translate`, `scale`, `rotate` | `.rv*`, `stamp`, `rise`, `nod`, `hop`, `pop`, `drop`, `squash` keyframes |
 | Hover and press | `transform`, colours | Every `:hover` and `:active` |
 | Scroll drift | `--px` (registered with `@property`) composed into `transform`, or `translate` on an element with no entrance | Places drawings, RSVP envelope, hero drawings |
 | Wipes | `clip-path`, `background-size`, `stroke-dashoffset`, `mask` | Road draws, palette pour, link underlines, map roads, button brush |
-| Hand-made keyframes | `mask-*` (ink, brush), `--sweep` in a conic `mask` (paint), `clip-path` and the caret's `left` (pen), `filter` (develop) | Ink, paint, write, type, brush, develop |
+| Hand-made keyframes | `mask-*` (ink, brush), `scale` as a multiple of `--s`, `translate`, `border-radius` and `filter` (splash, dry), `clip-path` and the caret's `left` (pen), `opacity` and `translate` per letter (type, flow), `filter` (develop) | Ink, drop, write, type, flow, brush, develop |
 | Open and close | `height` with `interpolate-size`, `display` with `allow-discrete` | FAQ, calendar, RSVP fold, phone menu |
 
 An element whose `transform` is part of its layout (the mirrored hero bloom, the centred places drawing) keeps that in the same `transform` declaration as its hover value.
@@ -153,21 +153,21 @@ Everything that moves today. Update this table when you add or change motion.
 
 | Where | What happens |
 | --- | --- |
-| Hero | The invitation is drawn: the couple is inked (0ms), then their peony dab is painted (about 830ms) and their butter one after it; the names are written from 200ms, the ampersand last with its flourish; the date is typed from 1650ms and its caret blinks three times; the blooms are inked either side (700, 1000ms), each dab after its ink; the place line is typed from 2200ms and the intro from 2900ms; the buttons are brushed in (3300, 3450ms); the road draws down (3700ms), then marches until the first scroll; after that the hero colour breathes (scale 1.03, 7s). Desktop: as the hero leaves, the couple lags 32px and the blooms lead (−20, −48px) |
+| Hero | The invitation is drawn: the couple is inked (0ms), then their peony drop lands (about 330ms) and their butter one after it; the names are written from 150ms, the ampersand last with its flourish; the date is typed from 1050ms as the flourish ends and its caret blinks three times; the blooms are inked either side (450, 650ms), each drop after its ink; the place line flows on from 1350ms and the intro from 1750ms; the buttons are brushed in (2100, 2200ms); the road draws down (2400ms), then marches until the first scroll; after that the hero colour breathes (scale 1.03, 7s). Desktop: as the hero leaves, the couple lags 32px and the blooms lead (−20, −48px) |
 | Milestone | The road above and below draws with scroll; the number counts up from n − 24 over 900ms; „Dnes“ and „Svoji“ stamp instead |
-| Programme | Title written, lead typed (800ms), the rose sprig inked (1000ms). The road's drawn end sits at 70% of the viewport; each row reveals as it crosses that line: the landmark is inked, then its two dabs painted one by one; the text slides in from its side (90ms) while its title is written, then its time, place and description are typed; the playlist card is brushed in from the other side (900ms); phones from the right |
-| Places | Panels 120ms apart; titles written, then name, address and time typed line by line; the map button and town pill brushed in (2400ms); each cropped drawing is pushed in from the edge that crops it (48px, centre 56px from below, 900ms) and inked bottom up as it comes (1100ms). Desktop: drawings drift ±20px with scroll |
-| Requests | Title written, lead typed, sprig inked. Each request reveals as one, 110ms after the previous: the drawing is inked, its dabs painted one by one, the „when“ pill is brushed in (1300ms), the title written (1500ms), the text typed (2300ms). Hover on a request slips the colour under its drawing |
-| Map | Title written, lead typed; legend titles written. Labels fade; church, barn and lanterns are drawn in from their top left corner, in order; pins drop; north and scale last (750ms). The road draws just ahead of the car; the Vranov road draws in the second half; at the barn the pin pulses once and the barn lifts once. Legend items reveal 90ms apart |
-| Palette | Title written, lead and hint typed; the figure is inked and only then its colour poured in; each dab is painted with a round stroke, 60ms apart; a new colour pours into the garment from the top (520ms); auto-cycle every 4s until touched |
-| Photos | Title written, lead typed, sprig and camera inked; the cards land like prints dropped on a table (from 1.04, 6px higher, 3° more tilt, 700ms stamp easing), the dropped middle one last; then each print develops (2.6s) and its caption is written under it |
-| Stay | The lantern is inked, the title written (700ms), the lead typed (1600ms). The dashed road draws with scroll; each pin drops as the road reaches it and its card is brushed in from the right while its name is written; the coffee is inked and „Ráno bez ponáhľania.“ written; the lantern sways (±2°, 4.5s) |
-| FAQ | Title written, lead typed, sprig inked, the button brushed in; rows are brushed in 50ms apart; an opened answer is typed, every time it opens |
-| RSVP band | The envelope slides in from its cropped corner while turning and is inked as it comes, the rose is inked after it; „Prídete?“ is written slowly (500ms, 110ms a letter), the lead typed (1500ms), the button brushed in (2700ms); desktop: the envelope drifts ±24px |
-| Footer | The invitation is signed: the garland is inked, „Tešíme sa na vás.“ written (500ms), the names signed slowly (from 1300ms, 95ms a letter, the ampersand last), the date line typed under them (3300ms), the links brushed in (4200ms) |
-| RSVP page | Cover: the kicker is typed, „Prídete?“ written (620ms), the lead typed (1250ms), the deadline pill brushed in (2700ms); the envelope is inked, then its dabs painted one by one, then the rose the same way (1300ms); the road draws down into the form (2900ms). Thank-you: the last road segment draws, the peony pin drops, the drawing is inked and painted, the words rise (about 1.3s) |
+| Programme | Title written, lead flows on (600ms), the rose sprig inked (650ms). The road's drawn end sits at 70% of the viewport; each row reveals as it crosses that line: the landmark is inked, then its two drops land one by one; the text slides in from its side (90ms) while its title is written, then its time is typed and its place and description flow on; the playlist card is brushed in from the other side (700ms); phones from the right |
+| Places | Panels 120ms apart; titles written, then name, address and time flow on line by line (from 800ms, 450ms apart); the map button and town pill brushed in (1700ms); each cropped drawing is pushed in from the edge that crops it (48px, centre 56px from below, 900ms) and inked bottom up as it comes (1100ms). Desktop: drawings drift ±20px with scroll |
+| Requests | Title written, lead flows on (380ms), sprig inked (450ms). Each request reveals as one, 110ms after the previous: the drawing is inked, its drops land one by one, the „when“ pill is brushed in (700ms), the title written (850ms), the text flows on (1350ms). Hover on a request slips the colour under its drawing |
+| Map | Title written, lead flows on (650ms); legend titles written. Labels fade; church, barn and lanterns are drawn in from their top left corner, in order; pins drop; north and scale last (750ms). The road draws just ahead of the car; the Vranov road draws in the second half; at the barn the pin pulses once and the barn lifts once. Legend items reveal 90ms apart |
+| Palette | Title written, lead (550ms) and hint (1500ms) flow on; the figure is inked and only then its colour poured in; each swatch lands as a drop of paint, one after another along the stagger; a new colour pours into the garment from the top (520ms); auto-cycle every 4s until touched |
+| Photos | Title written, lead flows on (650ms), sprig and camera inked; the cards land like prints dropped on a table (from 1.04, 6px higher, 3° more tilt, 700ms stamp easing), the dropped middle one last; then each print develops (2.6s) and its caption is written under it |
+| Stay | The lantern is inked, the title written (400ms), the lead flows on (1050ms). The dashed road draws with scroll; each pin drops as the road reaches it and its card is brushed in from the right while its name is written; the coffee is inked and „Ráno bez ponáhľania.“ written; the lantern sways (±2°, 4.5s) |
+| FAQ | Title written, lead flows on (400ms), sprig inked (450ms), the button brushed in (1000ms); rows are brushed in 50ms apart; an opened answer flows on, every time it opens |
+| RSVP band | The envelope slides in from its cropped corner while turning and is inked as it comes, the rose is inked after it; „Prídete?“ is written a little slower (350ms, 70ms a letter), the lead flows on (850ms), the button brushed in (1650ms); desktop: the envelope drifts ±24px |
+| Footer | The invitation is signed: the garland is inked, „Tešíme sa na vás.“ written (300ms), the names signed a little slower (from 900ms, 64ms a letter, the ampersand last), the date line typed under them (2300ms), the links brushed in (2900ms) |
+| RSVP page | Cover: the kicker is typed, „Prídete?“ written (600ms), the lead flows on (1050ms), the deadline pill brushed in (1800ms); the envelope is inked, then its drops land one by one, then the rose the same way (900ms); the road draws down into the form (2000ms). Thank-you: the last road segment draws, the peony pin drops, the drawing is inked and its drops land, the words rise (about 1.3s) |
 | Page change | Home ↔ `/rsvp` crossfades in 240ms |
-| Pripravujeme | The page does what its kicker says: the couple is inked, then its dabs painted one by one; „Pozvánka sa ešte kreslí“ is typed (from 200ms) and its caret blinks; the names are written (1300ms); the date, places and sentence are typed (2500–3400ms); the blooms are inked and painted (900, 1200ms); the calendar is brushed in (4300ms). The road draws in from the right edge (3600ms, 900ms long), the car drives in after it from the right (4000ms, 1500ms) and brakes with a nod onto its front wheel (−2.5°, 520ms); then the road marches under the parked car, the page's one loop. Hovering the car hops it. Time-based, because the page doesn't scroll |
+| Pripravujeme | The page does what its kicker says: the couple is inked, then its drops land one by one; „Pozvánka sa ešte kreslí“ is typed (from 150ms) and its caret blinks; the names are written (700ms); the date is typed (1500ms), the places and sentence flow on (1800, 2150ms); the blooms are inked and their drops land (500, 700ms); the calendar is brushed in (2700ms). The road draws in from the right edge (2300ms, 800ms long), the car drives in after it from the right (2550ms, 1300ms) and brakes with a nod onto its front wheel (−2.5°, 520ms); then the road marches under the parked car, the page's one loop. Hovering the car hops it. Time-based, because the page doesn't scroll |
 
 ### Interaction
 
@@ -207,12 +207,13 @@ Everything that moves today. Update this table when you add or change motion.
 2. **Scroll-linked for the road and what sits on it; time-based for everything else.** Scroll-linked motion is smoothed (CSS scroll timelines, or a lerp in JavaScript), never mapped 1:1 to scroll ticks. Nothing scrolls the page by itself.
 3. **Loops have a budget.** Idle loops are the hero march (until the first scroll), the hero breathing (after it), the palette cycle (until touched), the lantern, and the road under the car on „Pripravujeme“. Never two in one viewport. A loop a guest starts and can see the end of (playlist logo while hovered, send road while sending) does not count against the budget. Adding a loop means removing or gating one.
 4. **No parallax on text.** Drift only on oversized cropped drawings, desktop only (≥ 900px), ±24px at most.
-5. **Overshoot only on drawings, pins and checks**, through `--ease-stamp` (4% at most). Never on text or buttons; the ampersand's flourish turns with `--ease-out`.
+5. **Overshoot only on drawings, colour drops, pins and checks**, through `--ease-stamp` (4% at most), or the drop's own splash (15%, then one wobble). Never on text or buttons; the ampersand's flourish turns with `--ease-out`.
 6. **Lanes and cheap properties.** Animate only what the lanes table lists. Layout properties (`height`, `margin`) animate only in the open/close lane. No `transition: all`.
 7. **No shadows, no sparkles, no blur.** Motion never adds a visual the static design rejects.
-8. **Every hidden state sits under `html.mo:not(.land) … :not(.in)`.** Then no JavaScript, reduced motion, `?static` and hash landings show everything in place, with no extra rules. The hand-made verbs (ink, paint, write, type, brush, develop) are keyframes with fill `backwards` that start on `.in` and skip `[data-rv-instant]`: they hide their element only until their turn and leave no clip or filter behind (the dabs keep a fully open conic mask).
+8. **Every hidden state sits under `html.mo:not(.land) … :not(.in)`.** Then no JavaScript, reduced motion, `?static` and hash landings show everything in place, with no extra rules. The hand-made verbs (ink, drop, write, type, flow, brush, develop) are keyframes with fill `backwards` that start on `.in` and skip `[data-rv-instant]`: they hide their element only until their turn and leave no clip, mask or filter behind.
 8a. **Text is written live, in the direction of reading.** All text that is read (headings, leads, paragraphs, dates, times, captions) goes through `<Write>`, never split by hand, with its host marked `rv--write` so it never also rises. One writer at a time in a block: chain texts with `start` and `writeTime()`, and give the next block a `--d` that starts it as the previous one ends. Buttons, pills and links are not typed; they are brushed in.
-8b. **An illustration is drawn piece by piece.** Its line drawing is inked first; each colour dab is painted afterwards, one at a time. Never let ink and colour arrive as one.
+8b. **An illustration is drawn piece by piece.** Its line drawing is inked first; each colour lands afterwards as its own drop, one at a time. Never let ink and colour arrive as one.
+8c. **Text never keeps a guest waiting.** A heading is written in at most 700ms, a paragraph flows on in at most 850ms, and the next block starts as the previous one ends. A first screen is readable (names, date) within about 1.6s and complete within 3s.
 9. **Tokens first.** Durations and easings come from tokens; a one-shot keyframe may write its duration in place and must be added to [Durations](#durations).
 10. **Phones are lighter, not different.** Distances halve and durations shorten through tokens; no drift; everything else is the same.
 
@@ -235,7 +236,7 @@ Everything that moves today. Update this table when you add or change motion.
 
 ## 6. Adding or changing a component
 
-1. **Entrance.** Start with `.rv` on each block. A heading takes `rv rv--write` around `<Write text=… />`, a paragraph the same with `mode="prose"`; a card, pill or button wrapper `rv rv--brush`; a drawing `rv rv--ink` (or use `Tint`, which inks and paints by itself). Order inside a block with `--d`; reveal a block as one with `data-rv-group`; reveal a list item by item with `data-rv-stagger`. Drawings use `Tint` (stamps and settles by itself) or `Drawing` with `rv rv--stamp`.
+1. **Entrance.** Start with `.rv` on each block. A heading takes `rv rv--write` around `<Write text=… />`, a paragraph the same with `mode="prose"`; a card, pill or button wrapper `rv rv--brush`; a drawing `rv rv--ink` (or use `Tint`, which inks it and drops its colour by itself). Order inside a block with `--d`; reveal a block as one with `data-rv-group`; reveal a list item by item with `data-rv-stagger`. Drawings use `Tint` (inks and drops its colour by itself) or `Drawing` with `rv rv--stamp`.
 2. **Is it the section's hero moment?** If the section already has one, stop at step 1.
 3. **Hidden state.** Write any new "from" state as `html.mo:not(.land) .thing:not(.in) { … }` and its transition under `html.js`, using the entrance lane.
 4. **Hover.** Inside `@media (hover: hover)`, on `transform` or colour, within the hover limits, with `--t-nudge` (motion) or `--t-hover` (colour) and no delay.

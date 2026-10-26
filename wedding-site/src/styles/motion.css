@@ -2,13 +2,13 @@
    The boot script (app/layout.tsx) sets html.js (JavaScript runs), html.mo (motion allowed: no ?static, no
    reduced-motion preference) and html.land (the page opened below the top). Every hidden "from" state lives
    under html.mo, so no JavaScript, reduced motion and ?static all show everything in place.
-   The invitation draws itself as it is read: drawings are inked in, riso colour is brushed under them and
-   settles into register, headings are written letter by letter, dates and times are typed, text is written
+   The invitation draws itself as it is read: drawings are inked in, riso colour drops onto the paper under
+   them and splashes into shape, headings are written letter by letter, dates and times are typed, text flows
    on in the direction of reading, the road draws with scroll, the prints develop. */
 
 /* ===== reveals: RevealObserver adds .in once ===== */
 /* .rv rise · .rv--left / .rv--right slide in from that side · .rv--stamp a drawing lands
-   .rv--settle (every Tint) the ink stamps, its colour settles 120 ms later · .rv--draw grows down from its top
+   .rv--settle (every Tint) the drawing is inked, its colour drops land under it · .rv--draw grows down from its top
    Reveals move with translate/scale/rotate, so an element's own transform (hover, tilt) is left alone.
    --delay = --g (a group's place in a stagger, set by RevealObserver) + --d (the element's own delay);
    children inherit it already resolved. data-rv-done clears it once the reveal is over. */
@@ -27,39 +27,35 @@ html.js .rv--draw { transform-origin: top; transition: scale var(--t-reveal) var
 html.mo:not(.land) .rv--draw:not(.in) { opacity: 1; translate: none; scale: 1 0; }
 
 /* Tint: the wrapper stays put (it may carry its own mirror or tilt); the drawing is inked in, then each colour
-   dab is painted on its own and settles into register (ink and paint keyframes, „hand-made layer“ below). */
+   drop lands on its own and splashes into shape (ink and splash keyframes, „hand-made layer“ below). */
 html.js .rv--settle { transition: none; }
 html.mo:not(.land) .rv--settle:not(.in) { opacity: 1; translate: none; }
 html.js .rv--settle img { transition: opacity 1ms linear var(--delay, 0ms); }
-html.js .rv--settle::before { transition: transform var(--t-nudge) var(--ease-out), opacity 1ms linear var(--p1), translate var(--t-settle) var(--ease-settle) var(--p1), scale var(--t-settle) var(--ease-settle) var(--p1); }
-html.js .rv--settle::after { transition: transform var(--t-nudge) var(--ease-out), opacity 1ms linear var(--p2), translate var(--t-settle) var(--ease-settle) var(--p2), scale var(--t-settle) var(--ease-settle) var(--p2); }
-html.mo:not(.land) .rv--settle:not(.in) img { opacity: 0; }
-html.mo:not(.land) .rv--settle:not(.in)::before { opacity: 0; translate: 6px -5px; scale: 0.94; }
-html.mo:not(.land) .rv--settle:not(.in)::after { opacity: 0; translate: -5px 6px; scale: 0.94; }
+html.mo:not(.land) .rv--settle:not(.in) img, html.mo:not(.land) .rv--settle:not(.in)::before, html.mo:not(.land) .rv--settle:not(.in)::after { opacity: 0; }
 
 @keyframes rise { from { opacity: 0; translate: 0 var(--rv-y); } }
 @keyframes fade { from { opacity: 0; } }
 @keyframes stamp { from { opacity: 0; scale: 1.04; rotate: -2deg; } }
-@keyframes settle { from { opacity: 0; translate: 6px -5px; scale: 0.92; } }
 @keyframes draw-down { from { scale: 1 0; } }
 
-/* ===== hand-made layer: pen, typewriter, ink, paint, brush (MOTION.md, Language) =====
+/* ===== hand-made layer: pen, typewriter, flow, ink, drops, brush (MOTION.md, Language) =====
    Each runs once as a keyframe animation with fill „backwards“: it hides its element until its turn and
    leaves nothing behind once it is over. Triggered by .in from RevealObserver, or on load in the hero, the
    RSVP cover and „Pripravujeme“; a landing below the top (data-rv-instant) skips it. */
 
-/* --- text, written live (Write.tsx sets --t, --w, --h on every letter) --- */
+/* --- text, written live (Write.tsx sets --t, --w, --h on every letter) ---
+   pen: a nib draws each letter · type: each letter is pressed in behind a caret · prose: letters flow on with a
+   soft leading edge, each one landing over 300ms while the next ones start, so a paragraph reads as one stroke */
 .write__word, .write .ch { display: inline-block; }
 .write__word { white-space: nowrap; }
 .write .sr-only { user-select: none; }
 .write .ch { position: relative; --at: calc(var(--delay, 0ms) + var(--w0, 0ms) + var(--t, 0ms)); }
-/* the caret (type, prose) or the nib (pen): one thin ink bar that moves along the line with the letters */
+/* the caret (type) or the nib (pen): one thin ink bar that moves along the line with the letters */
 .write .ch::after {
   content: ""; position: absolute; left: 100%; top: 0.12em; bottom: 0.02em; width: max(2px, 0.06em); margin-left: 0.04em;
   border-radius: 1px; background: currentColor; opacity: 0; pointer-events: none;
 }
 .write--pen .ch::after { width: max(2px, 0.05em); rotate: 12deg; }
-.write--prose .ch::after { width: max(1.5px, 0.08em); }
 
 /* a host of written text does not also rise or fade: only its letters move */
 html.mo:not(.land) .rv--write:not(.in) { opacity: 1; translate: none; }
@@ -70,24 +66,28 @@ html.mo .in .write--pen .ch:not(.rv:not(.in) *, [data-rv-instant] *),
 html.mo :is(.hero, .soon, .reply__intro) .write--pen .ch { animation: pen var(--w) linear var(--at) backwards; }
 html.mo .in .write--pen .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
 html.mo :is(.hero, .soon, .reply__intro) .write--pen .ch::after { animation: nib var(--w) linear var(--at), hold var(--h) steps(1) calc(var(--at) + var(--w)); }
-/* type and prose: each letter lands at once, the caret sits after it until the next one */
-html.mo .in :is(.write--type, .write--prose) .ch:not(.rv:not(.in) *, [data-rv-instant] *),
-html.mo :is(.hero, .soon, .reply__intro) :is(.write--type, .write--prose) .ch { animation: type 1ms linear var(--at) backwards; }
-html.mo .in :is(.write--type, .write--prose) .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
-html.mo :is(.hero, .soon, .reply__intro) :is(.write--type, .write--prose) .ch::after { animation: hold calc(var(--w) + var(--h)) steps(1) var(--at); }
+/* type: each letter is pressed in quickly, the caret sits after it until the next one */
+html.mo .in .write--type .ch:not(.rv:not(.in) *, [data-rv-instant] *),
+html.mo :is(.hero, .soon, .reply__intro) .write--type .ch { animation: type 140ms var(--ease-out) var(--at) backwards; }
+html.mo .in .write--type .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
+html.mo :is(.hero, .soon, .reply__intro) .write--type .ch::after { animation: hold calc(var(--w) + var(--h)) steps(1) var(--at); }
+/* prose: no caret; the overlapping landings are the leading edge */
+html.mo .in .write--prose .ch:not(.rv:not(.in) *, [data-rv-instant] *),
+html.mo :is(.hero, .soon, .reply__intro) .write--prose .ch { animation: flow 300ms var(--ease-out) var(--at) backwards; }
 /* with data-caret the caret stays after the last letter and blinks three times */
 html.mo .in .write[data-caret] .ch--end:not(.rv:not(.in) *, [data-rv-instant] *)::after,
 html.mo :is(.hero, .soon, .reply__intro) .write[data-caret] .ch--end::after { animation: blink 2100ms steps(1) var(--at); }
 /* the ampersand in the names is the flourish: drawn with a turn of the pen */
 html.mo .in .amp .ch:not(.rv:not(.in) *, [data-rv-instant] *),
-html.mo :is(.hero, .soon) .amp .ch { animation: flourish 620ms var(--ease-out) var(--at) backwards; }
+html.mo :is(.hero, .soon) .amp .ch { animation: flourish 480ms var(--ease-out) var(--at) backwards; }
 html.mo .in .amp .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
 html.mo :is(.hero, .soon) .amp .ch::after { animation: none; }
 
 @keyframes pen { from { opacity: 0; clip-path: inset(-25% 100% -35% -15%); } 1% { opacity: 1; } to { clip-path: inset(-25% 0 -35% -15%); } }
 @keyframes nib { from { left: 0; opacity: 1; } to { left: 100%; opacity: 1; } }
 @keyframes hold { from, to { opacity: 1; } }
-@keyframes type { from, to { opacity: 0; } }
+@keyframes type { from { opacity: 0; translate: 0 0.06em; } }
+@keyframes flow { from { opacity: 0; translate: 0 0.16em; } }
 @keyframes blink { 0%, 28%, 57%, 86% { opacity: 1; } 14%, 43%, 71%, 100% { opacity: 0; } }
 @keyframes flourish {
   from { opacity: 0; clip-path: inset(-25% 100% -35% -25%); rotate: -14deg; scale: 1.18; }
@@ -98,15 +98,14 @@ html.mo :is(.hero, .soon) .amp .ch::after { animation: none; }
 /* --- brush: a card, pill or button is painted in left to right behind a soft edge, rising 6px --- */
 html.js .rv--brush { transition: opacity 1ms linear var(--delay, 0ms); }
 html.mo:not(.land) .rv--brush:not(.in) { translate: none; }
-html.mo .rv--brush.in:not([data-rv-instant]) { animation: brush 800ms var(--ease-out) var(--delay, 0ms) backwards; }
+html.mo .rv--brush.in:not([data-rv-instant]) { animation: brush 640ms var(--ease-out) var(--delay, 0ms) backwards; }
 @keyframes brush {
   from { mask-image: linear-gradient(100deg, #000 42%, transparent 50%); mask-size: 300% 100%; mask-repeat: no-repeat; mask-position: 80% 0; translate: 0 6px; }
   to { mask-image: linear-gradient(100deg, #000 42%, transparent 50%); mask-size: 300% 100%; mask-repeat: no-repeat; mask-position: 8% 0; translate: 0 0; }
 }
 
-/* --- illustrations, one piece at a time: the line drawing is inked first, then each colour dab is
-   painted on its own with a round stroke of the brush (the large one, then the small one) and settles
-   into register --- */
+/* --- illustrations, one piece at a time: the line drawing is inked first, then each colour lands under it
+   as a drop of paint (the large one, then the small one) --- */
 html.mo :is(.rv--ink.in, .rv--settle.in img):not([data-rv-instant], [data-rv-instant] *) { animation: ink var(--t-ink) var(--ease-ink) var(--delay, 0ms) backwards; }
 @keyframes ink {
   from { mask-image: linear-gradient(135deg, #000 42%, transparent 52%); mask-size: 260% 260%; mask-repeat: no-repeat; mask-position: 86% 86%; scale: 1.025; }
@@ -117,17 +116,26 @@ html.mo :is(.rv--ink.in, .rv--settle.in img):not([data-rv-instant], [data-rv-ins
   from { mask-image: linear-gradient(0deg, #000 42%, transparent 52%); mask-size: 100% 300%; mask-repeat: no-repeat; mask-position: 0 20%; }
   to { mask-image: linear-gradient(0deg, #000 42%, transparent 52%); mask-size: 100% 300%; mask-repeat: no-repeat; mask-position: 0 92%; }
 }
-/* each dab's turn: --p1 the large one, once most of the ink is down; --p2 the small one after it */
-.tint { --p1: calc(var(--delay, 0ms) + var(--t-ink) * 0.75); --p2: calc(var(--p1) + 420ms); }
+/* each drop's turn: --p1 the large one, once a third of the ink is down; --p2 the small one just after */
+.tint { --p1: calc(var(--delay, 0ms) + var(--t-ink) * 0.35); --p2: calc(var(--p1) + 140ms); }
 :is(.hero, .soon, .reply__art) .tint { --delay: var(--sd, 0ms); }
 .reply-end .tint { --delay: 650ms; }
-/* the brush goes round the dab: a conic mask opens from where the stroke starts (--from) */
-@property --sweep { syntax: "<angle>"; inherits: false; initial-value: 400deg; }
-html.mo .tint::before, html.mo .tint::after { mask-image: conic-gradient(from var(--from, 200deg), #000 calc(var(--sweep) - 40deg), transparent var(--sweep)); }
-.tint::after { --from: 20deg; }
-html.mo .rv--settle.in:not([data-rv-instant])::before { animation: paint var(--t-paint) var(--ease-settle) var(--p1) backwards; }
-html.mo .rv--settle.in:not([data-rv-instant])::after { animation: paint var(--t-paint) var(--ease-settle) var(--p2) backwards; }
-@keyframes paint { from { --sweep: 0deg; } to { --sweep: 400deg; } }
+/* A drop falls in small and round, hits the paper and spreads past its shape, the surface tension pulls it
+   back, it wobbles once and rests in its own blob outline. It lands wet (deeper, richer) and dries to the
+   riso tone. Scale is a multiple of --s, so a dab with its own size (the palette) keeps it; the from state
+   hides the drop until its turn (fill backwards), and nothing is left behind once it is over. */
+html.mo .rv--settle.in:not([data-rv-instant])::before,
+html.mo :is(.hero, .soon, .reply__art, .reply-end) .tint::before { animation: splash var(--t-drop) var(--ease-out) var(--p1) backwards, dry var(--t-dry) var(--ease-out) var(--p1) backwards; }
+html.mo .rv--settle.in:not([data-rv-instant])::after,
+html.mo :is(.hero, .soon, .reply__art, .reply-end) .tint::after { animation: splash var(--t-drop) var(--ease-out) var(--p2) backwards, dry var(--t-dry) var(--ease-out) var(--p2) backwards; }
+@keyframes splash {
+  from { opacity: 0; scale: calc(var(--s, 1) * 0.3); translate: 0 -18px; border-radius: 50%; animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.45); }
+  10% { opacity: 1; }
+  30% { scale: calc(var(--s, 1) * 1.15) calc(var(--s, 1) * 1.05); translate: 0 0; animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1); }
+  56% { scale: calc(var(--s, 1) * 0.95) calc(var(--s, 1) * 1.02); animation-timing-function: cubic-bezier(0.4, 0, 0.4, 1); }
+  78% { scale: calc(var(--s, 1) * 1.015); }
+}
+@keyframes dry { from { filter: saturate(1.35) brightness(0.9); } }
 
 /* ===== nav: the phone menu slides open, links follow 30 ms apart ===== */
 html.mo .menu-panel { transition: opacity 160ms var(--ease-out), translate 160ms var(--ease-out), display 160ms allow-discrete; }
@@ -139,28 +147,27 @@ html.mo .menu-panel a { transition: opacity 220ms var(--ease-out) calc(40ms + va
   html.mo .menu-panel:not([hidden]) a { opacity: 0; translate: 0 -6px; }
 }
 
-/* ===== hero: the invitation is drawn in front of the guest, 1.9 s ===== */
-/* 1 the couple is inked in, their colour brushed under them · 2 the names are written, the ampersand last with
-   a flourish · 3 the date is typed, its caret blinks and goes · 4 the blooms are inked either side
-   5 where and intro are written on, the buttons rise · 6 the road draws down, then marches until the first scroll */
-.hero h1 { --w0: 200ms; }
-.hero__date { --w0: 1650ms; }
-.hero__where { --w0: 2200ms; }
-.hero__intro { --w0: 2900ms; }
-html.mo .hero__actions .btn { animation: brush 800ms var(--ease-out) 3300ms backwards; }
-html.mo .hero__actions .btn + .btn { animation-delay: 3450ms; }
+/* ===== hero: the invitation is drawn in front of the guest, names and date readable by 1.6 s, all by 2.8 s ===== */
+/* 1 the couple is inked in, their colour drops land under them · 2 the names are written, the ampersand last
+   with a flourish · 3 the date is typed as the flourish ends, its caret blinks and goes · 4 the blooms are
+   inked either side · 5 where and intro flow on, the buttons are brushed in · 6 the road draws down, then
+   marches until the first scroll */
+.hero h1 { --w0: 150ms; }
+.hero__date { --w0: 1050ms; }
+.hero__where { --w0: 1350ms; }
+.hero__intro { --w0: 1750ms; }
+html.mo .hero__actions .btn { animation: brush 640ms var(--ease-out) 2100ms backwards; }
+html.mo .hero__actions .btn + .btn { animation-delay: 2200ms; }
 .hero__art { --sd: 0ms; }
-.hero__bloom--left { --sd: 700ms; }
-.hero__bloom--right { --sd: 1000ms; }
+.hero__bloom--left { --sd: 450ms; }
+.hero__bloom--right { --sd: 650ms; }
 html.mo .hero .tint img { animation: ink var(--t-ink) var(--ease-ink) var(--sd) backwards; }
-html.mo .hero .tint::before { animation: settle var(--t-settle) var(--ease-settle) var(--p1) both, paint var(--t-paint) var(--ease-settle) var(--p1) backwards; }
-html.mo .hero .tint::after { animation: settle var(--t-settle) var(--ease-settle) var(--p2) both, paint var(--t-paint) var(--ease-settle) var(--p2) backwards; }
-html.mo .hero__road { transform-origin: top; animation: draw-down 600ms var(--ease-out) 3700ms both, march 1.6s linear 4300ms infinite; }
+html.mo .hero__road { transform-origin: top; animation: draw-down 600ms var(--ease-out) 2400ms both, march 1.6s linear 3000ms infinite; }
 html.mo.scrolled .hero__road { animation-play-state: running, paused; }
 @keyframes march { to { background-position: 0 16px; } }
 /* once the march has stopped, the hero's colour breathes: never two loops in the first screen */
-html.mo.scrolled .hero .tint::before { animation: settle var(--t-settle) var(--ease-settle) var(--p1) both, paint var(--t-paint) var(--ease-settle) var(--p1) backwards, breathe 7s ease-in-out infinite alternate; }
-html.mo.scrolled .hero .tint::after { animation: settle var(--t-settle) var(--ease-settle) var(--p2) both, paint var(--t-paint) var(--ease-settle) var(--p2) backwards, breathe 7s ease-in-out infinite alternate; }
+html.mo.scrolled .hero .tint::before { animation: splash var(--t-drop) var(--ease-out) var(--p1) backwards, dry var(--t-dry) var(--ease-out) var(--p1) backwards, breathe 7s ease-in-out calc(var(--p1) + var(--t-drop)) infinite alternate; }
+html.mo.scrolled .hero .tint::after { animation: splash var(--t-drop) var(--ease-out) var(--p2) backwards, dry var(--t-dry) var(--ease-out) var(--p2) backwards, breathe 7s ease-in-out calc(var(--p2) + var(--t-drop)) infinite alternate; }
 @keyframes breathe { from { scale: 1; } to { scale: 1.03; } }
 
 /* ===== the road draws with scroll ===== */
@@ -225,12 +232,10 @@ html.js .faq details.rv { transition: background-color var(--t-hover), transform
   html.mo .cal[open]::details-content { height: auto; opacity: 1; }
   html.mo .cal[open] :is(.cal__menu, .cal__other) { animation: none; }
 }
-/* an opened answer is typed again every time its row opens (own animation names, so opening restarts them) */
+/* an opened answer flows on again every time its row opens (its own animation name, so opening restarts it) */
 .faq details[open] p { --delay: 120ms; }
-html.mo .faq details[open] .write .ch { animation: type-open 1ms linear var(--at) backwards; }
-html.mo .faq details[open] .write .ch::after { animation: hold-open calc(var(--w) + var(--h)) steps(1) var(--at); }
-@keyframes type-open { from, to { opacity: 0; } }
-@keyframes hold-open { from, to { opacity: 1; } }
+html.mo .faq details[open] .write .ch { animation: flow-open 300ms var(--ease-out) var(--at) backwards; }
+@keyframes flow-open { from { opacity: 0; translate: 0 0.16em; } }
 
 /* ===== places: text rises, the cropped drawing is pushed into frame from the edge that crops it ===== */
 @property --px { syntax: "<length>"; inherits: false; initial-value: 0px; }
@@ -254,9 +259,8 @@ html.mo .fit.in:not([data-rv-instant]) .fit__fig[data-on] img { animation: ink v
 html.mo .fit__fig:not([data-on]) .fit__fill { clip-path: inset(0 0 100% 0); transition-duration: 0s; transition-delay: 450ms; }
 html.mo:not(.land) .fit:not(.in) .fit__fill { clip-path: inset(0 0 100% 0); }
 html.mo .dab[data-picked] .dab__shape { animation: squash 360ms var(--ease-out); }
-/* each colour dab is painted with a round stroke of the brush as it arrives (the mask goes once the reveal is done, so the focus ring shows) */
-html.mo .dab:not([data-rv-done]) .dab__shape { mask-image: conic-gradient(from 200deg, #000 calc(var(--sweep) - 40deg), transparent var(--sweep)); }
-html.mo .dab.in:not([data-rv-instant]) .dab__shape { animation: paint var(--t-paint) var(--ease-settle) calc(var(--delay, 0ms) + 80ms) backwards; }
+/* each colour dab lands as a drop of paint as it arrives, one after another along the stagger */
+html.mo .dab.in:not([data-rv-instant]) .dab__shape { animation: splash var(--t-drop) var(--ease-out) calc(var(--delay, 0ms) + 80ms) backwards, dry var(--t-dry) var(--ease-out) calc(var(--delay, 0ms) + 80ms) backwards; }
 @keyframes squash { 45% { transform: rotate(-6deg) scale(0.98); } }
 
 /* ===== stay: the road draws with scroll (below), each pin drops as it arrives, the lantern sways ===== */
@@ -301,19 +305,16 @@ html.mo:not(.land) .rv--fade:not(.in) { translate: none; }
 @keyframes drift-px { from { --px: var(--drift-from); } to { --px: var(--drift-to); } }
 
 /* ===== RSVP page ===== */
-/* cover: the text rises, envelope and rose stamp with their colour settling, the road draws down into the form */
-/* cover: the kicker is typed, the title written, the text written on; envelope and rose are inked with their
-   colour brushed under them; the road draws down into the form */
+/* cover: the kicker is typed, the title written, the text flows on; envelope and rose are inked with their
+   colour dropped under them; the road draws down into the form */
 .reply__kicker { --w0: 80ms; }
-.reply__intro h1 { --w0: 620ms; }
-.reply__intro .lead { --w0: 1250ms; }
-html.mo .reply__intro > .reply__until { animation: brush 800ms var(--ease-out) 2700ms backwards; }
-html.mo .reply__intro::after { transform-origin: top; animation: draw-down 600ms var(--ease-out) 2900ms both; }
-.reply__envelope { --sd: 150ms; }
-.reply__bloom { --sd: 1300ms; }
+.reply__intro h1 { --w0: 600ms; }
+.reply__intro .lead { --w0: 1050ms; }
+html.mo .reply__intro > .reply__until { animation: brush 640ms var(--ease-out) 1800ms backwards; }
+html.mo .reply__intro::after { transform-origin: top; animation: draw-down 600ms var(--ease-out) 2000ms both; }
+.reply__envelope { --sd: 100ms; }
+.reply__bloom { --sd: 900ms; }
 html.mo .reply__art .tint img { animation: ink var(--t-ink) var(--ease-ink) var(--sd) backwards; }
-html.mo .reply__art .tint::before { animation: settle var(--t-settle) var(--ease-settle) var(--p1) both, paint var(--t-paint) var(--ease-settle) var(--p1) backwards; }
-html.mo .reply__art .tint::after { animation: settle var(--t-settle) var(--ease-settle) var(--p2) both, paint var(--t-paint) var(--ease-settle) var(--p2) backwards; }
 
 /* a stop pops as it turns sage; the check lands in the chosen tile */
 html.mo .step:has(#name:valid)::before, html.mo .step:has(input[name="attending"]:checked)::before { animation: pop 360ms var(--ease-stamp); }
@@ -337,8 +338,6 @@ html.mo .reply-end::before { transform-origin: top; animation: draw-down 400ms v
 html.mo .reply-end::after { animation: drop 420ms var(--ease-stamp) 400ms both; }
 @keyframes drop { from { opacity: 0; scale: 0; } }
 html.mo .reply-end .tint img { animation: ink var(--t-ink) var(--ease-ink) 650ms backwards; }
-html.mo .reply-end .tint::before { animation: settle var(--t-settle) var(--ease-settle) var(--p1) both, paint var(--t-paint) var(--ease-settle) var(--p1) backwards; }
-html.mo .reply-end .tint::after { animation: settle var(--t-settle) var(--ease-settle) var(--p2) both, paint var(--t-paint) var(--ease-settle) var(--p2) backwards; }
 html.mo .reply-end > :not(.tint) { animation: rise 700ms var(--ease-out) 800ms both; }
 html.mo .reply-end > :nth-child(3) { animation-delay: 860ms; }
 html.mo .reply-end > :nth-child(4) { animation-delay: 920ms; }
