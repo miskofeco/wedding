@@ -1,11 +1,14 @@
 // Regenerates public/fills/gown-<n>.png: the dress of the n-th woman (from the
 // left) in public/gowns.svg as a white-on-transparent mask, used as a CSS mask
 // so the palette section can colour one dress at a time (see PaletteStory).
-// Each fill floods the enclosed white areas around the seeds. The drawing's
-// outlines are filled paths, so the area is bounded by the rendered ink, thickened
-// to close the small gaps between strokes; where a gap is wider, `walls` are
-// invisible lines that close it. Seeds are in the drawing's own coordinates. A
-// dress is split into pieces by arms, ribbons and bouquet, so each piece has one.
+// The drawing's outlines are filled paths. Thickened, they close the small gaps
+// between strokes and split the paper into regions; where a gap is wider, `walls`
+// are invisible lines that close it. Every region, the background and the gaps
+// between the women included, then grows back out to the strokes at the same
+// pace, so a closed gap is split down the middle instead of filling with the
+// dress beside it. A dress is the regions around its seeds (in the drawing's own
+// coordinates): arms, ribbons and the bouquet cut it into pieces, so each piece
+// has one.
 // sharp comes with Next.js; it is not a direct dependency.
 import { createRequire } from "node:module";
 import { readFile, mkdir } from "node:fs/promises";
@@ -23,21 +26,27 @@ const K = 2, W = vw * K, H = vh * K;
 const CLOSE = 6;
 
 const gowns = [
-  // skirt, bodice with sleeves, between arm and bouquet, through the bouquet, under it, at the hip
-  { seeds: [[190, 719], [188, 377], [150, 433], [180, 443], [230, 488], [276, 490]] },
-  // skirt, bodice, beside both arms, through the bouquet, at the hip, the back panel of the skirt
-  { seeds: [[349, 713], [338, 384], [307, 425], [363, 451], [384, 479], [342, 491], [415, 435], [427, 502], [441, 671]] },
-  // the bride: skirt and train, bodice, beside the arm, through the bouquet, between the ribbons
-  { seeds: [[545, 783], [516, 400], [569, 427], [494, 468], [523, 484], [554, 491], [542, 459], [505, 508], [529, 564], [506, 575]] },
-  // skirt, bodice, beside both arms, through the bouquet, between the ribbons
-  { seeds: [[700, 700], [675, 377], [731, 413], [617, 429], [667, 457], [637, 473], [649, 556]] },
-  // skirt, bodice, beside both arms, through the bouquet, at the hip
-  { seeds: [[840, 700], [838, 389], [786, 425], [893, 427], [811, 453], [811, 493], [849, 489], [759, 486]] },
-  // dress, between arm and bouquet, through the bouquet
-  { seeds: [[1022, 652], [1081, 433], [1050, 444]] },
+  // skirt, bodice with sleeves, through the bouquet, under it
+  { seeds: [[190, 719], [188, 377], [180, 443], [230, 488]] },
+  // skirt, bodice, through the bouquet
+  { seeds: [[349, 713], [338, 384], [363, 451], [384, 479], [342, 491]] },
+  // the bride: skirt and train, bodice, through the bouquet, between the ribbons
+  { seeds: [[545, 783], [516, 400], [494, 468], [523, 484], [554, 491], [542, 459], [505, 508], [529, 564], [506, 575]] },
+  // skirt, bodice, through the bouquet, between the ribbons
+  { seeds: [[700, 700], [675, 377], [667, 457], [637, 473], [649, 556]] },
+  // skirt, bodice, through the bouquet
+  { seeds: [[840, 700], [838, 389], [811, 453], [811, 493], [849, 489]] },
+  // skirt, bodice with sleeves, through the bouquet
+  { seeds: [[1022, 652], [1040, 380], [1050, 444]] },
 ];
-// The fold between the fourth and fifth skirts stops short of the hem.
-const walls = [[[821, 876], [818, 900]]];
+// The gaps under the arms and between the women are left white.
+const walls = [
+  // the fold between the fourth and fifth skirts stops short of the hem
+  [[821, 876], [818, 900]],
+  // the sixth woman's side has no outline: from her armpit down to a leaf of her bouquet, and on to her skirt
+  [[985, 377], [980, 439]],
+  [[979, 480], [963, 501]],
+];
 
 async function alphaOf(svg) {
   const { data } = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -81,30 +90,39 @@ const drawn = await alphaOf(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${
 const line = ink.map((v, i) => (v || drawn[i] > 60 ? 1 : 0));
 const wall = dilate(line, CLOSE);
 
-await mkdir(outDir, { recursive: true });
+// Number the regions of open paper.
+const region = new Int32Array(W * H);
 const stack = new Int32Array(W * H);
+let regions = 0;
+for (let s = 0; s < W * H; s++) {
+  if (wall[s] || region[s]) continue;
+  region[s] = ++regions;
+  let sp = 0;
+  stack[sp++] = s;
+  while (sp) for (const q of neighbours(stack[--sp])) if (q >= 0 && !wall[q] && !region[q]) { region[q] = regions; stack[sp++] = q; }
+}
+// Grow all of them back out to the strokes together, ring by ring (square and
+// cross rings in turn, so the fronts stay round), never across a stroke. The walls
+// are not drawn, so the regions on either side meet in the middle of them.
+let edge = [];
+for (let p = 0; p < W * H; p++) if (region[p]) edge.push(p);
+for (let k = 0; edge.length; k++) {
+  const next = [];
+  for (const p of edge) for (const q of k % 2 ? neighbours(p) : around(p)) if (q >= 0 && !region[q] && !ink[q]) { region[q] = region[p]; next.push(q); }
+  edge = next;
+}
+
+await mkdir(outDir, { recursive: true });
 for (const [n, g] of gowns.entries()) {
-  const fill = new Uint8Array(W * H);
-  for (const [sx, sy] of g.seeds) {
+  const own = new Set(g.seeds.map(([sx, sy]) => {
     const s = Math.round((sy - oy) * K) * W + Math.round((sx - ox) * K);
     if (wall[s]) throw new Error(`gown ${n + 1}: seed ${sx},${sy} is on a line`);
-    let sp = 0;
-    stack[sp++] = s;
-    fill[s] = 1;
-    while (sp) for (const q of neighbours(stack[--sp])) if (q >= 0 && !wall[q] && !fill[q]) { fill[q] = 1; stack[sp++] = q; }
-  }
-  // Grow back out to the strokes and one pixel under them, so no white seam shows;
-  // colour spreads from open paper only, never across a stroke.
-  let edge = [];
-  for (let p = 0; p < W * H; p++) if (fill[p]) edge.push(p);
-  for (let k = 0; k <= CLOSE; k++) {
-    const next = [];
-    for (const p of edge) {
-      if (line[p]) continue;
-      for (const q of around(p)) if (!fill[q]) { fill[q] = 1; next.push(q); }
-    }
-    edge = next;
-  }
+    return region[s];
+  }));
+  // The dress, and one pixel under the strokes around it so no white seam shows.
+  const fill = new Uint8Array(W * H);
+  for (let p = 0; p < W * H; p++) if (own.has(region[p])) fill[p] = 1;
+  for (let p = 0; p < W * H; p++) if (ink[p] && around(p).some((q) => own.has(region[q]))) fill[p] = 1;
 
   const mask = Buffer.alloc(W * H * 4);
   for (let i = 0; i < W * H; i++) if (fill[i]) mask.writeUInt32BE(0xffffffff, i * 4);
