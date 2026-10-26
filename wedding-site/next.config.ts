@@ -18,9 +18,8 @@ const assetCache = { key: "Cache-Control", value: "public, max-age=86400, stale-
 // opts into the full invitation; the public project keeps the launch switch.
 const variant = process.env.SITE_VARIANT || "public";
 if (variant !== "public" && variant !== "test") throw new Error("SITE_VARIANT must be public or test.");
-if (variant === "test" && (process.env.TEST_SITE_PASSWORD || "").length < 16) {
-  throw new Error("The test site needs TEST_SITE_PASSWORD with at least 16 characters.");
-}
+// The password is validated by the request gate, not while building: Vercel
+// Secrets are write-only and unavailable to a local prebuilt deployment.
 const showComingSoon = comingSoon && process.env.VERCEL_ENV === "production" && variant !== "test";
 
 const nextConfig: NextConfig = {

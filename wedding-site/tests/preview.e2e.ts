@@ -21,7 +21,7 @@ const env = {
 async function build(variant: string) {
   await new Promise<void>((resolve, reject) => {
     let output = "";
-    const child = spawn(process.execPath, [next, "build"], { cwd: root, env: { ...env, SITE_VARIANT: variant }, stdio: ["ignore", "pipe", "inherit"] });
+    const child = spawn(process.execPath, [next, "build"], { cwd: root, env: { ...env, SITE_VARIANT: variant, TEST_SITE_PASSWORD: "" }, stdio: ["ignore", "pipe", "inherit"] });
     child.stdout.on("data", (chunk) => { output += chunk; });
     child.on("error", reject);
     child.on("exit", (code) => code === 0 ? resolve() : reject(new Error(`build ${variant}: ${code}\n${output}`)));

@@ -42,9 +42,19 @@ Enter secrets directly in Vercel. Never commit them or use a `NEXT_PUBLIC_` pref
 
 For **visual preview**, the full invitation and RSVP page render without a test database. Submissions report that answers cannot be received, and the admin cannot sign in without a database. For **working RSVP and admin testing**, connect a separate Turso test database through Vercel Storage and configure the test project's Production variables. Optionally connect a separate test Sheet using `google-sheet/SETUP.md`. A separate database starts with the content defaults in the source files; production admin edits do not automatically copy across. Reusing production database/Sheet credentials would make test submissions and admin edits change real wedding data.
 
-The browser login is **username `test`**, password **the value of `TEST_SITE_PASSWORD`**. It protects the whole test deployment, including assets, form actions, admin and generated `vercel.app` URLs. Admin still requires its own login after this prompt. A test build refuses to build with a missing/short password; at runtime a missing/short password returns 503 rather than opening the site. To sign out of HTTP Basic authentication, close the private browsing session. Changing the password requires a new deploy.
+The browser login is **username `test`**, password **the value of `TEST_SITE_PASSWORD`**. It protects the whole test deployment, including assets, form actions, admin and generated `vercel.app` URLs. Admin still requires its own login after this prompt. At runtime a missing/short password returns 503 rather than opening the site. To sign out of HTTP Basic authentication, close the private browsing session. Changing the password requires a new deploy.
 
 The application supplies this password gate on Hobby. Vercel's separate [built-in Password Protection](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) is a paid Pro/Enterprise feature. Keep the test project's default **Standard Protection** for Vercel Authentication if you want generated deployment URLs to require Vercel login too. If you choose **All Deployments**, visitors to the custom test domain will also need a Vercel account, before the application's password prompt.
+
+### Local builds and Secrets
+
+Set `SITE_VARIANT` and `NEXT_PUBLIC_SITE_URL` as **Config**. Keep passwords, session secrets and Sheet secrets as **Secret**. Vercel doesn't return a Secret's value when pulling Production settings; the CLI writes `[SENSITIVE]`. The deploy script recognizes that marker, so the test password can remain a Secret. It is needed only at runtime, where Vercel supplies the actual value. For a write-only password, the setup check confirms presence; the deployed gate enforces its minimum length.
+
+Database credentials can also stay as Secrets. Without locally readable database credentials, the local build uses source content defaults; Vercel still supplies real database credentials at runtime for RSVP and admin. Saving content through admin refreshes the deployed pages. To include existing admin edits in the initial static build, put database build values in the matching ignored file, `.vercel/build-public.env` or `.vercel/build-test.env`. Only `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` are read from these files, and only when the corresponding Vercel variable is `[SENSITIVE]`. Create them privately in an editor with the credentials from your password manager; keep them out of git and restrict their permissions to your user. No local copy of `TEST_SITE_PASSWORD` is needed. The coming-soon page uses source content and needs neither file.
+
+The script clears the downloaded environment file before each pull because the CLI otherwise preserves keys from the previous project. Each build uses only its own downloaded values and its explicitly selected database build values; original local settings are restored afterwards.
+
+Source: [Vercel Config and Secret variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables).
 
 ## 3. Add the subdomain at Websupport
 

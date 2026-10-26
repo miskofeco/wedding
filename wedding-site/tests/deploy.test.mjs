@@ -9,6 +9,7 @@ import { join } from "node:path";
 
 function release(args = [], overrides = {}) {
   const root = mkdtempSync(join(tmpdir(), "wedding-deploy-test-"));
+  const originalEnv = 'ORIGINAL="keep-this"\nTURSO_DATABASE_URL="libsql://fixture-stale"\n';
   try {
     mkdirSync(join(root, "scripts"));
     mkdirSync(join(root, ".bin"));
@@ -18,22 +19,25 @@ function release(args = [], overrides = {}) {
     writeFileSync(join(root, ".nvmrc"), process.versions.node.split(".")[0]);
     writeFileSync(join(root, ".gitignore"), ".vercel/\n.bin/\ncalls.jsonl\n");
     writeFileSync(join(root, ".vercel/project.json"), '{"original":true}');
-    writeFileSync(join(root, ".vercel/.env.production.local"), 'ORIGINAL="keep-this"\n');
+    writeFileSync(join(root, ".vercel/.env.production.local"), originalEnv);
     writeFileSync(join(root, ".bin/npx"), `#!/usr/bin/env node
 const fs = require("node:fs");
 const args = process.argv.slice(2);
 const command = args[2];
 const project = args[args.indexOf("--project") + 1];
 const variant = project.endsWith("-test") ? "test" : "public";
-fs.appendFileSync("calls.jsonl", JSON.stringify({ command, project, args, variant: process.env.SITE_VARIANT, db: process.env.TURSO_DATABASE_URL }) + "\\n");
+const pulled = fs.existsSync(".vercel/.env.production.local") ? require("node:util").parseEnv(fs.readFileSync(".vercel/.env.production.local", "utf8")) : {};
+fs.appendFileSync("calls.jsonl", JSON.stringify({ command, project, args, variant: process.env.SITE_VARIANT, db: process.env.TURSO_DATABASE_URL, password: process.env.TEST_SITE_PASSWORD, fileHasPlaceholder: Object.values(pulled).includes("[SENSITIVE]") }) + "\\n");
 if (process.env.FAIL_COMMAND === command && process.env.FAIL_TARGET === variant) process.exit(1);
 if (command === "pull") {
   fs.writeFileSync(".vercel/project.json", JSON.stringify({projectName: project}));
   const values = { SITE_VARIANT: process.env.BAD_VARIANT === variant ? "wrong" : variant,
     NEXT_PUBLIC_SITE_URL: variant === "test" ? "https://test.baskamisko.sk" : "https://www.baskamisko.sk",
-    TEST_SITE_PASSWORD: process.env.MISSING_PASSWORD ? "" : "test-fixture-password" };
+    TEST_SITE_PASSWORD: process.env.MISSING_PASSWORD ? "" : process.env.SENSITIVE_PASSWORD ? "[SENSITIVE]" : "test-fixture-password" };
   if (variant === "public") values.TURSO_DATABASE_URL = "libsql://fixture-production";
-  fs.writeFileSync(".vercel/.env.production.local", Object.entries(values).map(([k,v]) => k + "=" + JSON.stringify(v)).join("\\n"));
+  if (process.env.SENSITIVE_DB === variant) values.TURSO_DATABASE_URL = "[SENSITIVE]";
+  const previous = process.env.KEEP_LOCAL_VALUES && fs.existsSync(".vercel/.env.production.local") ? require("node:util").parseEnv(fs.readFileSync(".vercel/.env.production.local", "utf8")) : {};
+  fs.writeFileSync(".vercel/.env.production.local", Object.entries({...previous, ...values}).map(([k,v]) => k + "=" + JSON.stringify(v)).join("\\n"));
 }
 `, { mode: 0o755 });
     const git = (...args) => execFileSync("git", args, { cwd: root, stdio: "ignore" });
@@ -43,12 +47,13 @@ if (command === "pull") {
     git("config", "branch.main.remote", ".");
     git("config", "branch.main.merge", "refs/heads/main");
     if (overrides.HOLD_LOCK) mkdirSync(join(root, ".vercel/deploy.lock"));
+    if (overrides.LOCAL_BUILD_DB) writeFileSync(join(root, ".vercel/build-public.env"), 'TURSO_DATABASE_URL="libsql://fixture-build-public"\n');
     const result = spawnSync(process.execPath, ["scripts/deploy.mjs", ...args], {
       cwd: root, encoding: "utf8",
       env: { ...process.env, PATH: `${join(root, ".bin")}:${process.env.PATH}`, TURSO_DATABASE_URL: "libsql://unwanted-local", ...overrides },
     });
     assert.equal(readFileSync(join(root, ".vercel/project.json"), "utf8"), '{"original":true}');
-    assert.equal(readFileSync(join(root, ".vercel/.env.production.local"), "utf8"), 'ORIGINAL="keep-this"\n');
+    assert.equal(readFileSync(join(root, ".vercel/.env.production.local"), "utf8"), originalEnv);
     assert.equal(existsSync(join(root, ".vercel/deploy.lock")), Boolean(overrides.HOLD_LOCK), "release cleans up its own lock and preserves another release's lock");
     const calls = existsSync(join(root, "calls.jsonl")) ? readFileSync(join(root, "calls.jsonl"), "utf8").trim().split("\n").map(JSON.parse) : [];
     return { ...result, calls };
@@ -99,4 +104,39 @@ test("an overlapping release stops before touching project settings or build out
   assert.equal(result.status, 1);
   assert.match(result.stderr, /another deploy\/check/);
   assert.deepEqual(result.calls, []);
+});
+
+test("a write-only Vercel password passes the setup check without needing its value locally", () => {
+  const result = release(["--check"], { SENSITIVE_PASSWORD: "1" });
+  assert.equal(result.status, 0, result.stderr);
+  assert.ok(result.calls.every((c) => c.command === "pull"));
+});
+
+test("write-only passwords stay out of both local build inputs and are left to Vercel at runtime", () => {
+  const result = release([], { SENSITIVE_PASSWORD: "1" });
+  assert.equal(result.status, 0, result.stderr);
+  for (const build of result.calls.filter((c) => c.command === "build")) {
+    assert.equal(build.password, "");
+    assert.equal(build.fileHasPlaceholder, false);
+  }
+});
+
+test("Vercel pull cannot carry production credentials into a test project with no database", () => {
+  const result = release([], { KEEP_LOCAL_VALUES: "1" });
+  assert.equal(result.status, 0, result.stderr);
+  const testBuild = result.calls.find((c) => c.command === "build" && c.project === "wedding-site-test");
+  assert.equal(testBuild.db, "");
+});
+
+test("write-only database settings build source defaults or use target-specific local build values", () => {
+  const missing = release([], { SENSITIVE_DB: "public" });
+  assert.equal(missing.status, 0, missing.stderr);
+  assert.match(missing.stdout, /source content defaults/);
+  const publicBuild = missing.calls.find((c) => c.command === "build" && c.project === "wedding-site");
+  assert.equal(publicBuild.db, "");
+  assert.equal(publicBuild.fileHasPlaceholder, false);
+  const configured = release([], { SENSITIVE_DB: "public", LOCAL_BUILD_DB: "1" });
+  assert.equal(configured.status, 0, configured.stderr);
+  const builds = configured.calls.filter((c) => c.command === "build");
+  assert.deepEqual(builds.map((c) => [c.variant, c.db]), [["test", ""], ["public", "libsql://fixture-build-public"]]);
 });

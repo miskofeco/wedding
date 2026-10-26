@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const VERCEL = "vercel@63.1.2";
+const sensitivePlaceholder = "[SENSITIVE]";
 
 function stop(message) {
   console.error(`Not deploying: ${message}`);
@@ -80,6 +81,9 @@ try {
   for (const name of names) {
     const target = targets[name];
     console.log(`Checking ${name}: ${target.project} → ${target.url}`);
+    // The CLI merges in keys from an existing file, even if that file belongs
+    // to a different project. Pull into an empty file set; restore originals below.
+    rmSync(path.join(root, files[1]), { force: true });
     vercel(target.project, ["pull", "--yes", "--environment=production"]);
     const state = snapshot();
     if (!state[0] || !state[1]) throw new Error(`Missing pulled settings for ${target.project}.`);
@@ -88,7 +92,30 @@ try {
     const env = parseEnv(state[1].toString());
     if (env.SITE_VARIANT !== name) throw new Error(`Set SITE_VARIANT=${name} in ${target.project} → Settings → Environment Variables → Production.`);
     if (env.NEXT_PUBLIC_SITE_URL !== target.url) throw new Error(`Set NEXT_PUBLIC_SITE_URL=${target.url} in ${target.project} (Production).`);
-    if (name === "test" && (env.TEST_SITE_PASSWORD || "").length < 16) throw new Error("Set TEST_SITE_PASSWORD (at least 16 characters) in wedding-site-test (Production).");
+    if (name === "test") {
+      if (env.TEST_SITE_PASSWORD === sensitivePlaceholder) {
+        console.log("TEST_SITE_PASSWORD is configured as a Vercel Secret. Its value stays on Vercel; the deployed site enforces the 16-character minimum.");
+      } else if ((env.TEST_SITE_PASSWORD || "").length < 16) {
+        throw new Error("Set TEST_SITE_PASSWORD (at least 16 characters) in wedding-site-test (Production).");
+      }
+    }
+    // Optional local database values include admin-edited content in the first
+    // static render. Without them, build source defaults and keep DB access on
+    // Vercel; never send the placeholder as a database URL or token.
+    const localBuildPath = path.join(root, `.vercel/build-${name}.env`);
+    const buildSecrets = existsSync(localBuildPath) ? parseEnv(readFileSync(localBuildPath, "utf8")) : {};
+    let unavailableDatabaseSecret = false;
+    for (const key of ["TURSO_DATABASE_URL", "TURSO_AUTH_TOKEN"]) {
+      if (env[key] === sensitivePlaceholder) {
+        if (buildSecrets[key] && buildSecrets[key] !== sensitivePlaceholder) env[key] = buildSecrets[key];
+        else unavailableDatabaseSecret = true;
+      }
+    }
+    if (unavailableDatabaseSecret) {
+      env.TURSO_DATABASE_URL = "";
+      env.TURSO_AUTH_TOKEN = "";
+      console.log(`Database Secrets stay on Vercel. ${target.project} will build with source content defaults; to include admin edits in the initial build, add database build values in .vercel/build-${name}.env (see DEPLOYMENT.md).`);
+    }
     prepared.push({ name, target, state, env });
   }
   if (checkOnly) console.log("Both selected project settings are ready. Nothing was deployed.");
@@ -96,6 +123,11 @@ try {
     for (const { name, target, state, env } of prepared) {
       console.log(`Building and deploying ${name}: ${target.url}`);
       restore(state);
+      // Runtime-only Secrets are injected by Vercel when it runs the deployment.
+      // They aren't required to build pages and placeholders must never be used
+      // as credentials locally. Rewrite the file too: vercel build reads it again.
+      const localEnv = Object.fromEntries(Object.entries(env).map(([key, value]) => [key, value === sensitivePlaceholder ? "" : value]));
+      writeFileSync(path.join(root, files[1]), Object.entries(localEnv).map(([key, value]) => `${key}=${JSON.stringify(value)}`).join("\n"), { mode: 0o600 });
       // Empty optional values stop .env.local from leaking development database
       // or Sheet settings into a target that deliberately leaves them unset.
       const buildEnv = {
@@ -103,7 +135,7 @@ try {
         TURSO_DATABASE_URL: "", TURSO_AUTH_TOKEN: "",
         RSVP_SHEET_URL: "", RSVP_SHEET_SECRET: "", RSVP_SHEET_VIEW_URL: "",
         ADMIN_PASSWORD: "", ADMIN_SESSION_SECRET: "", TEST_SITE_PASSWORD: "",
-        ...env,
+        ...localEnv,
         VERCEL_ENV: "production",
       };
       vercel(target.project, ["build", "--prod"], { env: buildEnv });
