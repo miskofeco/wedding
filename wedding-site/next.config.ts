@@ -14,14 +14,20 @@ const securityHeaders = [
 // forever: a day fresh, then a week served while the browser checks for a new one.
 const assetCache = { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" };
 
-// Until the invitation opens, production answers every guest page with „Pripravujeme“
-// (content/launch.ts). Decided when the site is built: `npm run deploy` builds with the
-// production settings from `vercel pull`, which include VERCEL_ENV. Local builds and
-// preview deploys keep the full site.
-const showComingSoon = comingSoon && process.env.VERCEL_ENV === "production";
+// Both projects use Vercel's Production environment. The test project explicitly
+// opts into the full invitation; the public project keeps the launch switch.
+const variant = process.env.SITE_VARIANT || "public";
+if (variant !== "public" && variant !== "test") throw new Error("SITE_VARIANT must be public or test.");
+if (variant === "test" && (process.env.TEST_SITE_PASSWORD || "").length < 16) {
+  throw new Error("The test site needs TEST_SITE_PASSWORD with at least 16 characters.");
+}
+const showComingSoon = comingSoon && process.env.VERCEL_ENV === "production" && variant !== "test";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Freeze the non-secret variant into the build: removing a runtime variable
+  // must never turn a protected test build into a public one. Never put passwords here.
+  env: { SITE_VARIANT: variant },
   experimental: {
     // Down from 1 MB, so junk uploads cost less. The largest real bodies are a content
     // save (the action takes up to 100,000 characters of JSON, ~200 kB of Slovak text)

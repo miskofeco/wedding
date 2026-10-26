@@ -98,41 +98,25 @@ Plain HTTP to localhost and a local database file are accepted only outside prod
 
 ## Deploy to Vercel
 
-Production: https://www.baskamisko.sk (`baskamisko.sk` redirects to it). The domain is registered at Websupport, whose DNS keeps an A record for `@` and a CNAME for `www` with the values shown in Vercel → Settings → Domains; `NEXT_PUBLIC_SITE_URL` is `https://www.baskamisko.sk`.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the complete Vercel and Websupport setup.
 
-The photos, palette masks and share image are not in git, so Vercel can't build from the repository. The site is built on this machine and the finished build is uploaded. `vercel.json` turns off deploys on git push, so pushes never trigger a build that would fail.
-
-Once:
-
-1. Create the project: import the repository at vercel.com/new with Root Directory `wedding-site` (its first build fails on the missing photos, as it should), or run `npx vercel@63.1.2 link` in `wedding-site/`. Either way, link this machine to it with `npx vercel@63.1.2 login` and `npx vercel@63.1.2 link`.
-2. Under Storage add a Turso database from the Marketplace and connect it to the project for Production (it adds `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN`). Under Settings → Environment Variables add the five variables from `google-sheet/SETUP.md` for Production.
-3. Under Settings → General → Node.js Version choose 24.x (the same as `.nvmrc`).
-4. Under Settings → Functions set the Function Region to the database's region (Dublin `dub1` for a Turso database in Ireland).
-5. Under Firewall add one rate-limit rule (the free plan allows one, with a window of at most 10 minutes): if Request Method equals `POST`, on any path, rate limit 60 requests per IP per 10 minutes, then deny. Don't narrow it to `/rsvp` or `/admin/login`: the login and the RSVP form are server actions, which Next.js runs for a POST to any page that carries a `Next-Action` header. The limit leaves room for editing in `/admin`, where every save is a POST too; the login's own limit (8 tries per address per 15 minutes) is in the database.
-6. Optional: add a custom domain under Settings → Domains.
-
-Every deploy, from `wedding-site/` with Node 24, the version Vercel runs (`nvm install` once, then `nvm use`; the deploy refuses any other major version):
+- `baskamisko.sk` redirects to `www.baskamisko.sk`: project `wedding-site`, the public coming-soon page while `comingSoon` in `src/content/launch.ts` is true.
+- `test.baskamisko.sk`: project `wedding-site-test`, the full invitation behind a browser password prompt (username `test`, server-only `TEST_SITE_PASSWORD`). Admin has its own separate login.
+- Both use Vercel's **Production** environment, with `SITE_VARIANT=public` and `SITE_VARIANT=test` respectively. The test variant is fixed into its build and stays protected on every hostname.
+- Git pushes don't deploy. Photos and masks aren't in git, so build and upload from this computer, with Node 24.
 
 ```bash
-npm run photos     # only if the photos changed
-npm run fills      # only if public/gowns.svg changed
-npm run og         # only if the share image changed
-npm run deploy     # pulls the settings, builds here, uploads the build to production
+npm run deploy:check  # validate both projects' settings without deploying
+npm run deploy        # build and deploy test, then public, from the same pushed commit
+npm run deploy:public # update only the public site
+npm run deploy:test   # update only the protected full site
 ```
 
-`npm run deploy` (`scripts/deploy.mjs`) refuses to start while `wedding-site/` has uncommitted or untracked changes, or while the branch has commits that aren't pushed, so production always matches a pushed commit. The short commit hash is recorded on the deployment (`commit` under the deployment's metadata in Vercel). Changes outside `wedding-site/` don't count.
+Site changes must be committed and pushed before deploying. Assets can be regenerated with `npm run photos`, `npm run fills`, or `npm run og` when needed. The script checks both projects before either deploy, selects project/team explicitly, and restores the original local Vercel settings afterwards. The two releases are sequential; a later failure doesn't roll back an earlier successful release.
 
-**Rollback:** in Vercel → Deployments, open the previous production deployment and choose „Promote to Production“ (or `npx vercel@63.1.2 promote <deployment-url>`). It switches back at once, without a build. Answers, invitations and content edited in `/admin` live in the database, so nothing is lost. The promoted build's guest pages show the content as it was when that build was made, until the next save in „Obsah webu“ refreshes them.
+Use a separate test database and Sheet for working RSVP/admin testing. Without them, the invitation can be previewed, but submissions and admin login are unavailable. Reusing production credentials makes test changes affect real data.
 
-After the first deploy, submit one test RSVP, check it appears in `/admin` and in the Sheet, then delete it. While „Pripravujeme“ is on, `/rsvp` is closed in production, so add the test answer in `/admin` → Odpovede → „Pridať odpoveď“ instead.
-
-### „Pripravujeme“ (coming soon)
-
-While `comingSoon` in `src/content/launch.ts` is `true`, production shows only `/pripravujeme`: a rewrite in `next.config.ts` sends every guest page to it, `/rsvp` included (sending an answer is refused too). `/admin`, `/svadba.ics` (the page's calendar button), drawings, the share image and Next.js assets stay reachable. The address bar keeps the URL the guest opened. The rewrite is fixed when the site is built: `npm run deploy` builds with `VERCEL_ENV=production` from `vercel pull`, so local builds and preview deploys always show the full site; open `/pripravujeme` there to see the page. To open the invitation, set `comingSoon` to `false` and deploy.
-
-The guest pages are static. The build reads the edited content from the production database (`vercel pull` brings the Turso variables), and saving in „Obsah webu“ rebuilds them on Vercel on the next visit, so content edits need no deploy.
-
-The site asks search engines not to index it (`robots: noindex`), because it is a private invitation.
+Public launch: set `comingSoon` to `false`, commit, push, deploy. The test site stays protected. Content saved through each project's admin refreshes that project's pages without a deploy. Rollback is per project in Vercel → Deployments → Promote to Production.
 
 ## Structure
 

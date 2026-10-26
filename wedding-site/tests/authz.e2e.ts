@@ -28,6 +28,8 @@ const env = {
   RSVP_SHEET_SECRET: "",
   RSVP_SHEET_VIEW_URL: "",
   VERCEL_ENV: "",
+  SITE_VARIANT: "public",
+  TEST_SITE_PASSWORD: "",
 };
 
 const freePort = () =>

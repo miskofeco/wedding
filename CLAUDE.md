@@ -14,15 +14,11 @@ Commit your own work to `main` without being asked, and push to `origin main` af
 
 ## Deploy
 
-Production is **https://www.baskamisko.sk** (`baskamisko.sk` redirects there): Vercel project `wedding-site` on the free plan, a Turso database connected to Production only, DNS at Websupport (A `@` → Vercel, CNAME `www` → Vercel). Full steps and settings: [wedding-site/README.md](wedding-site/README.md) → Deploy.
+For deployment setup, DNS changes, preview access or releases, read [wedding-site/DEPLOYMENT.md](wedding-site/DEPLOYMENT.md). Production is **https://www.baskamisko.sk** (`baskamisko.sk` redirects there), project `wedding-site`. The full invitation at **https://test.baskamisko.sk** uses a separate project, `wedding-site-test`, with an application password gate on the free plan. DNS stays at Websupport.
 
-- **Git pushes don't deploy** (`vercel.json`). The photos and palette masks aren't in git, so the site is built on this machine and the build is uploaded. From `wedding-site/` with Node 24:
-  ```bash
-  npm run deploy
-  ```
-  It runs `vercel pull`, `vercel build --prod` and `vercel deploy --prebuilt --prod`. Run `npm run photos`, `npm run fills` or `npm run og` (the link preview image) first only if those assets changed.
-- **Deploy when the user asks**, and only a committed and pushed state, so production always matches a commit on `main`.
-- **Afterwards** check that https://www.baskamisko.sk and `/admin/login` answer, and report the deployment URL. If the build fails, report the error; don't deploy around it.
-- **„Pripravujeme“:** while `comingSoon` in `wedding-site/src/content/launch.ts` is `true`, production shows only the coming-soon page (a build-time rewrite in `next.config.ts`); `/admin` stays open. Switch it off only when the user says so, then deploy.
-- **Settings** live in Vercel → Settings → Environment Variables (Production). `NEXT_PUBLIC_*` values are Config and built into the pages, so deploy after changing one. Keep `RELEASE-CHECKLIST.md` (local only) in step when variables change.
-- Content edited in `/admin` → „Obsah webu“ goes live without a deploy.
+- **Git pushes don't deploy** (`vercel.json`). The photos and palette masks aren't in git, so builds run on this machine with Node 24. From `wedding-site/`, `npm run deploy` validates both projects, then builds and deploys test followed by public. `deploy:check` validates settings only; `deploy:public` and `deploy:test` update one target. Project names and team are in `deploy-targets.json`.
+- **Deploy when the user asks**, and only a committed and pushed state. Verify the requested project/team and report the deployment URLs and any partial release.
+- **Afterwards** verify the public coming-soon page and `/admin/login`, and that the test site refuses anonymous requests and opens the invitation with its test credentials. Its password does not grant an admin session.
+- **„Pripravujeme“:** while `comingSoon` in `wedding-site/src/content/launch.ts` is `true`, the public Production build shows only the coming-soon page; `/admin` stays open. Switch it off only when the user says so. `SITE_VARIANT=test` bypasses that rewrite and requires `TEST_SITE_PASSWORD`; its variant is fixed into the build so a missing runtime setting cannot expose the test site.
+- **Settings** live in each Vercel project's Production environment. Public uses `SITE_VARIANT=public`; test uses `SITE_VARIANT=test`. Keep passwords server-only and separate test data from the production database/Sheet. See the deployment guide for a visual preview without a test database.
+- Content edited through each project's `/admin` refreshes that project's pages without a deploy. `NEXT_PUBLIC_*` settings need a new build.
