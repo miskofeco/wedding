@@ -88,9 +88,6 @@ export function GoldenHour() {
           <p className="wx__watch rv" style={{ "--d": "450ms" } as CSSProperties}>
             <b>{weather.watch[0]}</b> {tie(weather.watch[1])}
           </p>
-          <p className="wx__rain rv" style={{ "--d": "550ms" } as CSSProperties}>
-            {tie(weather.rain)}
-          </p>
           <ul className="wx__pack rv" style={{ "--d": "650ms" } as CSSProperties} aria-label="Čo si pribaliť">
             {weather.pack.map((t) => (
               <li key={t}>{t}</li>

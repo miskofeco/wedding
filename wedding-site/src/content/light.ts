@@ -76,6 +76,5 @@ export const weather = {
     { at: "O 23:00", lo: 14, hi: 16, colour: "blue" },
     { at: "Nad ránom", lo: 10, hi: 13, colour: "olive" },
   ] satisfies WeatherSlot[],
-  rain: "29. mája aspoň trochu pršalo v 7 z 15 rokov a koncom mája občas príde aj búrka. Bývali tu dni s 11\u00a0°C, ale aj s 30\u00a0°C.",
   pack: ["Dáždnik do auta", "Topánky aj na trávu", "Niečo ľahké na teplé popoludnie"],
 };

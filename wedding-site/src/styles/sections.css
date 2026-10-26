@@ -330,7 +330,6 @@
 .wx__copy p { text-wrap: pretty; }
 .wx__watch b { font-weight: 600; }
 .wx__watch::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; background: var(--butter); }
-.wx__rain { color: var(--ink-soft); font-size: var(--text-small); }
 .wx__pack { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
 .wx__pack li { padding: 8px 14px; border-radius: var(--btn-radius); background: var(--surface-quiet); font-size: var(--text-small); font-weight: 500; }
 .wx__chart { --bar: clamp(120px, 12vw, 170px); position: relative; }
