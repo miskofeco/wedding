@@ -221,9 +221,11 @@
 .sun-run[data-held]::after { content: ""; display: block; height: var(--walk); }
 .sun-run[data-held] .sun-stage { position: sticky; top: var(--stage-top, var(--nav-h)); }
 
-/* the sky: one flat palette field per phase of light, as wide as it lasts; the land is the real horizon. It leaves
-   room on the screen for the slider and the readout, so the whole stage can be held */
-.sky { position: relative; height: clamp(300px, min(40vw, 100svh - var(--nav-h) - 300px), 600px); }
+/* the sky: one flat palette field per phase of light, as wide as it lasts; the land is the real horizon. It is a
+   panorama that leaves the screen room for the slider and the readout band with the compass, so the whole stage
+   is in view at once and can be held */
+.sun-stage { --compass: clamp(220px, 36svh, 340px); }
+.sky { position: relative; height: clamp(220px, 100svh - var(--nav-h) - var(--compass) - 190px, 520px); }
 .sky svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .sky__road { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .sky__road--under { stroke: var(--white); }
@@ -264,18 +266,45 @@
 .scrub__ticks { position: relative; height: 22px; color: var(--ink-soft); font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 .scrub__ticks span { position: absolute; translate: -50% 0; }
 
-/* the readout: time · what is happening · the numbers */
-.read { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 12px clamp(24px, 4vw, 64px); margin-top: clamp(20px, 3vw, 36px); }
-.read__time { position: relative; min-width: 4.1ch; font-family: var(--font-display); font-weight: 600; font-size: clamp(3.4rem, 2rem + 5vw, 7rem); line-height: 0.86; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+/* the readout band: the time, what is happening and the numbers on the left, the compass on the right */
+.read { display: grid; grid-template-columns: auto minmax(0, 1fr) var(--compass); grid-template-areas: "time phase compass" "facts facts compass"; align-items: center; gap: 18px clamp(24px, 4vw, 64px); margin-top: clamp(8px, 1.4vw, 18px); }
+.read__time { grid-area: time; position: relative; min-width: 4.1ch; font-family: var(--font-display); font-weight: 600; font-size: clamp(3.4rem, 2rem + 4.4vw, 6.4rem); line-height: 0.86; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .read__now { position: absolute; bottom: 100%; left: 0; margin-bottom: 10px; padding: 6px 12px; border-radius: var(--btn-radius); background: var(--butter); font: 600 var(--text-caption) / 1.2 var(--font-text); letter-spacing: 0; white-space: nowrap; }
-.read__phases { display: grid; }
+.read__phases { grid-area: phase; display: grid; }
 .read__phases > div { grid-area: 1 / 1; visibility: hidden; }
 .read__phases > .on { visibility: visible; }
 .read__phase { font-family: var(--font-display); font-weight: 600; font-size: var(--text-h3); line-height: 1.05; }
-.read__say { max-width: 44ch; margin-top: 8px; text-wrap: pretty; }
-.read__facts { display: flex; gap: 28px; font-variant-numeric: tabular-nums; }
+.read__say { max-width: 40ch; margin-top: 8px; text-wrap: pretty; }
+.read__facts { grid-area: facts; align-self: start; display: flex; gap: 28px; font-variant-numeric: tabular-nums; }
 .read__facts dt { color: var(--ink-soft); font-size: var(--text-small); }
 .read__facts dd { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; letter-spacing: -0.01em; white-space: nowrap; }
+
+/* the compass: the barn from above inside the day's arc; the evening's stretch wears the sky's fields */
+.compass { grid-area: compass; position: relative; width: var(--compass); }
+.compass svg { display: block; width: 100%; height: auto; overflow: visible; }
+.compass__ground { fill: var(--ivory); }
+.compass__day { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.compass__phase { fill: none; stroke-width: 26; }
+.compass__ray { stroke: var(--butter); stroke-width: 9; stroke-linecap: round; }
+.compass__barn { fill: var(--ink); }
+.compass__glass { stroke: var(--butter); stroke-width: 7; stroke-linecap: round; }
+.compass__rail { fill: none; stroke: transparent; stroke-width: 84; pointer-events: stroke; cursor: grab; touch-action: none; }
+.compass__sun { cursor: grab; touch-action: none; }
+.compass:active :is(.compass__rail, .compass__sun) { cursor: grabbing; }
+.compass__plate { fill: var(--apricot); }
+.compass__disc { fill: var(--butter); stroke: var(--ink); stroke-width: var(--route-width); vector-effect: non-scaling-stroke; }
+.compass__grip { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.compass__sun--down .compass__plate { fill: none; }
+.compass__sun--down .compass__disc { fill: var(--ivory); }
+/* labels in HTML over the drawing, so they keep the page's text sizes at any size of the compass */
+.compass__labels > * { position: absolute; line-height: 1.2; white-space: nowrap; pointer-events: none; }
+.compass__cardinal { translate: -50% -50%; font-weight: 600; font-size: var(--text-caption); }
+.compass__note { font-size: var(--text-caption); }
+.compass__note b { font-weight: 600; }
+.compass__note--rise { translate: -100% -50%; }
+.compass__note--set { translate: -100% -50%; }
+.compass__note--barn { translate: 0 -100%; }
+.compass__note--glass { translate: -50% 0; text-align: center; }
 
 /* the moments as a list: phones see it, from 901px the sky's labels carry them and it stays for screen readers */
 .moments { list-style: none; display: grid; gap: 14px; margin-top: 32px; }
@@ -284,25 +313,8 @@
 .moment b { font-variant-numeric: tabular-nums; }
 .moment span { text-wrap: pretty; }
 
-/* where the light comes from: the compass beside the words and three tips */
-.where { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: clamp(32px, 6vw, 96px); padding-block: clamp(56px, 8vw, 120px) clamp(40px, 5vw, 72px); }
-.compass { justify-self: center; width: min(100%, 520px); }
-.compass svg { display: block; width: 100%; height: auto; overflow: visible; }
-.compass__ground { fill: var(--ivory); }
-.compass__day { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; }
-.compass__gold, .compass__late { fill: none; stroke-width: 22; stroke-linecap: round; }
-.compass__gold { stroke: var(--butter); }
-.compass__late { stroke: var(--apricot); }
-.compass__ray { stroke: var(--butter); stroke-width: 9; stroke-linecap: round; }
-.compass__barn { fill: var(--ink); }
-.compass__glass { stroke: var(--butter); stroke-width: 6; stroke-linecap: round; }
-.compass__plate { fill: var(--apricot); }
-.compass__disc { fill: var(--butter); stroke: var(--ink); stroke-width: var(--route-width); }
-.compass__sun--down .compass__plate { fill: none; }
-.compass__sun--down .compass__disc { fill: var(--ivory); }
-.compass__cardinal, .compass__note { font-family: var(--font-text); fill: var(--ink); }
-.compass__cardinal { font-size: 18px; font-weight: 600; text-anchor: middle; dominant-baseline: central; }
-.compass__note { font-size: 15px; dominant-baseline: central; }
+/* where the light comes from: the words beside three tips */
+.where { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: start; gap: clamp(32px, 6vw, 96px); padding-block: clamp(56px, 8vw, 120px) clamp(24px, 3vw, 40px); }
 .where__copy { display: grid; gap: 18px; max-width: 52ch; }
 .where__copy h3 { margin-bottom: 14px; }
 .where__copy p { text-wrap: pretty; }
@@ -325,18 +337,21 @@
 @media (min-width: 901px) { .moments { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 @media (max-width: 900px) {
   .gold__head, .where { grid-template-columns: 1fr; }
-  .read { grid-template-columns: auto minmax(0, 1fr); }
-  .read__facts { grid-column: 1 / -1; }
+  .sun-stage { --compass: clamp(150px, 30vw, 240px); }
+  .read { grid-template-columns: minmax(0, 1fr) var(--compass); grid-template-areas: "time compass" "phase compass" "facts facts"; align-items: end; column-gap: 16px; }
+  .read__phases { align-self: start; }
   /* the fields are too narrow for their names: the list below carries the moments */
   .sky__lab, .sky__lantern, .sky__moon, .sky__ground, .sky__deg, .sky__depth { display: none; }
 }
 @media (max-width: 760px) {
   .sun-run { --walk: 130svh; }
-  .sky { height: clamp(200px, 100svh - var(--nav-h) - 400px, 300px); }
-  .read { grid-template-columns: 1fr; gap: 10px; }
+  .sky { height: clamp(150px, 100svh - var(--nav-h) - 380px, 260px); }
+  .read { row-gap: 8px; }
   .read__facts { gap: 22px; }
   .read__say { font-size: var(--text-small); }
   .read__facts dd { font-size: 1.35rem; }
+  /* the compass is small here: north alone, the words below describe the rest */
+  .compass__note, .compass__cardinal:not(:first-child) { display: none; }
   .tip { grid-template-columns: 112px 1fr; gap: 14px; }
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type PointerEvent, type ReactNode } from "react";
 import type { LightPhase } from "@/content/light";
 import type { SunDay } from "@/content/types";
 import { clock, shadowLength } from "@/lib/sun";
@@ -309,66 +309,130 @@ export function SunLive({ day, phases, sliderLabel, moments, lantern, children }
                 <dd>{shadow}</dd>
               </div>
             </dl>
+            <Compass day={day} phases={phases} azimuth={az} lit={lit} up={el > -0.833} onPick={choose} />
           </div>
         </div>
       </div>
 
       {moments}
 
-      <div className="wrap where">
-        <Compass day={day} azimuth={az} lit={lit} up={el > -0.833} />
-        <div className="where__copy">{children}</div>
-      </div>
+      <div className="wrap where">{children}</div>
     </>
   );
 }
 
-const xy = ([x, y]: number[]) => ({ x, y });
 const S = 520;
 const C = S / 2;
-const R = 214;
+const R = 206;
+const PX = 4.4; // the barn's scale, per metre
 const point = (az: number, r: number) => [C + r * Math.sin((az * Math.PI) / 180), C - r * Math.cos((az * Math.PI) / 180)];
 const arc = (from: number, to: number, r: number) => {
   const [x0, y0] = point(from, r);
   const [x1, y1] = point(to, r);
   return `M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${to - from > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
 };
+/** A point in the drawing as a share of its box, for the labels set over it in HTML. */
+const at = ([px, py]: number[]) => ({ left: `${((px / S) * 100).toFixed(2)}%`, top: `${((py / S) * 100).toFixed(2)}%` });
 
-/** The barn from above, north up, to scale; the day's arc of the sun around it and the light on the glass wall. */
-function Compass({ day, azimuth, lit, up }: { day: SunDay; azimuth: number; lit: boolean; up: boolean }) {
+interface CompassProps {
+  day: SunDay;
+  phases: LightPhase[];
+  azimuth: number;
+  lit: boolean;
+  up: boolean;
+  /** The minute whose sun is nearest where the guest drags it on the ring. */
+  onPick: (minute: number) => void;
+}
+
+/**
+ * The barn from above, north up, to scale (its OpenStreetMap footprint), the day's arc of the sun around it and the
+ * light on the glass wall. The evening's stretch of the arc wears the sky's fields, and the sun can be dragged along
+ * it; the slider above stays the control for the keyboard.
+ */
+function Compass({ day, phases, azimuth, lit, up, onPick }: CompassProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
   const e = day.events;
   const barn = useMemo(() => {
     const lat0 = day.barn.reduce((s, p) => s + p[0], 0) / day.barn.length;
     const lng0 = day.barn.reduce((s, p) => s + p[1], 0) / day.barn.length;
     const kx = 111320 * Math.cos((lat0 * Math.PI) / 180);
     const ky = 110540;
-    const px = 4.4; // per metre
-    return day.barn.map(([lat, lng]) => [C + (lng - lng0) * kx * px, C - (lat - lat0) * ky * px]);
+    const m = day.barn.map(([lat, lng]) => [(lng - lng0) * kx, (lat - lat0) * ky]);
+    // the first edge is the glazed gable; the barn's length runs square to it
+    const [g0, g1] = m;
+    const glass = Math.hypot(g1[0] - g0[0], g1[1] - g0[1]);
+    const ax = [(g1[1] - g0[1]) / glass, -(g1[0] - g0[0]) / glass];
+    const along = m.map((p) => p[0] * ax[0] + p[1] * ax[1]);
+    return {
+      points: m.map(([x, y]) => [C + x * PX, C - y * PX]),
+      glass: Math.round(glass),
+      length: Math.round(Math.max(...along) - Math.min(...along)),
+    };
   }, [day]);
+  const [g0, g1] = barn.points;
+  const glassMid = [(g0[0] + g1[0]) / 2, (g0[1] + g1[1]) / 2];
+  const north = Math.min(...barn.points.map((p) => p[1]));
+  const south = Math.max(...barn.points.map((p) => p[1]));
+  const azOf = (m: number) => day.track[m - day.from][1];
+  const startOf = (p: LightPhase) => (p.from === "start" ? day.from : e[p.from].at);
   const [sx, sy] = point(azimuth, R);
   const ux = Math.sin((azimuth * Math.PI) / 180);
   const uy = -Math.cos((azimuth * Math.PI) / 180);
-  const label = `Stodola zhora, sever hore. Slnko vychádza na severovýchode o ${clock(e.sunrise.at)} (${Math.round(e.sunrise.azimuth)}°) a zapadá na severozápade o ${clock(e.sunset.at)} (${Math.round(e.sunset.azimuth)}°). Počas zlatej hodiny svieti zo smeru ${Math.round(e.goldenStart.azimuth)}° až ${Math.round(e.behindHill.azimuth)}° na presklenú západnú stenu.`;
+  const label = `Stodola zhora, sever hore, dlhá ${barn.length} metrov. Slnko vychádza na severovýchode o ${clock(e.sunrise.at)} (${Math.round(e.sunrise.azimuth)}°) a zapadá na severozápade o ${clock(e.sunset.at)} (${Math.round(e.sunset.azimuth)}°). Počas zlatej hodiny svieti zo smeru ${Math.round(e.goldenStart.azimuth)}° až ${Math.round(e.behindHill.azimuth)}° šikmo na presklenú západnú stenu sály, širokú ${barn.glass} metrov.`;
+
+  // dragging: the pointer's direction from the barn picks the evening minute whose sun stands nearest it
+  const pick = (ev: PointerEvent) => {
+    const svg = svgRef.current;
+    const m = svg?.getScreenCTM();
+    if (!svg || !m) return;
+    const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse());
+    const want = ((Math.atan2(p.x - C, C - p.y) * 180) / Math.PI + 360) % 360;
+    let best = day.from;
+    let gap = Infinity;
+    for (let t = day.from; t <= day.to; t++) {
+      const d = Math.abs(((azOf(t) - want + 540) % 360) - 180);
+      if (d < gap) [best, gap] = [t, d];
+    }
+    onPick(best);
+  };
+  const grab = (ev: PointerEvent) => {
+    if (ev.button !== 0) return;
+    ev.preventDefault();
+    svgRef.current?.setPointerCapture(ev.pointerId);
+    pick(ev);
+  };
+  const drag = (ev: PointerEvent) => {
+    if (svgRef.current?.hasPointerCapture(ev.pointerId)) pick(ev);
+  };
 
   return (
-    <div className="compass rv rv--ink">
-      <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label={label}>
+    <div className="compass rv rv--ink" style={{ "--d": "300ms" } as CSSProperties}>
+      <svg ref={svgRef} viewBox={`0 0 ${S} ${S}`} role="img" aria-label={label} onPointerMove={drag}>
         <circle className="compass__ground" cx={C} cy={C} r={R + 34} />
-        <path className="compass__day" d={arc(e.sunrise.azimuth, e.sunset.azimuth, R)} />
-        <path className="compass__gold" d={arc(e.goldenStart.azimuth, e.behindHill.azimuth, R)} />
-        <path className="compass__late" d={arc(e.behindHill.azimuth, e.sunset.azimuth, R)} />
+        <path className="compass__day" d={arc(e.sunrise.azimuth, azOf(e.goldenStart.at), R)} />
+        {/* the evening in the sky's colours, from the golden hour to the end of the sky */}
+        {phases.map((p, n) => {
+          const a = Math.max(startOf(p), e.goldenStart.at);
+          const b = n + 1 < phases.length ? startOf(phases[n + 1]) : day.to;
+          return b > a ? <path key={p.name} className="compass__phase" d={arc(azOf(a), azOf(b), R)} style={{ stroke: `var(--${p.colour})` }} /> : null;
+        })}
         {lit &&
           [-2, -1, 0, 1, 2].map((k) => {
-            const ox = C - uy * k * 18;
-            const oy = C + ux * k * 18;
-            return <line key={k} className="compass__ray" x1={ox + ux * 180} y1={oy + uy * 180} x2={ox} y2={oy} />;
+            const ox = C - uy * k * 16;
+            const oy = C + ux * k * 16;
+            return <line key={k} className="compass__ray" x1={ox + ux * 170} y1={oy + uy * 170} x2={ox} y2={oy} />;
           })}
-        <polygon className="compass__barn" points={barn.map((p) => p.map((v) => v.toFixed(1)).join(",")).join(" ")} />
-        <line className="compass__glass" x1={barn[0][0]} y1={barn[0][1]} x2={barn[1][0]} y2={barn[1][1]} />
-        <g className={`compass__sun${up ? "" : " compass__sun--down"}`} transform={`translate(${sx.toFixed(1)} ${sy.toFixed(1)})`}>
-          <circle className="compass__plate" cx={4} cy={4} r={16} />
-          <circle className="compass__disc" r={17.5} />
+        <polygon className="compass__barn" points={barn.points.map((p) => p.map((v) => v.toFixed(1)).join(",")).join(" ")} />
+        <line className="compass__glass" x1={g0[0]} y1={g0[1]} x2={g1[0]} y2={g1[1]} />
+        {/* the rail the sun is dragged along: wide and invisible, the whole evening */}
+        <path className="compass__rail" d={arc(azOf(day.from), azOf(day.to), R)} onPointerDown={grab} />
+        <g className={`compass__sun${up ? "" : " compass__sun--down"}`} transform={`translate(${sx.toFixed(1)} ${sy.toFixed(1)})`} onPointerDown={grab}>
+          <circle className="compass__plate" cx={5} cy={5} r={21} />
+          <circle className="compass__disc" r={23} />
+          <path className="compass__grip" d="M-5 -6 -11 0 -5 6 M5 -6 11 0 5 6" transform={`rotate(${azimuth.toFixed(1)})`} />
         </g>
+      </svg>
+      <div className="compass__labels" aria-hidden="true">
         {(
           [
             [0, "S"],
@@ -376,27 +440,26 @@ function Compass({ day, azimuth, lit, up }: { day: SunDay; azimuth: number; lit:
             [180, "J"],
             [270, "Z"],
           ] as const
-        ).map(([a, t]) => {
-          const [lx, ly] = point(a, R + 62);
-          return (
-            <text key={t} className="compass__cardinal" x={lx} y={ly}>
-              {t}
-            </text>
-          );
-        })}
-        <text className="compass__note" {...xy(point(e.sunrise.azimuth, R - 30))} textAnchor="end">
+        ).map(([a, t]) => (
+          <span key={t} className="compass__cardinal" style={at(point(a, R + 58))}>
+            {t}
+          </span>
+        ))}
+        <span className="compass__note compass__note--rise" style={at(point(e.sunrise.azimuth - 5, R - 34))}>
           východ {clock(e.sunrise.at)}
-        </text>
-        <text className="compass__note" {...xy(point(e.sunset.azimuth + 7, R - 34))} textAnchor="start">
+        </span>
+        <span className="compass__note compass__note--set" style={at(point(e.sunset.azimuth, R + 46))}>
           západ {clock(e.sunset.at)}
-        </text>
-        <text className="compass__note" x={C} y={C + 46} textAnchor="middle">
-          stodola
-        </text>
-        <text className="compass__note" x={barn[1][0] - 6} y={barn[1][1] + 40} textAnchor="end">
-          presklená stena
-        </text>
-      </svg>
+        </span>
+        <span className="compass__note compass__note--barn" style={at([C + 10, north - 12])}>
+          <b>Stodola</b> · {barn.length}&nbsp;m
+        </span>
+        <span className="compass__note compass__note--glass" style={at([glassMid[0], south + 14])}>
+          presklená
+          <br />
+          stena sály
+        </span>
+      </div>
     </div>
   );
 }

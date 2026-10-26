@@ -46,7 +46,7 @@ export function GoldenHour() {
       </div>
 
       <SunLive day={sunDay} phases={lightPhases} sliderLabel={lightIntro.slider} moments={moments} lantern={art("lantern", "white")}>
-        <div data-rv-group="">
+        <div className="where__copy" data-rv-group="">
           <h3 className="rv rv--write">
             <Write text={lightIntro.whereTitle} />
           </h3>

@@ -19,9 +19,9 @@ export interface LightPhase {
 
 export const lightPhases: LightPhase[] = [
   { from: "start", name: "Podvečer", label: null, colour: "ivory", say: "Slnko je ešte vysoko nad sadom a hreje." },
-  { from: "goldenStart", name: "Zlatá hodina", label: "Zlatá hodina", colour: "butter", say: "Slnko je nízko, tiene sú dlhé a teplé. Najkrajšie svetlo dňa." },
-  { from: "behindHill", name: "Za kopcom", label: "Za kopcom", colour: "apricot", say: "Slnko zašlo za kopec na severozápade. Na dvore je mäkké svetlo bez tieňov a obloha ešte žiari." },
-  { from: "sunset", name: "Západ slnka", label: "Západ", colour: "peony", say: "Slnko zapadá aj za rovným obzorom. Obloha na severozápade ešte svieti." },
+  { from: "goldenStart", name: "Zlatá hodina", label: "Zlatá hodina", colour: "butter", say: "Nízke slnko a dlhé teplé tiene. Najkrajšie svetlo dňa." },
+  { from: "behindHill", name: "Za kopcom", label: "Za kopcom", colour: "apricot", say: "Slnko zašlo za kopec. Dvor je v mäkkom svetle bez tieňov." },
+  { from: "sunset", name: "Západ slnka", label: "Západ", colour: "peony", say: "Slnko zapadá aj za rovným obzorom, obloha ešte svieti." },
   { from: "goldenEnd", name: "Modrá hodina", label: "Modrá hodina", colour: "blue", say: "Krátka chvíľa, keď je všetko modré." },
   { from: "civilDusk", name: "Súmrak", label: "Súmrak", colour: "olive", say: "Zotmie sa a v sade sa rozsvietia svetielka." },
 ];
@@ -39,11 +39,11 @@ export const lightMoments: { at: Moment; colour: LightPhase["colour"]; text: str
 export const lightIntro = {
   title: "Zlatá hodina v Zlatníku",
   /** {sunset} and {hill} are filled in from the data. */
-  lead: "Zlatník má zlato už v mene. 29. mája zapadá slnko o {sunset}, no za kopcom nad dedinou sa schová už okolo {hill}. Polhodina pred tým je najkrajšie svetlo celého dňa.",
-  slider: "Posuňte čas a pozrite sa, kde bude slnko",
+  lead: "Zlatník má zlato už v mene. Slnko zapadá o {sunset}, za kopec nad dedinou sa však schová už okolo {hill}.",
+  slider: "Posuňte čas alebo potiahnite slnko v kruhu",
   whereTitle: "Odkiaľ bude svietiť",
   /** {azimuth} is the sunset's direction in degrees. */
-  where: "Koncom mája zapadá slnko ďaleko na severozápade, na azimute {azimuth}°. Stodola má presklenú západnú stenu, takže do nej večer svieti a svetlo prejde šikmo cez sálu. Okolo ôsmej zájde slnko za kopec a dvor ostane v mäkkom svetle bez tieňov.",
+  where: "Koncom mája zapadá slnko ďaleko na severozápade ({azimuth}°) a večer svieti šikmo cez presklenú západnú stenu do sály. Okolo ôsmej zájde za kopec a dvor ostane v mäkkom svetle.",
 };
 
 /** Practical tips under the compass; {at22} and {low22} are the usual and the cool temperature at ten. */
