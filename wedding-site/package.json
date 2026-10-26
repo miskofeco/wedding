@@ -17,6 +17,7 @@
     "fills": "node scripts/sync-fills.mjs",
     "photos": "sh scripts/prepare-photos.sh",
     "og": "node scripts/render-og.mjs",
+    "sun": "node scripts/sun-data.mjs",
     "sheet:mock": "node scripts/sheet-mock.mjs"
   },
   "dependencies": {
