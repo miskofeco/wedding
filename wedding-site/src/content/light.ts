@@ -50,5 +50,32 @@ export const lightIntro = {
 export const lightTips: { title: string; text: string; drawing: "couple-cool" | "camera" | "lantern"; tint: ["peony" | "butter" | "blue", "butter" | "apricot" | "sage"] }[] = [
   { title: "Okuliare sa zídu", text: "Podvečer bude slnko nízko a priamo v očiach, keď sa pozriete na západ k jazierku a sadu.", drawing: "couple-cool", tint: ["peony", "butter"] },
   { title: "Fotky medzi 19:30 a 20:00", text: "Vtedy sú tiene dlhé a teplé. Po ôsmej je svetlo mäkké, dobré na portréty.", drawing: "camera", tint: ["butter", "apricot"] },
-  { title: "Sveter do auta", text: "O desiatej večer býva v Zlatníku okolo {at22}\u00a0°C, v chladnejšie večery aj {low22}\u00a0°C.", drawing: "lantern", tint: ["blue", "sage"] },
+  { title: "Sveter do auta", text: "Po západe slnka sa rýchlo ochladí, o jedenástej býva len 14 až 16\u00a0°C.", drawing: "lantern", tint: ["blue", "sage"] },
 ];
+
+export interface WeatherSlot {
+  at: string;
+  /** The usual range, °C. */
+  lo: number;
+  hi: number;
+  colour: LightPhase["colour"];
+}
+
+/**
+ * The day's weather as the history of the days around it tells it, not a forecast: ERA5 via Open-Meteo for the
+ * barn's map point, 22 May to 5 June in 2012–2026 (225 days, 5 400 hours), summed up as planning ranges.
+ */
+export const weather = {
+  title: "Počasie v ten deň",
+  lead: "Odhad z 15 rokov počasia v Zlatníku koncom mája. Nie je to predpoveď.",
+  /** Its first sentence is set in bold. */
+  watch: ["Ešte sa môže zmeniť.", "Keď sa svadba priblíži, sledujte predpoveď. Spoľahlivá býva asi týždeň vopred."],
+  slots: [
+    { at: "Popoludní", lo: 21, hi: 23, colour: "butter" },
+    { at: "Večer", lo: 17, hi: 19, colour: "apricot" },
+    { at: "O 23:00", lo: 14, hi: 16, colour: "blue" },
+    { at: "Nad ránom", lo: 10, hi: 13, colour: "olive" },
+  ] satisfies WeatherSlot[],
+  rain: "29. mája aspoň trochu pršalo v 7 z 15 rokov a koncom mája občas príde aj búrka. Bývali tu dni s 11\u00a0°C, ale aj s 30\u00a0°C.",
+  pack: ["Dáždnik do auta", "Topánky aj na trávu", "Niečo ľahké na teplé popoludnie"],
+};

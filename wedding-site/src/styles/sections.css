@@ -322,6 +322,28 @@
 .tip { display: grid; grid-template-columns: 136px 1fr; align-items: center; gap: 18px; }
 .tip h4 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.1; letter-spacing: -0.01em; }
 .tip p { color: var(--ink-soft); font-size: var(--text-small); text-wrap: pretty; }
+/* the day's weather: the words beside four times of day, each a capsule of its usual range on one scale (9–24 °C),
+   joined by the page's dashed road as the evening cools */
+.wx { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); align-items: center; gap: clamp(32px, 6vw, 96px); padding-block: clamp(40px, 6vw, 88px) clamp(24px, 3vw, 40px); }
+.wx__copy { display: grid; gap: 16px; max-width: 50ch; }
+.wx__copy h3 { margin-bottom: 4px; }
+.wx__copy p { text-wrap: pretty; }
+.wx__watch b { font-weight: 600; }
+.wx__watch::before { content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; background: var(--butter); }
+.wx__rain { color: var(--ink-soft); font-size: var(--text-small); }
+.wx__pack { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.wx__pack li { padding: 8px 14px; border-radius: var(--btn-radius); background: var(--surface-quiet); font-size: var(--text-small); font-weight: 500; }
+.wx__chart { --bar: clamp(120px, 12vw, 170px); position: relative; }
+.wx__road { position: absolute; inset: auto 0 0; width: 100%; height: var(--bar); overflow: visible; }
+.wx__road polyline { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.wx__slots { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.wx__slot { display: grid; grid-template-rows: auto auto var(--bar); justify-items: center; text-align: center; }
+.wx__slot > span { color: var(--ink-soft); font-size: var(--text-small); }
+.wx__slot b { margin: 2px 0 14px; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.3rem, 1rem + 1.2vw, 2rem); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* the bar's whole height is the scale; the capsule sits at its range */
+.wx__slot i { position: relative; z-index: 1; width: clamp(24px, 2.4vw, 32px); }
+.wx__slot i::before { content: ""; position: absolute; inset: var(--top) 0 auto; height: var(--h); min-height: 24px; border-radius: 999px; background: var(--c); }
+
 /* where the numbers come from: one short line that opens the sources in a tip above it (Disclosure) */
 .gold__src { position: relative; padding-bottom: var(--section-pad); }
 .gold__src summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--ink-soft); font-size: var(--text-caption); list-style: none; cursor: pointer; }
@@ -336,7 +358,7 @@
 
 @media (min-width: 901px) { .moments { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 @media (max-width: 900px) {
-  .gold__head, .where { grid-template-columns: 1fr; }
+  .gold__head, .where, .wx { grid-template-columns: 1fr; }
   .sun-stage { --compass: clamp(150px, 30vw, 240px); }
   .read { grid-template-columns: minmax(0, 1fr) var(--compass); grid-template-areas: "time compass" "phase compass" "facts facts"; align-items: end; column-gap: 16px; }
   .read__phases { align-self: start; }
