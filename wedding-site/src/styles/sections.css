@@ -540,7 +540,9 @@
   .journey:has([data-stop="barn"]:hover) [data-stop="barn"],
   .journey:has([data-stop="stay"]:hover) [data-stop="stay"] { --on: 1; }
 }
-.map [data-stop] .map__hit { stroke: color-mix(in srgb, var(--ink) calc(var(--on, 0) * 100%), transparent); }
+.map [data-stop] .map__hit { stroke: color-mix(in srgb, var(--apricot) calc(var(--on, 0) * 100%), transparent); }
+/* keyboard focus keeps the ink ring: apricot is too faint on butter to be the only sign of focus */
+.map a[data-stop]:focus-visible .map__hit { stroke: var(--ink); }
 .map [data-stop] .map__lm { transform: translateY(calc(var(--on, 0) * -8px)) rotate(calc(var(--on, 0) * -2deg)); }
 .map__pin[data-stop] { transform: scale(calc(1 + var(--on, 0) * 0.5)); }
 .journey__stops [data-stop]::before { transform: scale(calc(1 + var(--on, 0) * 0.35)); }
