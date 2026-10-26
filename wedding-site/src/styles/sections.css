@@ -498,7 +498,7 @@
 .map__plans { fill: var(--plan); }
 .map__water { fill: var(--blue); }
 .map__river--minor { stroke-width: 12; }
-.map__sign { fill: var(--ink); filter: url(#sticker-lg); }
+.map__sign { fill: var(--ink); }
 .map__place { font-family: var(--font-text); font-size: 20px; font-style: italic; fill: var(--place); }
 /* parking at the barn: the blue road sign with its white inner edge */
 .map__parking rect { fill: var(--sign); }

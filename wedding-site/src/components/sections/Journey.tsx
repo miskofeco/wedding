@@ -308,7 +308,7 @@ function StayMark({
   );
 }
 
-const SIGN = 30;
+const SIGN = 22;
 
 /**
  * What lies around the route, drawn quietly under it: the woods on the named
