@@ -8,11 +8,11 @@ import { tie } from "@/lib/format";
 const CYCLE_MS = 4000;
 
 /**
- * The bride and five bridesmaids (public/gowns.svg) over a row of palette dabs,
- * each dab under the woman it dresses: the n-th colour is the n-th dress from the
+ * The list of palette colours and the bride with five bridesmaids
+ * (public/gowns.svg) beside it: the n-th colour dresses the n-th woman from the
  * left. Only one dress is coloured at a time: the one under the mouse (desktop,
- * over its dab or over the woman herself) or the last one tapped or clicked. Each
- * new colour pours into the dress from the top.
+ * over its colour or over the woman herself) or the last one tapped or clicked.
+ * Each new colour pours into the dress from the top.
  * Until the guest touches the palette (hover, tap, click or focus), the colour
  * moves to the next woman every four seconds while the section is on screen, so
  * phones see all six. Without JavaScript, or with reduced motion, the first
@@ -53,7 +53,7 @@ export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
   };
 
   return (
-    <div className="try">
+    <>
       <figure className="gowns rv" ref={fit} style={{ "--d": "200ms" } as CSSProperties}>
         {palette.map((p, i) => (
           <span
@@ -106,6 +106,6 @@ export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
           </li>
         ))}
       </ol>
-    </div>
+    </>
   );
 }

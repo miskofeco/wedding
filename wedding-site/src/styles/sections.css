@@ -136,34 +136,37 @@
 }
 
 /* ===== palette ===== */
-/* clip, not hidden: hidden would make the section a scroll container (and stop scroll timelines inside it) */
+/* clip, not hidden: hidden would make the section a scroll container and stop the women sticking (and scroll timelines inside it) */
 .pal { padding: var(--section-pad) 0; overflow: clip; }
-.pal__copy { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 46ch); grid-template-areas: "h lead" "h hint"; align-items: end; column-gap: clamp(24px, 5vw, 80px); row-gap: 14px; }
-.pal__copy h2 { grid-area: h; align-self: end; }
-.pal__copy .lead { grid-area: lead; }
-.pal__hint { grid-area: hint; color: var(--ink-soft); font-size: var(--text-small); }
+/* The title across the top; under it the copy and the list of colours on the left, the women beside them on the
+   right, held in view while the list is read. */
+.pal .wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); grid-template-areas: "head head" "copy fit" "story fit"; align-items: start; column-gap: clamp(32px, 5vw, 80px); }
+.pal__head { grid-area: head; margin-bottom: clamp(20px, 3vw, 40px); }
+.pal__copy { grid-area: copy; display: grid; gap: 18px; max-width: 60ch; }
+.pal__hint { color: var(--ink-soft); font-size: var(--text-small); }
 .pal__hint--tap { display: none; }
 @media (hover: none) { .pal__hint--hover { display: none; } .pal__hint--tap { display: inline; } }
-/* The women and their dabs, sized so both share one screen. The six columns sit under the six women of
-   public/gowns.svg (measured from their dress masks); the dabs and the women's hover areas share them. */
-.try {
+/* The women run into the right gutter: the drawing carries its own white margin. The six hover columns sit
+   over the six women of public/gowns.svg (measured from their dress masks). */
+.gowns {
   --cols: 14fr 14fr 14.25fr 14.5fr 15fr 15.5fr;
   --cols-pad: 6.5% 6.25%;
-  width: min(100%, max(560px, min(1000px, calc((100svh - var(--nav-h) - 250px) * 1150 / 880))));
-  margin: clamp(28px, 4vw, 56px) auto 0;
+  grid-area: fit; position: sticky; top: calc(var(--nav-h) + 32px);
+  margin: 0 calc(-1 * var(--gutter) / 2) 0 0;
 }
-.gowns { position: relative; margin: 0; }
 .gowns img { position: relative; display: block; width: 100%; height: auto; }
 .gowns__fill { position: absolute; inset: 0; background: var(--c); mask: var(--mask) 0 0 / 100% 100% no-repeat; opacity: 0; }
 .gowns__fill[data-on] { opacity: 1; }
 .gowns__hit { position: absolute; inset: 0; display: grid; grid-template-columns: var(--cols); padding-inline: var(--cols-pad); }
 .gowns__hit > span { cursor: pointer; }
-.story { list-style: none; display: grid; grid-template-columns: var(--cols); padding-inline: var(--cols-pad); margin-top: clamp(4px, 1vw, 14px); text-align: center; }
-.dab { position: relative; display: grid; justify-items: center; align-content: start; gap: 8px; padding-inline: 4px; }
-.dab__shape { display: block; width: clamp(44px, 5vw, 64px); aspect-ratio: 1; background: var(--c); scale: var(--s, 1); transition: transform var(--t-nudge) var(--ease-out); }
-.dab[data-on] .dab__shape { transform: rotate(-6deg) scale(1.12); }
-/* the name's button covers the whole dab */
-.dab__btn { padding: 0; border: 0; background: none; text-align: inherit; cursor: pointer; text-decoration: underline 2px transparent; text-underline-offset: 6px; transition: text-decoration-color var(--t-hover); }
+/* One row per colour, in the women's order: the dab, its name, what it stands for. The whole row is the button. */
+.story { grid-area: story; list-style: none; display: grid; gap: 4px; margin-top: clamp(24px, 3vw, 36px); }
+.dab { position: relative; display: grid; grid-template-columns: 48px minmax(0, 1fr); grid-template-areas: "shape name" "shape meaning"; column-gap: 16px; row-gap: 6px; align-items: center; padding-block: 6px; }
+.dab__shape { grid-area: shape; display: block; width: 42px; aspect-ratio: 1; justify-self: center; background: var(--c); scale: var(--s, 1); transition: transform var(--t-nudge) var(--ease-out); }
+.dab[data-on] .dab__shape { transform: rotate(-6deg) scale(1.16); }
+.dab h3 { grid-area: name; align-self: end; font-size: clamp(1.05rem, 0.95rem + 0.35vw, 1.25rem); }
+.dab p { grid-area: meaning; align-self: start; color: var(--ink-soft); font-size: var(--text-small); }
+.dab__btn { padding: 0; border: 0; background: none; text-align: left; cursor: pointer; text-decoration: underline 2px transparent; text-underline-offset: 5px; transition: text-decoration-color var(--t-hover); }
 .dab__btn::after { content: ""; position: absolute; inset: 0; }
 .dab__btn[aria-pressed="true"] { text-decoration-color: var(--accent-underline); }
 @media (hover: hover) { .dab__btn:hover:not([aria-pressed="true"]) { text-decoration-color: var(--linen); } }
@@ -175,16 +178,15 @@
 .dab:nth-child(4) .dab__shape { border-radius: 50% 50% 40% 60% / 55% 45% 55% 45%; --s: 0.85; }
 .dab:nth-child(5) .dab__shape { border-radius: 45% 55% 50% 50% / 62% 38% 62% 38%; --s: 0.96; rotate: -10deg; }
 .dab:nth-child(6) .dab__shape { border-radius: 58% 42% 48% 52% / 44% 58% 42% 56%; --s: 0.9; }
-.dab h3 { font-size: clamp(0.95rem, 0.85rem + 0.3vw, 1.125rem); }
-.dab p { max-width: 16ch; color: var(--ink-soft); font-size: var(--text-caption); }
 @media (max-width: 900px) {
-  .pal__copy { grid-template-columns: minmax(0, 1fr); grid-template-areas: "h" "lead" "hint"; max-width: 60ch; }
-  .try { width: 100%; }
-  /* too narrow for a name under each woman: the dabs drop into two rows of three */
-  .story { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-inline: 0; gap: clamp(14px, 3vw, 28px) 12px; margin-top: clamp(12px, 3vw, 24px); }
-  .dab:nth-child(even) { margin-top: clamp(14px, 3vw, 28px); }
+  /* The women between the copy and the list, held under the nav while the list scrolls past, so a tap always
+     shows its dress right above. Small enough to leave room for the list. */
+  .pal .wrap { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "copy" "fit" "story"; }
+  .pal__head { margin-bottom: 18px; }
+  .gowns { top: var(--nav-h); z-index: 1; width: min(100%, 600px); justify-self: center; margin: clamp(16px, 4vw, 28px) 0 0; padding-block: 8px; background: var(--ground); }
+  .story { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px clamp(16px, 3vw, 28px); margin-top: clamp(8px, 2vw, 16px); }
 }
-@media (max-width: 520px) { .dab h3 { font-size: 1rem; } .dab__shape { width: 48px; } }
+@media (max-width: 620px) { .story { grid-template-columns: minmax(0, 1fr); gap: 0; } .dab { grid-template-columns: 40px minmax(0, 1fr); column-gap: 14px; row-gap: 4px; } .dab__shape { width: 34px; } }
 
 /* ===== photos ===== */
 .photos { position: relative; overflow: hidden; padding: var(--section-pad) 0; background: var(--surface-quiet); }

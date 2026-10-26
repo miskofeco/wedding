@@ -8,10 +8,12 @@ export function Palette() {
   return (
     <section className="pal" id="farby" aria-labelledby="pal-h">
       <div className="wrap">
-        <div className="pal__copy" data-rv-group="">
+        <div className="pal__head" data-rv-group="">
           <h2 id="pal-h" className="rv rv--write">
             <Write text="Farby nášho dňa" />
           </h2>
+        </div>
+        <div className="pal__copy" data-rv-group="">
           <p className="lead rv rv--write" style={{ "--d": "400ms" } as CSSProperties}>
             <Write mode="prose" text={tie(paletteIntro)} />
           </p>
