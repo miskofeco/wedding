@@ -250,6 +250,10 @@ html.mo .stay__lantern { transform-origin: 50% 0; animation: sway 4.5s ease-in-o
 html.mo .stay__copy .stay__lantern.rv--ink.in:not([data-rv-instant]) { animation: ink var(--t-ink) var(--ease-ink) var(--delay, 0ms) backwards, sway 4.5s ease-in-out infinite alternate; }
 @keyframes sway { from { rotate: -2deg; } to { rotate: 2deg; } }
 
+/* ===== golden hour: the evening is painted in left to right, then the sun lands on its road; scroll walks it (SunLive) ===== */
+html.mo .sky.rv--brush.in:not([data-rv-instant]) { animation-duration: 1100ms; }
+html.mo .sky.in:not([data-rv-instant]) .sky__sun { animation: stamp var(--t-stamp) var(--ease-stamp) 900ms backwards; }
+
 /* ===== photos: the cards land like prints dropped on a table, the middle one last ===== */
 html.js .photos figure.rv {
   transition: transform var(--t-nudge) var(--ease-out), opacity 400ms var(--ease-out) var(--delay, 0ms), translate 700ms var(--ease-stamp) var(--delay, 0ms),

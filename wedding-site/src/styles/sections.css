@@ -209,6 +209,110 @@
   .photos figure:nth-child(3) img { aspect-ratio: 99 / 62; }
 }
 
+/* ===== golden hour: the wedding evening's light at the barn, to scale ===== */
+/* clip, not hidden: the slider runs half a thumb past each edge so its thumb sits exactly under the sun */
+.gold { padding: var(--section-pad) 0 0; overflow: clip; }
+.gold__head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: end; gap: 20px clamp(24px, 5vw, 80px); margin-bottom: clamp(32px, 5vw, 64px); }
+.gold__head h2 { max-width: 9ch; }
+
+/* the sky: one flat palette field per phase of light, as wide as it lasts; the land is the real horizon */
+.sky { position: relative; height: clamp(380px, 40vw, 600px); }
+.sky svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sky__road { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.sky__road--under { stroke: var(--white); }
+.sky__hill { fill: var(--sage); }
+/* the sun: a line circle over two riso plates, butter on apricot, a little off register */
+.sky__sun { position: absolute; left: var(--x); top: var(--y); width: clamp(26px, 3.2vw, 46px); aspect-ratio: 1; transform: translate(-50%, -50%); }
+.sky__sun::before, .sky__sun::after { content: ""; position: absolute; inset: 0; border-radius: 50%; }
+.sky__sun::before { background: var(--apricot); translate: 22% 20%; }
+.sky__sun::after { background: var(--butter); border: var(--route-width) solid var(--ink); }
+.sky__lab { position: absolute; top: clamp(14px, 2vw, 28px); padding-left: 10px; font-size: var(--text-small); line-height: 1.3; }
+.sky__lab b { display: block; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+.sky__lab--night, .sky__moon, .sky__depth { color: var(--white); }
+.sky__deg { position: absolute; left: 12px; translate: 0 -50%; color: var(--ink-soft); font-size: var(--text-caption); }
+.sky__depth { position: absolute; translate: 8px -50%; font-size: var(--text-caption); font-weight: 600; }
+.sky__ground { position: absolute; left: var(--gutter); max-width: 30ch; font-size: var(--text-small); }
+.sky__lantern { position: absolute; top: 30%; width: clamp(64px, 6vw, 96px); translate: -50% 0; }
+.sky__moon { position: absolute; right: var(--gutter); top: 46%; max-width: 20ch; font-size: var(--text-small); text-align: right; }
+
+/* the slider: its track is the dashed road and spans the sky's time axis exactly */
+.scrub { padding-top: 14px; }
+.scrub__label { display: block; margin-bottom: 2px; font-weight: 600; font-size: var(--text-small); }
+.scrub input { --thumb: 30px; display: block; width: calc(100% + var(--thumb)); height: 44px; margin: 0 calc(var(--thumb) / -2); appearance: none; background: transparent; cursor: pointer; }
+.scrub input::-webkit-slider-runnable-track { height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
+.scrub input::-moz-range-track { height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
+.scrub input::-webkit-slider-thumb { width: var(--thumb); height: var(--thumb); margin-top: calc((var(--route-width) - var(--thumb)) / 2); border: 0; border-radius: 50%; background: var(--ink); appearance: none; transition: transform var(--t-press) var(--ease-out); }
+.scrub input::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: 0; border-radius: 50%; background: var(--ink); transition: transform var(--t-press) var(--ease-out); }
+@media (hover: hover) {
+  .scrub input:hover::-webkit-slider-thumb { transform: scale(1.06); }
+  .scrub input:hover::-moz-range-thumb { transform: scale(1.06); }
+}
+.scrub input:active::-webkit-slider-thumb { transform: scale(var(--press-small)); }
+.scrub input:active::-moz-range-thumb { transform: scale(var(--press-small)); }
+.scrub__ticks { position: relative; height: 22px; color: var(--ink-soft); font-size: var(--text-small); font-variant-numeric: tabular-nums; }
+.scrub__ticks span { position: absolute; translate: -50% 0; }
+
+/* the readout: time · what is happening · the numbers */
+.read { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 12px clamp(24px, 4vw, 64px); margin-top: clamp(20px, 3vw, 36px); }
+.read__time { position: relative; min-width: 4.1ch; font-family: var(--font-display); font-weight: 600; font-size: clamp(3.4rem, 2rem + 5vw, 7rem); line-height: 0.86; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.read__now { position: absolute; bottom: 100%; left: 0; margin-bottom: 10px; padding: 6px 12px; border-radius: var(--btn-radius); background: var(--butter); font: 600 var(--text-caption) / 1.2 var(--font-text); letter-spacing: 0; white-space: nowrap; }
+.read__phase { font-family: var(--font-display); font-weight: 600; font-size: var(--text-h3); line-height: 1.05; }
+.read__say { max-width: 44ch; margin-top: 8px; text-wrap: pretty; }
+.read__facts { display: flex; gap: 28px; font-variant-numeric: tabular-nums; }
+.read__facts dt { color: var(--ink-soft); font-size: var(--text-small); }
+.read__facts dd { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; letter-spacing: -0.01em; white-space: nowrap; }
+
+/* the moments as a list: phones see it, from 901px the sky's labels carry them and it stays for screen readers */
+.moments { list-style: none; display: grid; gap: 14px; margin-top: 32px; }
+.moment { display: grid; grid-template-columns: 20px 3.2rem 1fr; gap: 0 12px; align-items: baseline; }
+.moment i { width: 18px; height: 18px; border-radius: 58% 42% 55% 45% / 50% 60% 40% 50%; background: var(--c); translate: 0 3px; }
+.moment b { font-variant-numeric: tabular-nums; }
+.moment span { text-wrap: pretty; }
+
+/* where the light comes from: the compass beside the words and three tips */
+.where { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: center; gap: clamp(32px, 6vw, 96px); padding-block: clamp(56px, 8vw, 120px) clamp(40px, 5vw, 72px); }
+.compass { justify-self: center; width: min(100%, 520px); }
+.compass svg { display: block; width: 100%; height: auto; overflow: visible; }
+.compass__ground { fill: var(--ivory); }
+.compass__day { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; }
+.compass__gold, .compass__late { fill: none; stroke-width: 22; stroke-linecap: round; }
+.compass__gold { stroke: var(--butter); }
+.compass__late { stroke: var(--apricot); }
+.compass__ray { stroke: var(--butter); stroke-width: 9; stroke-linecap: round; }
+.compass__barn { fill: var(--ink); }
+.compass__glass { stroke: var(--butter); stroke-width: 6; stroke-linecap: round; }
+.compass__plate { fill: var(--apricot); }
+.compass__disc { fill: var(--butter); stroke: var(--ink); stroke-width: var(--route-width); }
+.compass__sun--down .compass__plate { fill: none; }
+.compass__sun--down .compass__disc { fill: var(--ivory); }
+.compass__cardinal, .compass__note { font-family: var(--font-text); fill: var(--ink); }
+.compass__cardinal { font-size: 18px; font-weight: 600; text-anchor: middle; dominant-baseline: central; }
+.compass__note { font-size: 15px; dominant-baseline: central; }
+.where__copy { display: grid; gap: 18px; max-width: 52ch; }
+.where__copy h3 { margin-bottom: 14px; }
+.where__copy p { text-wrap: pretty; }
+.tips { list-style: none; display: grid; gap: 22px; margin-top: 10px; }
+.tip { display: grid; grid-template-columns: 104px 1fr; align-items: center; gap: 18px; }
+.tip h4 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.1; letter-spacing: -0.01em; }
+.tip p { color: var(--ink-soft); font-size: var(--text-small); text-wrap: pretty; }
+.gold__src { padding-bottom: var(--section-pad); max-width: 75ch; color: var(--ink-soft); font-size: var(--text-caption); }
+
+@media (min-width: 901px) { .moments { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
+@media (max-width: 900px) {
+  .gold__head, .where { grid-template-columns: 1fr; }
+  .read { grid-template-columns: auto minmax(0, 1fr); }
+  .read__facts { grid-column: 1 / -1; }
+  /* the fields are too narrow for their names: the list below carries the moments */
+  .sky__lab, .sky__lantern, .sky__moon, .sky__ground, .sky__deg, .sky__depth { display: none; }
+}
+@media (max-width: 760px) {
+  .sky { height: 300px; }
+  .read { grid-template-columns: 1fr; gap: 10px; }
+  .read__facts { gap: 22px; }
+  .read__facts dd { font-size: 1.35rem; }
+  .tip { grid-template-columns: 84px 1fr; }
+}
+
 /* ===== stay ===== */
 .stay { position: relative; overflow: clip; padding: var(--section-pad) 0; background: var(--sage); color: var(--white); }
 .stay__grid { display: grid; grid-template-columns: 1fr 1.1fr; align-items: start; gap: clamp(32px, 6vw, 96px); }

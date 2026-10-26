@@ -35,14 +35,16 @@ Every unconfirmed fact is `null` in `src/content/` and shows a Slovak placeholde
 | Privacy note under the RSVP button (who sees it, what the kitchen gets, where, when it's deleted; the form adds the contact for corrections) | `src/content/rsvp.ts` | `privacy` |
 | Photo captions | `src/content/photos.ts` | `caption` |
 | Palette meanings, dress-code wording | `src/content/palette.ts` | `paletteIntro`, `meaning` |
+| „Zlatá hodina v Zlatníku“ wording (phases, moments, tips) | `src/content/light.ts` | `lightIntro`, `lightPhases`, `lightMoments`, `lightTips` |
 
 Only add a `mapUrl` you have opened and checked. Hlinné has three churches, so the church entry stays empty until confirmed. The programme in `events.ts` is a proposal until replaced; the road on the page follows the array order.
 
-## Countdown, calendar and map
+## Countdown, calendar, map and golden hour
 
 - **Countdown:** below the hero, counted in Slovak time and refreshed every minute. It shows „Dnes“ on the day and „Svoji“ afterwards. Without JavaScript it shows the date.
 - **Add to calendar:** a Google Calendar link and `/svadba.ics` for Apple, Outlook and others, both built from `src/lib/calendar.ts`. The event is all-day until the ceremony time is set in `src/content/events.ts`, then it runs from the ceremony to 23:59. It includes both addresses and a reminder a week before. Set `NEXT_PUBLIC_SITE_URL` to add the site link to the description.
 - **Map:** `src/components/sections/Journey.tsx`. It's drawn and not to scale, but oriented from the real village coordinates. Its links use `mapUrl` from `src/content/places.ts`. Accommodation is linked to its section until places to stay are confirmed.
+- **Golden hour:** `src/components/sections/GoldenHour.tsx` with the client part `SunLive.tsx`. Its numbers come from `src/content/sun.ts`, which `npm run sun` (`scripts/sun-data.mjs`) generates offline. The script uses the sun algorithm in `src/lib/sun.ts`, the elevation and weather samples saved in `scripts/sun/` (each file names its source and fetch date), the barn's OpenStreetMap footprint and the U.S. Naval Observatory moonrise. Nothing is fetched while the site runs. The time the sun goes behind the hill is a terrain estimate (±10 min); if you check it on site, adjust `scripts/sun/terrain.json` or the copy.
 
 ## RSVP, database, Google Sheet and admin
 
@@ -138,11 +140,11 @@ The site asks search engines not to index it (`robots: noindex`), because it is 
 src/app/            root layout (fonts, metadata), error pages; (site)/ public page and rsvp/; admin/ (app)/ pages, login, actions, export/ CSV
 src/proxy.ts        the strict Content Security Policy for /admin (the only path it runs on)
 src/components/     Nav, RouteTimeline (the road), RevealObserver, Tint, Drawing, RsvpForm, admin/
-src/lib/            db (libSQL), answers + invites (records, Sheet mirror), mirror (sync), records (matching, totals, CSV), content + site-content (editable content), sheet (Google Sheet client), rsvp (validation), auth + session (admin login), limit, csp, ics, art, format
+src/lib/            db (libSQL), answers + invites (records, Sheet mirror), mirror (sync), records (matching, totals, CSV), content + site-content (editable content), sheet (Google Sheet client), rsvp (validation), auth + session (admin login), limit, csp, ics, art, format, sun
 google-sheet/       Code.gs (Apps Script) and SETUP.md
-scripts/            sync-art, sync-fills, prepare-photos, check-assets, sheet-mock + sheet-fake
+scripts/            sync-art, sync-fills, prepare-photos, check-assets, sheet-mock + sheet-fake, sun-data (+ sun/ samples)
 tests/              node --test suites
-src/components/sections/  Hero, Programme, Places, Requests, Palette, Photos, Stay, Faq, RsvpCta, Closing
+src/components/sections/  Hero, Programme, Places, Requests, Palette, GoldenHour, Photos, Stay, Faq, RsvpCta, Closing
 src/content/        all words and facts, typed
 src/styles/         tokens → base → components → sections → motion on every page; rsvp.css on /rsvp, admin.css on /admin
 ```

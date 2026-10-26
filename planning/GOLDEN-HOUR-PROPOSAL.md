@@ -2,6 +2,8 @@
 
 Proposal, 26 Oct 2026. A new section on the guest page about the light on the evening of **Saturday 29 May 2027** at Stodola Zlatník: when the golden hour is, where the sun goes down, and what that means for the guests. Every number below was computed or fetched for this place and date. Nothing is generic.
 
+**Built 26 Oct 2026** (`GoldenHour.tsx`, `SunLive.tsx`, `content/sun.ts` from `npm run sun`). The final numbers live in the generated file and differ slightly from the figures below. The moonrise is 1:36 (USNO), not 1:32. The weather now covers 63 evenings (2016–2025 without 2020), with a 22:00 median of 14.3 °C.
+
 Prototype: `planning/golden-hour/index.html` (serve with launch config „planning“, then open http://localhost:8766/planning/golden-hour/). It is a design reference, not production code.
 
 ## 1. What the section has to do

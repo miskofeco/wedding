@@ -67,9 +67,9 @@ One-shot keyframed responses have their duration written in place, because each 
 | 300–520ms | FAQ and calendar open and close (300), FAQ answer rise (360), pop (360), squash (360), notice rise and dot drop (420), nudge (450), nod and hop (520), palette pour (520) |
 | 280–820ms | Text written: lines 280–460, titles 360–620, prose 420–820 |
 | 550–900ms | Entrances: rise, stamp, brush (640), drop (720), places push-in and envelope (900), count-up (900) |
-| 900–1600ms | Ink (950), places ink from the edge (1100), a drop drying (1600) |
+| 900–1600ms | Ink (950), places ink from the edge (1100), the golden-hour sky brushed in (1100), a drop drying (1600) |
 | Over 2s, once | The hero sequence (about 2.6s; names and date down by 1.2s), the „Pripravujeme“ sequence (about 3.6s before the car parks; text down by 2.4s), the footer signature (about 2.6s), develop (2.6s) |
-| Scroll-linked | Every road draw, the car, the desktop drift. No duration; they follow the scrollbar |
+| Scroll-linked | Every road draw, the car, the golden-hour sun, the desktop drift. No duration; they follow the scrollbar |
 | Loops | Hero road march (1.6s per step), „Pripravujeme“ road march (1.2s per step), hero breathing (7s), lantern sway (4.5s), palette cycle (4s per colour), playlist logo while hovered (2.4s), send button road while sending (0.8s) |
 
 Feedback is under 300ms; arrivals take 500–900ms; nothing a guest waits on is slower than that.
@@ -123,6 +123,7 @@ Add `.rv` and the observer adds `.in` once, when the element scrolls into view.
 | --- | --- | --- |
 | `AnchorScroll` | `components/AnchorScroll.tsx` | Same-page `#links` scroll with one eased curve, 500–1100ms by distance, cancelled by any wheel, touch, key or mouse input; focuses the target on arrival. There is no native smooth scroll |
 | `MapCar` | `components/MapCar.tsx` | The car follows the road with scroll through a lerp (0.12) and a bob that grows with speed; it draws the road through a mask just ahead of itself; arrival at the barn adds `.arrived` once. Convention: road `#id`, mask `#id-mask`, reveal path `#id-reveal` |
+| `SunLive` | `components/SunLive.tsx` | The golden-hour sun follows scroll through a lerp (0.12) from 18:45 to 21:00 as the sky crosses the screen; the first slider input hands it to the guest. On 29 May 2027 between 18:30 and 22:30 it shows the real minute, refreshed every 30s. Without `mo` it stays at 19:45 |
 | `Countdown` | `components/Countdown.tsx` | Counts up from n − 24 over 900ms once revealed; keeps `rv` on every render branch so `.in` survives |
 | `PaletteStory` | `components/PaletteStory.tsx` | Auto-cycles colours every 4s while on screen until the first hover, tap, click or focus |
 | `Nav` | `components/Nav.tsx` | Positions the sliding underline (`--bar-x`, `--bar-y`, `--bar-w`) under the current section |
@@ -161,6 +162,7 @@ Everything that moves today. Update this table when you add or change motion.
 | Map | Title written, lead written (480ms); legend titles written. Labels fade; church, barn and lanterns are drawn in from their top left corner, in order; pins drop; north and scale last (750ms). The road draws just ahead of the car; the Vranov road draws in the second half; at the barn the pin pulses once and the barn lifts once. Legend items reveal 90ms apart |
 | Palette | Title written, lead (400ms) and hint (1050ms) written; the figure is inked and only then its colour poured in; each swatch lands as a drop of paint, one after another along the stagger; a new colour pours into the garment from the top (520ms); auto-cycle every 4s until touched |
 | Photos | Title written, lead written (450ms), sprig (500ms) and camera inked; the cards land like prints dropped on a table (from 1.04, 6px higher, 3° more tilt, 700ms stamp easing), the dropped middle one last; then each print develops (2.6s) and its caption is written under it |
+| Golden hour | Title written, lead written (400ms). The sky is painted in left to right (brush, 1100ms) while each phase's label is written as the brush reaches it; the lantern is inked (1000ms) and the moonrise line written (1100ms); the sun stamps onto its road (900ms). The slider and readout rise (200, 120, 240ms); the moments list (phones) rises 60ms apart; the compass is inked; „Odkiaľ bude svietiť“ is written and each tip's drawing is inked and its drops land, 110ms apart. **Scroll walks the sun** through the evening (18:45 as the sky enters, 21:00 as it leaves, smoothed like the car) until the guest touches the slider; on the wedding day it stands at the real time instead; without motion it is parked at 19:45 |
 | Stay | The lantern is inked, the title written (400ms), the lead written (850ms). The dashed road draws with scroll; each pin drops as the road reaches it and its card is brushed in from the right while its name is written; the coffee is inked and „Ráno bez ponáhľania.“ written; the lantern sways (±2°, 4.5s) |
 | FAQ | Title written, lead written (400ms), sprig inked (450ms), the button brushed in (900ms); rows are brushed in 50ms apart; an opened answer is written, every time it opens |
 | RSVP band | The envelope slides in from its cropped corner while turning and is inked as it comes, the rose is inked after it; „Prídete?“ is written (350ms), the lead written (600ms), the button brushed in (1350ms); desktop: the envelope drifts ±24px |
@@ -183,6 +185,7 @@ Everything that moves today. Update this table when you add or change motion.
 | Places panel | Its drawing lifts 8px (desktop) | — |
 | Map landmarks and legend | Hovering a landmark or its legend entry lifts the drawing, draws its dashed outline, grows its pin 1.5× and its legend dot 1.35×; the „Nocľah“ entry lifts both lanterns. Keyboard focus does the same | — |
 | Map car | Hops once | — |
+| Golden-hour slider | The thumb grows 1.06 | Thumb presses (0.94); moving it takes the sun over from scroll for the rest of the visit |
 | Palette dab | The dab tilts and grows (preview), the name gets a linen underline | The picked dab squashes once; its name keeps the apricot underline; the auto-cycle stops |
 | Photos | The print is picked up 6px, straightens, and the photo leans in 3% | — |
 | Stay card | Leans 4px along the road, and its pin grows 1.25× | — |

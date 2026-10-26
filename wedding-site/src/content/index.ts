@@ -8,3 +8,5 @@ export { faq } from "./faq";
 export { requests, requestsIntro } from "./requests";
 export { rsvp } from "./rsvp";
 export { churchToBarn, churchToVranov, toplaRiver } from "./routes";
+export { sunDay } from "./sun";
+export { lightIntro, lightMoments, lightPhases, lightTips } from "./light";
