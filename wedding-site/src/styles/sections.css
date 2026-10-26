@@ -215,8 +215,15 @@
 .gold__head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: end; gap: 20px clamp(24px, 5vw, 80px); margin-bottom: clamp(32px, 5vw, 64px); }
 .gold__head h2 { max-width: 9ch; }
 
-/* the sky: one flat palette field per phase of light, as wide as it lasts; the land is the real horizon */
-.sky { position: relative; height: clamp(380px, 40vw, 600px); }
+/* with motion the stage (sky, slider, readout) holds still under the nav while scroll walks the evening through it
+   (SunLive sets data-held when the stage fits the screen, and where it stands) */
+.sun-run { --walk: 150svh; }
+.sun-run[data-held]::after { content: ""; display: block; height: var(--walk); }
+.sun-run[data-held] .sun-stage { position: sticky; top: var(--stage-top, var(--nav-h)); }
+
+/* the sky: one flat palette field per phase of light, as wide as it lasts; the land is the real horizon. It leaves
+   room on the screen for the slider and the readout, so the whole stage can be held */
+.sky { position: relative; height: clamp(300px, min(40vw, 100svh - var(--nav-h) - 300px), 600px); }
 .sky svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .sky__road { fill: none; stroke: var(--ink); stroke-width: var(--route-width); stroke-dasharray: var(--route-dash); stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .sky__road--under { stroke: var(--white); }
@@ -238,11 +245,16 @@
 /* the slider: its track is the dashed road and spans the sky's time axis exactly */
 .scrub { padding-top: 14px; }
 .scrub__label { display: block; margin-bottom: 2px; font-weight: 600; font-size: var(--text-small); }
-.scrub input { --thumb: 30px; display: block; width: calc(100% + var(--thumb)); height: 44px; margin: 0 calc(var(--thumb) / -2); appearance: none; background: transparent; cursor: pointer; }
+/* the thumb is the ink dot with a white ‹ › grip in it, so it reads as something to drag */
+.scrub input {
+  --thumb: 34px; --grip: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 12' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 1 1 6l5 5M14 1l5 5-5 5'/%3E%3C/svg%3E");
+  display: block; width: calc(100% + var(--thumb)); height: 44px; margin: 0 calc(var(--thumb) / -2); appearance: none; background: transparent; cursor: grab;
+}
+.scrub input:active { cursor: grabbing; }
 .scrub input::-webkit-slider-runnable-track { height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
 .scrub input::-moz-range-track { height: var(--route-width); background: repeating-linear-gradient(to right, var(--ink) 0 7px, transparent 7px 16px); }
-.scrub input::-webkit-slider-thumb { width: var(--thumb); height: var(--thumb); margin-top: calc((var(--route-width) - var(--thumb)) / 2); border: 0; border-radius: 50%; background: var(--ink); appearance: none; transition: transform var(--t-press) var(--ease-out); }
-.scrub input::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: 0; border-radius: 50%; background: var(--ink); transition: transform var(--t-press) var(--ease-out); }
+.scrub input::-webkit-slider-thumb { width: var(--thumb); height: var(--thumb); margin-top: calc((var(--route-width) - var(--thumb)) / 2); border: 0; border-radius: 50%; background: var(--ink) var(--grip) center / 18px no-repeat; appearance: none; transition: transform var(--t-press) var(--ease-out); }
+.scrub input::-moz-range-thumb { width: var(--thumb); height: var(--thumb); border: 0; border-radius: 50%; background: var(--ink) var(--grip) center / 18px no-repeat; transition: transform var(--t-press) var(--ease-out); }
 @media (hover: hover) {
   .scrub input:hover::-webkit-slider-thumb { transform: scale(1.06); }
   .scrub input:hover::-moz-range-thumb { transform: scale(1.06); }
@@ -256,6 +268,9 @@
 .read { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 12px clamp(24px, 4vw, 64px); margin-top: clamp(20px, 3vw, 36px); }
 .read__time { position: relative; min-width: 4.1ch; font-family: var(--font-display); font-weight: 600; font-size: clamp(3.4rem, 2rem + 5vw, 7rem); line-height: 0.86; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .read__now { position: absolute; bottom: 100%; left: 0; margin-bottom: 10px; padding: 6px 12px; border-radius: var(--btn-radius); background: var(--butter); font: 600 var(--text-caption) / 1.2 var(--font-text); letter-spacing: 0; white-space: nowrap; }
+.read__phases { display: grid; }
+.read__phases > div { grid-area: 1 / 1; visibility: hidden; }
+.read__phases > .on { visibility: visible; }
 .read__phase { font-family: var(--font-display); font-weight: 600; font-size: var(--text-h3); line-height: 1.05; }
 .read__say { max-width: 44ch; margin-top: 8px; text-wrap: pretty; }
 .read__facts { display: flex; gap: 28px; font-variant-numeric: tabular-nums; }
@@ -295,7 +310,17 @@
 .tip { display: grid; grid-template-columns: 136px 1fr; align-items: center; gap: 18px; }
 .tip h4 { margin: 0 0 4px; font-family: var(--font-display); font-weight: 600; font-size: 1.3rem; line-height: 1.1; letter-spacing: -0.01em; }
 .tip p { color: var(--ink-soft); font-size: var(--text-small); text-wrap: pretty; }
-.gold__src { padding-bottom: var(--section-pad); max-width: 75ch; color: var(--ink-soft); font-size: var(--text-caption); }
+/* where the numbers come from: one short line that opens the sources in a tip above it (Disclosure) */
+.gold__src { position: relative; padding-bottom: var(--section-pad); }
+.gold__src summary { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--ink-soft); font-size: var(--text-caption); list-style: none; cursor: pointer; }
+.gold__src summary::-webkit-details-marker { display: none; }
+.gold__src summary svg { flex: none; width: 20px; height: 20px; color: var(--ink); }
+@media (hover: hover) { .gold__src summary:hover span { text-decoration: underline; text-underline-offset: 3px; } }
+.gold__tip { position: absolute; bottom: calc(var(--section-pad) + 50px); left: var(--gutter); z-index: 5; width: min(48ch, 100% - 2 * var(--gutter)); padding: 16px 20px; border-radius: 16px; background: var(--ink); color: var(--white); font-size: var(--text-caption); line-height: 1.45; }
+.gold__tip::after { content: ""; position: absolute; top: 100%; left: 12px; border: 8px solid transparent; border-top-color: var(--ink); }
+.gold__tip ul { list-style: none; display: grid; gap: 8px; }
+.gold__tip b { font-weight: 600; }
+.gold__tip a { color: inherit; }
 
 @media (min-width: 901px) { .moments { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 @media (max-width: 900px) {
@@ -306,9 +331,11 @@
   .sky__lab, .sky__lantern, .sky__moon, .sky__ground, .sky__deg, .sky__depth { display: none; }
 }
 @media (max-width: 760px) {
-  .sky { height: 300px; }
+  .sun-run { --walk: 130svh; }
+  .sky { height: clamp(200px, 100svh - var(--nav-h) - 400px, 300px); }
   .read { grid-template-columns: 1fr; gap: 10px; }
   .read__facts { gap: 22px; }
+  .read__say { font-size: var(--text-small); }
   .read__facts dd { font-size: 1.35rem; }
   .tip { grid-template-columns: 112px 1fr; gap: 14px; }
 }

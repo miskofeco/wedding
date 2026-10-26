@@ -3,6 +3,7 @@ import { lightIntro, lightMoments, lightPhases, lightTips, sunDay } from "@/cont
 import { art } from "@/lib/art";
 import { tie } from "@/lib/format";
 import { clock } from "@/lib/sun";
+import { Disclosure } from "../Disclosure";
 import { SunLive } from "../SunLive";
 import { Tint } from "../Tint";
 import { Write } from "../Write";
@@ -70,17 +71,39 @@ export function GoldenHour() {
         </ul>
       </SunLive>
 
-      <p className="wrap gold__src">
-        Poloha slnka vypočítaná podľa NOAA pre Stodolu Zlatník v letnom čase, časy súhlasia so sunrise-sunset.org
-        a&nbsp;U.&nbsp;S. Naval Observatory. Kopec: výškový model Copernicus cez Open-Meteo, odhad ±10&nbsp;minút. Počasie:
-        ERA5 cez Open-Meteo, {sunDay.evening.evenings} večerov od 26.&nbsp;5. do 1.&nbsp;6. v rokoch {sunDay.evening.years}
-        {sunDay.evening.skipped && ` okrem ${sunDay.evening.skipped}`}. Pôdorys stodoly: ©{" "}
-        <a className="link" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
-          prispievatelia OpenStreetMap
-          <span className="sr-only"> (otvorí sa v novom okne)</span>
-        </a>
-        .
-      </p>
+      <Disclosure className="wrap gold__src">
+        <summary>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+            <circle cx="10" cy="10" r="8.6" />
+            <path d="M10 9v5" />
+            <circle cx="10" cy="6" r="0.4" fill="currentColor" />
+          </svg>
+          <span>Vypočítané zo skutočných údajov</span>
+        </summary>
+        <div className="gold__tip">
+          <ul>
+            <li>
+              <b>Slnko:</b> výpočet NOAA pre Stodolu Zlatník v letnom čase, časy súhlasia so sunrise-sunset.org a&nbsp;U.&nbsp;S. Naval
+              Observatory.
+            </li>
+            <li>
+              <b>Kopec:</b> výškový model Copernicus cez Open-Meteo, odhad ±10&nbsp;minút.
+            </li>
+            <li>
+              <b>Počasie:</b> ERA5 cez Open-Meteo, {sunDay.evening.evenings} večerov od 26.&nbsp;5. do 1.&nbsp;6. v&nbsp;rokoch {sunDay.evening.years}
+              {sunDay.evening.skipped && ` okrem ${sunDay.evening.skipped}`}.
+            </li>
+            <li>
+              <b>Pôdorys stodoly:</b> ©{" "}
+              <a className="link" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">
+                prispievatelia OpenStreetMap
+                <span className="sr-only"> (otvorí sa v novom okne)</span>
+              </a>
+              .
+            </li>
+          </ul>
+        </div>
+      </Disclosure>
     </section>
   );
 }

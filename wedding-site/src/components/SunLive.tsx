@@ -10,8 +10,10 @@ import { Write } from "./Write";
 const PARKED = 19 * 60 + 45; // without JavaScript or motion: deep in the golden hour
 const EL_TOP = 17; // the sky's vertical scale, degrees
 const EL_BOTTOM = -8;
-const SCROLL_FROM = 18 * 60 + 45; // scroll walks the sun through the evening as the sky crosses the screen
-const SCROLL_TO = 21 * 60;
+const SCROLL_FROM = 18 * 60 + 45; // scroll walks the sun through the evening while the stage holds still
+const SCROLL_TO = 21 * 60 + 17; // the lantern lit, ten minutes into the dusk
+const HOLD = 0.05; // share of the walk spent still at each end, so the first and last minute read
+const RELEASE = 0.03; // scroll that hands the sun back from the slider, as a share of the walk
 const FOLLOW = 0.12; // share of the gap closed per frame, as the map's car
 const TZ = "Europe/Bratislava";
 
@@ -54,12 +56,17 @@ interface SunLiveProps {
 
 /**
  * The live part of „Zlatá hodina v Zlatníku“: the evening sky to scale, the slider under it, the readout and the
- * compass. The sun walks its road with scroll (smoothed, like the map's car) until the guest takes the slider; on
- * the wedding day itself, between the first and last minute shown, it stands where the real sun is. Without
- * JavaScript or motion it waits at 19:45.
+ * compass. The sky, slider and readout are one stage that holds still under the nav while scroll walks the sun
+ * through the evening, each phase of light getting the same stretch of scroll (smoothed, like the map's car). The
+ * slider takes over until the guest scrolls the stage on; on the wedding day itself, between the first and last
+ * minute shown, the sun stands where the real one is. Without JavaScript or motion it waits at 19:45.
  */
 export function SunLive({ day, phases, sliderLabel, moments, lantern, children }: SunLiveProps) {
+  const runRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const skyRef = useRef<HTMLDivElement>(null);
+  const progress = useRef(0); // how far through the walk the page is, 0…1
+  const choice = useRef<{ minute: number; at: number } | null>(null); // the slider's minute and the progress it was set at
   // on the wedding day, while the evening shown is on, the real minute; null on every other day and on the server
   const live = useSyncExternalStore(
     everyHalfMinute,
@@ -72,9 +79,15 @@ export function SunLive({ day, phases, sliderLabel, moments, lantern, children }
   const motion = useSyncExternalStore(never, () => document.documentElement.classList.contains("mo"), () => false);
   const [scrolled, setScrolled] = useState<number | null>(null);
   const [chosen, setChosen] = useState<number | null>(null);
+  const [touched, setTouched] = useState(false);
   // the guest's own choice wins, then the real time on the day, then scroll, then the parked sun
   const minute = chosen ?? live ?? (motion ? (scrolled ?? SCROLL_FROM) : PARKED);
-  const following = chosen === null && live === null && motion;
+  const scrolling = live === null && motion;
+  const choose = (m: number) => {
+    choice.current = { minute: m, at: progress.current };
+    setChosen(m);
+    setTouched(true);
+  };
 
   const span = day.to - day.from;
   const x = (m: number) => ((m - day.from) / span) * 100;
@@ -88,18 +101,47 @@ export function SunLive({ day, phases, sliderLabel, moments, lantern, children }
     return { road, hill };
   }, [day]);
 
-  // scroll walks the sun through the evening, eased towards where the sky stands on screen
+  // the walk's stops: every phase of light from the first to the dusk gets the same stretch of scroll
+  const stops = useMemo(() => {
+    const e = day.events;
+    return [SCROLL_FROM, e.goldenStart.at, e.behindHill.at, e.sunset.at, e.goldenEnd.at, e.civilDusk.at, SCROLL_TO];
+  }, [day]);
+
+  // scroll walks the sun through the evening while the stage holds still under the nav; where the stage is taller
+  // than the screen it isn't held, and the walk follows the sky across the screen instead
   useEffect(() => {
+    const run = runRef.current;
+    const stage = stageRef.current;
     const sky = skyRef.current;
-    if (!following || !sky) return;
-    const target = () => {
+    if (!scrolling || !run || !stage || !sky) return;
+    const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")) || 0;
+    // the small viewport, which stays put while a phone's toolbar comes and goes, so the stage isn't let go mid-scroll
+    const small = document.createElement("div");
+    small.style.cssText = "position: fixed; top: 0; height: 100svh; visibility: hidden; pointer-events: none";
+    run.append(small);
+    let held = false;
+    let top = 0;
+    const fit = () => {
+      const vh = small.offsetHeight || window.innerHeight;
+      const h = stage.offsetHeight;
+      held = h <= vh - nav;
+      top = nav + Math.max(0, (vh - nav - h) / 2);
+      run.toggleAttribute("data-held", held);
+      run.style.setProperty("--stage-top", `${Math.round(top)}px`);
+    };
+    const through = () => {
+      if (held) return clamp((top - run.getBoundingClientRect().top) / Math.max(1, run.offsetHeight - stage.offsetHeight));
       const box = sky.getBoundingClientRect();
       const vh = window.innerHeight;
-      const t = ease(clamp((vh * 0.92 - (box.top + box.height / 2)) / (vh * 0.84)));
-      return SCROLL_FROM + t * (SCROLL_TO - SCROLL_FROM);
+      return ease(clamp((vh * 0.92 - (box.top + box.height / 2)) / (vh * 0.84)));
+    };
+    const target = (t: number) => {
+      const s = clamp((t - HOLD) / (1 - 2 * HOLD)) * (stops.length - 1);
+      const n = Math.min(stops.length - 2, Math.floor(s));
+      return stops[n] + (s - n) * (stops[n + 1] - stops[n]);
     };
     let now: number | null = null;
-    let goal = target();
+    let goal = SCROLL_FROM;
     let frame = 0;
     const step = () => {
       frame = 0;
@@ -111,18 +153,35 @@ export function SunLive({ day, phases, sliderLabel, moments, lantern, children }
       if (!done) frame = requestAnimationFrame(step);
     };
     const schedule = () => {
-      goal = target();
+      const t = through();
+      progress.current = t;
+      // scrolling the stage on hands the sun back from the slider; it glides on from the guest's minute
+      if (choice.current && Math.abs(t - choice.current.at) > RELEASE) {
+        now = choice.current.minute;
+        choice.current = null;
+        setChosen(null);
+      }
+      goal = target(t);
       if (!frame) frame = requestAnimationFrame(step);
     };
-    schedule();
+    const resize = () => {
+      fit();
+      schedule();
+    };
+    resize();
+    const watch = new ResizeObserver(resize);
+    watch.observe(stage);
     window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
+    window.addEventListener("resize", resize);
     return () => {
       cancelAnimationFrame(frame);
+      watch.disconnect();
       window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", resize);
+      run.removeAttribute("data-held");
+      small.remove();
     };
-  }, [following]);
+  }, [scrolling, stops]);
 
   const i = clamp(Math.round(minute) - day.from, 0, span);
   const [el, az] = day.track[i];
@@ -135,113 +194,123 @@ export function SunLive({ day, phases, sliderLabel, moments, lantern, children }
 
   return (
     <>
-      <div className="sky rv rv--brush" data-rv-group="" ref={skyRef} aria-hidden="true">
-        <svg className="sky__back" viewBox={`0 0 ${span} 100`} preserveAspectRatio="none">
-          {phases.map((p, n) => {
-            const a = startOf(p) - day.from;
-            const b = n + 1 < phases.length ? startOf(phases[n + 1]) - day.from : span;
-            return <rect key={p.name} x={a} y={0} width={b - a + 0.2} height={100} style={{ fill: `var(--${p.colour})` }} />;
-          })}
-          <path className="sky__road" d={shapes.road} />
-        </svg>
-        <span className="sky__sun" style={{ "--x": `${x(minute)}%`, "--y": `${y(el)}%` } as CSSProperties} />
-        <svg className="sky__land" viewBox={`0 0 ${span} 100`} preserveAspectRatio="none">
-          <defs>
-            <clipPath id="sky-land">
-              <path d={shapes.hill} />
-            </clipPath>
-          </defs>
-          <path className="sky__hill" d={shapes.hill} />
-          <path className="sky__road sky__road--under" d={shapes.road} clipPath="url(#sky-land)" />
-        </svg>
-        {[5, 10].map((d) => (
-          <span key={d} className="sky__deg" style={{ top: `${y(d)}%` }}>
-            {d}°
-          </span>
-        ))}
-        {(["goldenEnd", "civilDusk"] as const).map((k, n) => {
-          const m = day.events[k].at;
-          return (
-            <span key={k} className="sky__depth" style={{ left: `${x(m)}%`, top: `${y(day.track[m - day.from][0])}%` }}>
-              {n === 0 ? "−4°" : "−6°"}
+      <div className="sun-run" ref={runRef}>
+        <div className="sun-stage" ref={stageRef}>
+          <div className="sky rv rv--brush" data-rv-group="" ref={skyRef} aria-hidden="true">
+            <svg className="sky__back" viewBox={`0 0 ${span} 100`} preserveAspectRatio="none">
+              {phases.map((p, n) => {
+                const a = startOf(p) - day.from;
+                const b = n + 1 < phases.length ? startOf(phases[n + 1]) - day.from : span;
+                return <rect key={p.name} x={a} y={0} width={b - a + 0.2} height={100} style={{ fill: `var(--${p.colour})` }} />;
+              })}
+              <path className="sky__road" d={shapes.road} />
+            </svg>
+            <span className="sky__sun" style={{ "--x": `${x(minute)}%`, "--y": `${y(el)}%` } as CSSProperties} />
+            <svg className="sky__land" viewBox={`0 0 ${span} 100`} preserveAspectRatio="none">
+              <defs>
+                <clipPath id="sky-land">
+                  <path d={shapes.hill} />
+                </clipPath>
+              </defs>
+              <path className="sky__hill" d={shapes.hill} />
+              <path className="sky__road sky__road--under" d={shapes.road} clipPath="url(#sky-land)" />
+            </svg>
+            {[5, 10].map((d) => (
+              <span key={d} className="sky__deg" style={{ top: `${y(d)}%` }}>
+                {d}°
+              </span>
+            ))}
+            {(["goldenEnd", "civilDusk"] as const).map((k, n) => {
+              const m = day.events[k].at;
+              return (
+                <span key={k} className="sky__depth" style={{ left: `${x(m)}%`, top: `${y(day.track[m - day.from][0])}%` }}>
+                  {n === 0 ? "−4°" : "−6°"}
+                </span>
+              );
+            })}
+            <span className="sky__ground" style={{ top: `${y(-1.5)}%` }}>
+              Kopec na severozápade, asi {Math.round(day.horizon[day.events.behindHill.at - day.from])}° nad obzorom
             </span>
-          );
-        })}
-        <span className="sky__ground" style={{ top: `${y(-1.5)}%` }}>
-          Kopec na severozápade, asi {Math.round(day.horizon[day.events.behindHill.at - day.from])}° nad obzorom
-        </span>
-        {phases.map((p, n) => {
-          if (!p.label) return null;
-          const a = startOf(p);
-          const b = n + 1 < phases.length ? startOf(phases[n + 1]) : day.to;
-          const style = { left: `${x(a)}%`, maxWidth: `${x(b) - x(a)}%`, "--d": `${Math.round(250 + 700 * (x(a) / 100))}ms` } as CSSProperties;
-          return (
-            <p key={p.name} className={`sky__lab rv rv--write${p.colour === "olive" ? " sky__lab--night" : ""}`} style={style}>
-              <b>
-                <Write mode="line" text={p.from === "behindHill" ? `≈ ${clock(Math.round(a / 5) * 5)}` : clock(a)} />
-              </b>
-              <Write mode="line" text={p.label} start={200} />
+            {phases.map((p, n) => {
+              if (!p.label) return null;
+              const a = startOf(p);
+              const b = n + 1 < phases.length ? startOf(phases[n + 1]) : day.to;
+              const style = { left: `${x(a)}%`, maxWidth: `${x(b) - x(a)}%`, "--d": `${Math.round(250 + 700 * (x(a) / 100))}ms` } as CSSProperties;
+              return (
+                <p key={p.name} className={`sky__lab rv rv--write${p.colour === "olive" ? " sky__lab--night" : ""}`} style={style}>
+                  <b>
+                    <Write mode="line" text={p.from === "behindHill" ? `≈ ${clock(Math.round(a / 5) * 5)}` : clock(a)} />
+                  </b>
+                  <Write mode="line" text={p.label} start={200} />
+                </p>
+              );
+            })}
+            <Drawing
+              className="sky__lantern rv rv--ink"
+              src={lantern}
+              style={{ left: `${x(day.events.civilDusk.at + 22)}%`, "--d": "1000ms" } as CSSProperties}
+            />
+            <p className="sky__moon rv rv--write" style={{ "--d": "1100ms" } as CSSProperties}>
+              <Write mode="line" text={`Úplná tma o ${clock(day.events.night.at)}. Mesiac vyjde až o ${clock(day.moonrise.at)}.`} />
             </p>
-          );
-        })}
-        <Drawing
-          className="sky__lantern rv rv--ink"
-          src={lantern}
-          style={{ left: `${x(day.events.civilDusk.at + 22)}%`, "--d": "1000ms" } as CSSProperties}
-        />
-        <p className="sky__moon rv rv--write" style={{ "--d": "1100ms" } as CSSProperties}>
-          <Write mode="line" text={`Úplná tma o ${clock(day.events.night.at)}. Mesiac vyjde až o ${clock(day.moonrise.at)}.`} />
-        </p>
-      </div>
+          </div>
 
-      <div className="scrub rv" style={{ "--d": "200ms" } as CSSProperties}>
-        <label className="scrub__label wrap" htmlFor="sun-time">
-          {sliderLabel}
-        </label>
-        <input
-          id="sun-time"
-          type="range"
-          min={day.from}
-          max={day.to}
-          step={1}
-          value={exact}
-          aria-valuetext={valueText}
-          onChange={(e) => setChosen(+e.currentTarget.value)}
-        />
-        <div className="scrub__ticks" aria-hidden="true">
-          {ticks.map((m) => (
-            <span key={m} style={{ left: `${x(m)}%` }}>
-              {clock(m)}
-            </span>
-          ))}
-        </div>
-      </div>
+          <div className="scrub rv" data-idle={touched ? undefined : ""} style={{ "--d": "200ms" } as CSSProperties}>
+            <label className="scrub__label wrap" htmlFor="sun-time">
+              {sliderLabel}
+            </label>
+            <input
+              id="sun-time"
+              type="range"
+              min={day.from}
+              max={day.to}
+              step={1}
+              value={exact}
+              aria-valuetext={valueText}
+              onChange={(e) => choose(+e.currentTarget.value)}
+              onPointerDown={() => setTouched(true)}
+            />
+            <div className="scrub__ticks" aria-hidden="true">
+              {ticks.map((m) => (
+                <span key={m} style={{ left: `${x(m)}%` }}>
+                  {clock(m)}
+                </span>
+              ))}
+            </div>
+          </div>
 
-      <div className="wrap read" data-rv-group="">
-        <p className="read__time rv">
-          {chosen === null && live !== null && <span className="read__now">Práve teraz</span>}
-          {clock(exact)}
-        </p>
-        <div className="rv" style={{ "--d": "120ms" } as CSSProperties}>
-          <p className="read__phase">{phase.name}</p>
-          <p className="read__say">{phase.say}</p>
+          <div className="wrap read" data-rv-group="">
+            <p className="read__time rv">
+              {chosen === null && live !== null && <span className="read__now">Práve teraz</span>}
+              {clock(exact)}
+            </p>
+            {/* every phase's words in one cell, the current one shown: the readout keeps the height of the longest */}
+            <div className="read__phases rv" style={{ "--d": "120ms" } as CSSProperties}>
+              {phases.map((p) => (
+                <div key={p.name} className={p === phase ? "on" : undefined}>
+                  <p className="read__phase">{p.name}</p>
+                  <p className="read__say">{p.say}</p>
+                </div>
+              ))}
+            </div>
+            <dl className="read__facts rv" style={{ "--d": "240ms" } as CSSProperties}>
+              <div>
+                <dt>Výška slnka</dt>
+                <dd>{degrees(el)}</dd>
+              </div>
+              <div>
+                <dt>Smer</dt>
+                <dd>
+                  {compassWord(az)} · {Math.round(az)}°
+                </dd>
+              </div>
+              <div>
+                <dt>Váš tieň</dt>
+                <dd>{shadow}</dd>
+              </div>
+            </dl>
+          </div>
         </div>
-        <dl className="read__facts rv" style={{ "--d": "240ms" } as CSSProperties}>
-          <div>
-            <dt>Výška slnka</dt>
-            <dd>{degrees(el)}</dd>
-          </div>
-          <div>
-            <dt>Smer</dt>
-            <dd>
-              {compassWord(az)} · {Math.round(az)}°
-            </dd>
-          </div>
-          <div>
-            <dt>Váš tieň</dt>
-            <dd>{shadow}</dd>
-          </div>
-        </dl>
       </div>
 
       {moments}
