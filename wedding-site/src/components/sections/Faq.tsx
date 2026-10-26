@@ -19,7 +19,7 @@ export async function Faq() {
           <p className="lead rv rv--write" style={{ "--d": "400ms" } as CSSProperties}>
             <Write mode="prose" text="Ak tu odpoveď nenájdete, napíšte nám. Radi odpovieme." />
           </p>
-          <p className="rv rv--brush" style={{ "--d": "1000ms" } as CSSProperties}>
+          <p className="rv rv--brush" style={{ "--d": "900ms" } as CSSProperties}>
             <Link className="btn" href="/rsvp#odkaz" style={{ "--c": "var(--peony)" } as CSSProperties}>
               Napísať nám
             </Link>
@@ -30,7 +30,7 @@ export async function Faq() {
             <details className="rv rv--brush" key={q.question}>
               <summary>{tie(q.question)}</summary>
               <p>
-                <Write mode="prose" text={q.answer ? tie(q.answer) : "Odpoveď doplníme."} budget={850} />
+                <Write mode="prose" text={q.answer ? tie(q.answer) : "Odpoveď doplníme."} />
               </p>
             </details>
           ))}

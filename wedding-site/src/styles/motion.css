@@ -3,8 +3,8 @@
    reduced-motion preference) and html.land (the page opened below the top). Every hidden "from" state lives
    under html.mo, so no JavaScript, reduced motion and ?static all show everything in place.
    The invitation draws itself as it is read: drawings are inked in, riso colour drops onto the paper under
-   them and splashes into shape, headings are written letter by letter, dates and times are typed, text flows
-   on in the direction of reading, the road draws with scroll, the prints develop. */
+   them and splashes into shape, every line of text is inked in the direction of
+   reading behind one soft edge, the road draws with scroll, the prints develop. */
 
 /* ===== reveals: RevealObserver adds .in once ===== */
 /* .rv rise · .rv--left / .rv--right slide in from that side · .rv--stamp a drawing lands
@@ -38,57 +38,36 @@ html.mo:not(.land) .rv--settle:not(.in) img, html.mo:not(.land) .rv--settle:not(
 @keyframes stamp { from { opacity: 0; scale: 1.04; rotate: -2deg; } }
 @keyframes draw-down { from { scale: 1 0; } }
 
-/* ===== hand-made layer: pen, typewriter, flow, ink, drops, brush (MOTION.md, Language) =====
+/* ===== hand-made layer: text, ink, drops, brush (MOTION.md, Language) =====
    Each runs once as a keyframe animation with fill „backwards“: it hides its element until its turn and
    leaves nothing behind once it is over. Triggered by .in from RevealObserver, or on load in the hero, the
    RSVP cover and „Pripravujeme“; a landing below the top (data-rv-instant) skips it. */
 
-/* --- text, written live (Write.tsx sets --t, --w, --h on every letter) ---
-   pen: a nib draws each letter · type: each letter is pressed in behind a caret · prose: letters flow on with a
-   soft leading edge, each one landing over 300ms while the next ones start, so a paragraph reads as one stroke */
-.write__word, .write .ch { display: inline-block; }
-.write__word { white-space: nowrap; }
-.write .sr-only { user-select: none; }
-.write .ch { position: relative; --at: calc(var(--delay, 0ms) + var(--w0, 0ms) + var(--t, 0ms)); }
-/* the caret (type) or the nib (pen): one thin ink bar that moves along the line with the letters */
-.write .ch::after {
-  content: ""; position: absolute; left: 100%; top: 0.12em; bottom: 0.02em; width: max(2px, 0.06em); margin-left: 0.04em;
-  border-radius: 1px; background: currentColor; opacity: 0; pointer-events: none;
+/* --- text, inked in the direction of reading (Write.tsx sets --t, its start, and --wd, how long it takes) ---
+   One soft edge runs along the text, the brush's mask turned to the line: the mask is laid over the text's inline
+   box, which is sliced, not cloned, so its lines count as one long line and are inked first to last. The mask
+   image is (2 + --we) times the run: ink, an edge --we of the run wide, and clear paper; at 100% only paper
+   covers the text, at 0% only ink, so the whole sweep is spent on the text and every letter comes up over about
+   a sixth of it. Nothing is split, and nothing is left on the text once the sweep is over. */
+.write {
+  --at: calc(var(--delay, 0ms) + var(--w0, 0ms) + var(--t, 0ms)); --we: 0.24;
+  --ink-mask: linear-gradient(90deg, #000 calc(100% / (2 + var(--we))), transparent calc((1 + var(--we)) * 100% / (2 + var(--we))));
+  --ink-size: calc((2 + var(--we)) * 100%) 100%;
 }
-.write--pen .ch::after { width: max(2px, 0.05em); rotate: 12deg; }
+.write--prose { --we: 0.12; }
 
-/* a host of written text does not also rise or fade: only its letters move */
+/* a host of written text does not also rise or fade: only its text is inked */
 html.mo:not(.land) .rv--write:not(.in) { opacity: 1; translate: none; }
-html.mo:not(.land) .rv:not(.in) .write .ch { opacity: 0; }
+html.mo:not(.land) .rv:not(.in) .write { opacity: 0; }
 
-/* pen: each letter is drawn left to right behind the nib, then the nib waits for the next one */
-html.mo .in .write--pen .ch:not(.rv:not(.in) *, [data-rv-instant] *),
-html.mo :is(.hero, .soon, .reply__intro) .write--pen .ch { animation: pen var(--w) linear var(--at) backwards; }
-html.mo .in .write--pen .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
-html.mo :is(.hero, .soon, .reply__intro) .write--pen .ch::after { animation: nib var(--w) linear var(--at), hold var(--h) steps(1) calc(var(--at) + var(--w)); }
-/* type: each letter is pressed in quickly, the caret sits after it until the next one */
-html.mo .in .write--type .ch:not(.rv:not(.in) *, [data-rv-instant] *),
-html.mo :is(.hero, .soon, .reply__intro) .write--type .ch { animation: type 140ms var(--ease-out) var(--at) backwards; }
-html.mo .in .write--type .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
-html.mo :is(.hero, .soon, .reply__intro) .write--type .ch::after { animation: hold calc(var(--w) + var(--h)) steps(1) var(--at); }
-/* prose: no caret; the overlapping landings are the leading edge */
-html.mo .in .write--prose .ch:not(.rv:not(.in) *, [data-rv-instant] *),
-html.mo :is(.hero, .soon, .reply__intro) .write--prose .ch { animation: flow 300ms var(--ease-out) var(--at) backwards; }
-/* with data-caret the caret stays after the last letter and blinks three times */
-html.mo .in .write[data-caret] .ch--end:not(.rv:not(.in) *, [data-rv-instant] *)::after,
-html.mo :is(.hero, .soon, .reply__intro) .write[data-caret] .ch--end::after { animation: blink 2100ms steps(1) var(--at); }
+html.mo .in .write:not(.rv:not(.in) *, [data-rv-instant] *),
+html.mo :is(.hero, .soon, .reply__intro) .write { animation: write var(--wd, 500ms) var(--ease-write) var(--at) backwards; }
 /* the ampersand in the names is the flourish: drawn with a turn of the pen */
-html.mo .in .amp .ch:not(.rv:not(.in) *, [data-rv-instant] *),
-html.mo :is(.hero, .soon) .amp .ch { animation: flourish 480ms var(--ease-out) var(--at) backwards; }
-html.mo .in .amp .ch:not(.rv:not(.in) *, [data-rv-instant] *)::after,
-html.mo :is(.hero, .soon) .amp .ch::after { animation: none; }
+.amp .write { display: inline-block; }
+html.mo .in .amp .write:not(.rv:not(.in) *, [data-rv-instant] *),
+html.mo :is(.hero, .soon) .amp .write { animation: flourish 480ms var(--ease-out) var(--at) backwards; }
 
-@keyframes pen { from { opacity: 0; clip-path: inset(-25% 100% -35% -15%); } 1% { opacity: 1; } to { clip-path: inset(-25% 0 -35% -15%); } }
-@keyframes nib { from { left: 0; opacity: 1; } to { left: 100%; opacity: 1; } }
-@keyframes hold { from, to { opacity: 1; } }
-@keyframes type { from { opacity: 0; translate: 0 0.06em; } }
-@keyframes flow { from { opacity: 0; translate: 0 0.16em; } }
-@keyframes blink { 0%, 28%, 57%, 86% { opacity: 1; } 14%, 43%, 71%, 100% { opacity: 0; } }
+@keyframes write { from { mask: var(--ink-mask) 100% 0 / var(--ink-size) no-repeat; } to { mask: var(--ink-mask) 0% 0 / var(--ink-size) no-repeat; } }
 @keyframes flourish {
   from { opacity: 0; clip-path: inset(-25% 100% -35% -25%); rotate: -14deg; scale: 1.18; }
   1% { opacity: 1; }
@@ -148,21 +127,21 @@ html.mo .menu-panel a { transition: opacity 220ms var(--ease-out) calc(40ms + va
 }
 
 /* ===== hero: the invitation is drawn in front of the guest, names and date readable by 1.6 s, all by 2.8 s ===== */
-/* 1 the couple is inked in, their colour drops land under them · 2 the names are written, the ampersand last
-   with a flourish · 3 the date is typed as the flourish ends, its caret blinks and goes · 4 the blooms are
-   inked either side · 5 where and intro flow on, the buttons are brushed in · 6 the road draws down, then
-   marches until the first scroll */
+/* 1 the couple is inked in, their colour drops land under them · 2 the names are inked, the ampersand last
+   with a flourish · 3 the date is inked under them as the flourish turns · 4 the blooms are inked either side
+   · 5 the place line and the intro are inked, the buttons brushed in · 6 the road draws down, then marches
+   until the first scroll. Names and date are down by 1.2 s, the whole screen by 2.6 s. */
 .hero h1 { --w0: 150ms; }
-.hero__date { --w0: 1050ms; }
-.hero__where { --w0: 1350ms; }
-.hero__intro { --w0: 1750ms; }
-html.mo .hero__actions .btn { animation: brush 640ms var(--ease-out) 2100ms backwards; }
-html.mo .hero__actions .btn + .btn { animation-delay: 2200ms; }
+.hero__date { --w0: 900ms; }
+.hero__where { --w0: 1050ms; }
+.hero__intro { --w0: 1600ms; }
+html.mo .hero__actions .btn { animation: brush 640ms var(--ease-out) 1850ms backwards; }
+html.mo .hero__actions .btn + .btn { animation-delay: 1950ms; }
 .hero__art { --sd: 0ms; }
 .hero__bloom--left { --sd: 450ms; }
 .hero__bloom--right { --sd: 650ms; }
 html.mo .hero .tint img { animation: ink var(--t-ink) var(--ease-ink) var(--sd) backwards; }
-html.mo .hero__road { transform-origin: top; animation: draw-down 600ms var(--ease-out) 2400ms both, march 1.6s linear 3000ms infinite; }
+html.mo .hero__road { transform-origin: top; animation: draw-down 600ms var(--ease-out) 2150ms both, march 1.6s linear 2750ms infinite; }
 html.mo.scrolled .hero__road { animation-play-state: running, paused; }
 @keyframes march { to { background-position: 0 16px; } }
 /* once the march has stopped, the hero's colour breathes: never two loops in the first screen */
@@ -232,10 +211,10 @@ html.js .faq details.rv { transition: background-color var(--t-hover), transform
   html.mo .cal[open]::details-content { height: auto; opacity: 1; }
   html.mo .cal[open] :is(.cal__menu, .cal__other) { animation: none; }
 }
-/* an opened answer flows on again every time its row opens (its own animation name, so opening restarts it) */
+/* an opened answer is inked again every time its row opens (its own animation name, so opening restarts it) */
 .faq details[open] p { --delay: 120ms; }
-html.mo .faq details[open] .write .ch { animation: flow-open 300ms var(--ease-out) var(--at) backwards; }
-@keyframes flow-open { from { opacity: 0; translate: 0 0.16em; } }
+html.mo .faq details[open] .write { animation: write-open var(--wd) var(--ease-write) var(--at) backwards; }
+@keyframes write-open { from { mask: var(--ink-mask) 100% 0 / var(--ink-size) no-repeat; } to { mask: var(--ink-mask) 0% 0 / var(--ink-size) no-repeat; } }
 
 /* ===== places: text rises, the cropped drawing is pushed into frame from the edge that crops it ===== */
 @property --px { syntax: "<length>"; inherits: false; initial-value: 0px; }
@@ -305,13 +284,13 @@ html.mo:not(.land) .rv--fade:not(.in) { translate: none; }
 @keyframes drift-px { from { --px: var(--drift-from); } to { --px: var(--drift-to); } }
 
 /* ===== RSVP page ===== */
-/* cover: the kicker is typed, the title written, the text flows on; envelope and rose are inked with their
+/* cover: the kicker, the title and the text are written in turn; envelope and rose are inked with their
    colour dropped under them; the road draws down into the form */
 .reply__kicker { --w0: 80ms; }
-.reply__intro h1 { --w0: 600ms; }
-.reply__intro .lead { --w0: 1050ms; }
-html.mo .reply__intro > .reply__until { animation: brush 640ms var(--ease-out) 1800ms backwards; }
-html.mo .reply__intro::after { transform-origin: top; animation: draw-down 600ms var(--ease-out) 2000ms both; }
+.reply__intro h1 { --w0: 400ms; }
+.reply__intro .lead { --w0: 650ms; }
+html.mo .reply__intro > .reply__until { animation: brush 640ms var(--ease-out) 1250ms backwards; }
+html.mo .reply__intro::after { transform-origin: top; animation: draw-down 600ms var(--ease-out) 1450ms both; }
 .reply__envelope { --sd: 100ms; }
 .reply__bloom { --sd: 900ms; }
 html.mo .reply__art .tint img { animation: ink var(--t-ink) var(--ease-ink) var(--sd) backwards; }

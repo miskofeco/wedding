@@ -19,7 +19,7 @@ export function Stay() {
           <h2 id="stay-h" className="rv rv--write" style={{ "--d": "400ms" } as CSSProperties}>
             <Write text={tie("Cesta domov môže počkať")} />
           </h2>
-          <p className="lead rv rv--write" style={{ "--d": "1050ms" } as CSSProperties}>
+          <p className="lead rv rv--write" style={{ "--d": "850ms" } as CSSProperties}>
             <Write
               mode="prose"
               text={tie("Zábava potrvá do noci, a tak sme pre vás vybrali zopár miest na prespanie blízko stodoly. Ráno sa potom nikam neponáhľajte.")}
@@ -33,7 +33,7 @@ export function Stay() {
                 <span className="stop__pin rv" aria-hidden="true" />
                 <div className="stop__card rv rv--right rv--brush" style={card}>
                   <h3>
-                    <Write text={tie(s.name)} budget={600} start={200} />
+                    <Write text={tie(s.name)} start={200} />
                   </h3>
                   {s.address && <p className="stop__addr">{s.address}</p>}
                   {s.distanceKm !== null && <p className="stop__dist">{formatKm(s.distanceKm)} od Stodoly Zlatník</p>}
@@ -51,7 +51,7 @@ export function Stay() {
               <span className="stop__pin rv" aria-hidden="true" />
               <div className="stop__card rv rv--right rv--brush" style={card}>
                 <h3>
-                  <Write text="Miesta práve vyberáme" budget={600} start={200} />
+                  <Write text="Miesta práve vyberáme" start={200} />
                 </h3>
                 <p>Zoznam ubytovania so vzdialenosťou od stodoly a&nbsp;kontaktmi doplníme čoskoro.</p>
               </div>
@@ -62,7 +62,7 @@ export function Stay() {
             <div className="stop__morning">
               <Drawing className="rv rv--ink" src={art("coffee", "white")} />
               <p className="rv rv--write" style={card}>
-                <Write text="Ráno bez ponáhľania." pace={40} start={400} />
+                <Write text="Ráno bez ponáhľania." start={400} />
               </p>
             </div>
           </li>

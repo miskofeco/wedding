@@ -42,15 +42,15 @@
 @media (min-width: 760px) { .soon__car { margin-left: calc(22% - var(--car) / 2); } }
 
 /* ===== motion (hidden states only under html.mo; reduced motion snaps through motion.css) ===== */
-/* the invitation being drawn: the couple is inked with colour dropped under them, the kicker is typed and
-   its caret blinks, the names are written, the date is typed, the lines flow on, the blooms inked either side;
-   names and date readable by 2 s, the car parked by 3.8 s */
+/* the invitation being drawn: the couple is inked with colour dropped under them, then the kicker, the
+   names, the date and the lines are inked in reading order, the blooms either side; names and date down by
+   1.5 s, the text by 2.4 s, the car parked by 3.6 s */
 .soon__kicker { --w0: 150ms; }
-.soon h1 { --w0: 700ms; }
-.soon__date { --w0: 1500ms; }
-.soon__where { --w0: 1800ms; }
-.soon__intro { --w0: 2150ms; }
-html.mo .soon > .soon__cal { animation: brush 640ms var(--ease-out) 2700ms backwards; }
+.soon h1 { --w0: 450ms; }
+.soon__date { --w0: 1150ms; }
+.soon__where { --w0: 1350ms; }
+.soon__intro { --w0: 1700ms; }
+html.mo .soon > .soon__cal { animation: brush 640ms var(--ease-out) 2100ms backwards; }
 .soon__art { --sd: 0ms; }
 .soon__bloom--left { --sd: 500ms; }
 .soon__bloom--right { --sd: 700ms; }
@@ -58,9 +58,9 @@ html.mo .soon .tint img { animation: ink var(--t-ink) var(--ease-ink) var(--sd) 
 
 /* the road draws in from the right, the car follows it in and brakes with a small nod onto its front wheel,
    then the road marches under the parked car (march-x, motion.css), so it still looks on its way */
-html.mo .soon__road::before { animation: soon-draw 800ms var(--ease-out) 2300ms both, march-x 1.2s linear 4000ms infinite; }
-html.mo .soon__car { animation: soon-drive 1300ms var(--ease-out) 2550ms both; }
-html.mo .soon__car img { transform-origin: 22% 74%; animation: soon-brake 520ms var(--ease-stamp) 3650ms both; }
+html.mo .soon__road::before { animation: soon-draw 800ms var(--ease-out) 2000ms both, march-x 1.2s linear 3700ms infinite; }
+html.mo .soon__car { animation: soon-drive 1300ms var(--ease-out) 2250ms both; }
+html.mo .soon__car img { transform-origin: 22% 74%; animation: soon-brake 520ms var(--ease-stamp) 3350ms both; }
 @keyframes soon-draw { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0 0 0 0); } }
 @keyframes soon-drive { from { translate: 100vw 0; } }
 @keyframes soon-brake { 40% { rotate: -2.5deg; } }

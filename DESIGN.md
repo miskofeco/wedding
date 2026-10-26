@@ -92,7 +92,7 @@ Gutter `clamp(16px, 4vw, 64px)`, content width 1200px, section padding `clamp(64
 
 ### Motion
 
-Language („Pozvánka sa kreslí“: the invitation is drawn as it is read): each drawing is **inked** first and its colours then **drop** onto the paper one by one, splash and dry, headings are **written** live behind a moving nib, dates and times are **typed** behind a caret, paragraphs **flow** on in the direction of reading, cards, pills and buttons are **brushed** in, the prints **develop**, the road **draws** with scroll. On interaction drawings **nudge**, colour **slips** off register and **drifts** with the mouse, ink is **brushed** across a button, underlines **draw** from the left, and a choice **nods** once. The full inventory, mechanics, rules and the checklist for new components live in `MOTION.md`; the reasoning behind phases A–D is in `planning/MOTION-PROPOSAL.md`.
+Language („Pozvánka sa kreslí“: the invitation is drawn as it is read): each drawing is **inked** first and its colours then **drop** onto the paper one by one, splash and dry, every line of text is **written**: inked in the direction of reading behind one soft edge, line after line, cards, pills and buttons are **brushed** in, the prints **develop**, the road **draws** with scroll. On interaction drawings **nudge**, colour **slips** off register and **drifts** with the mouse, ink is **brushed** across a button, underlines **draw** from the left, and a choice **nods** once. The full inventory, mechanics, rules and the checklist for new components live in `MOTION.md`; the reasoning behind phases A–D is in `planning/MOTION-PROPOSAL.md`.
 
 | Token | Value |
 | --- | --- |
@@ -103,6 +103,7 @@ Language („Pozvánka sa kreslí“: the invitation is drawn as it is read): ea
 | `--t-reveal` / `--t-stamp` | 700 / 600ms (phones 550 / 550) |
 | `--t-ink` / `--t-drop` / `--t-dry` | 950 / 720 / 1600ms (phones 850 / 660 / 1600) |
 | `--ease-ink` | cubic-bezier(.45, .05, .25, 1) |
+| `--ease-write` | cubic-bezier(.25, .4, .3, 1) (text inked in) |
 | `--rv-y` / `--rv-x` | 22px (phones 12px) / 16px |
 | `--press` / `--press-card` / `--press-small` | 0.97 / 0.985 / 0.94 |
 

@@ -26,16 +26,16 @@ export default function ComingSoon() {
         reveal={false}
       />
       <Tint className="sticker soon__bloom soon__bloom--right" src={art("ranunculus-bouquet", "black")} c="sage" c2="peony" eager reveal={false} />
-      {/* The page says what it is: the kicker is typed, then the names are written in. */}
+      {/* The page says what it is: the kicker is written, then the names. */}
       <p className="soon__kicker">
-        <Write text="Pozvánka sa ešte kreslí" mode="type" caret />
+        <Write text="Pozvánka sa ešte kreslí" mode="line" />
       </p>
       <h1>
         <Names first={couple.first} second={couple.second} />
       </h1>
       <p className="soon__date">
         <time dateTime={site.date}>
-          <Write text={site.dateLabel} mode="type" />
+          <Write text={site.dateLabel} mode="line" />
         </time>
       </p>
       <p className="soon__where">

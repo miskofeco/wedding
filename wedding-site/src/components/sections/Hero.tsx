@@ -6,8 +6,8 @@ import { tie } from "@/lib/format";
 import { Tint } from "../Tint";
 import { Names, Write, writeTime } from "../Write";
 
-/** Where each fact of the „where“ line starts, so the line is typed in one go across its parts. */
-const whereAt = (parts: string[], i: number) => parts.slice(0, i).reduce((t, p) => t + writeTime(`${tie(p)}\u00a0·`, "prose", undefined, 360) + 60, 0);
+/** Where each fact of the „where“ line starts: as the one before it is nearly down, so the line is inked in one go. */
+const whereAt = (parts: string[], i: number) => parts.slice(0, i).reduce((t, p) => t + Math.round(writeTime(`${tie(p)}\u00a0·`, "line") * 0.6), 0);
 
 export function Hero() {
   const { couple } = site;
@@ -24,13 +24,13 @@ export function Hero() {
         reveal={false}
       />
       <Tint className="sticker hero__bloom hero__bloom--right" src={art("ranunculus-bouquet", "black")} c="sage" c2="peony" eager reveal={false} />
-      {/* The names are written in, the ampersand last with a flourish; the date is typed under them. */}
+      {/* The names are inked, the ampersand last with a flourish; the date is inked under them. */}
       <h1 id="names">
         <Names first={couple.first} second={couple.second} />
       </h1>
       <p className="hero__date">
         <time dateTime={site.date}>
-          <Write text={site.dateLabel} mode="type" caret />
+          <Write text={site.dateLabel} mode="line" />
         </time>
       </p>
       {/* Each fact keeps together, so lines break at the dots and never inside the church's name. */}
@@ -39,13 +39,13 @@ export function Hero() {
           <Fragment key={part}>
             {i > 0 && " "}
             <span>
-              <Write mode="prose" text={tie(part) + (i < all.length - 1 ? "\u00a0·" : "")} budget={360} start={whereAt(all, i)} />
+              <Write mode="line" text={tie(part) + (i < all.length - 1 ? "\u00a0·" : "")} start={whereAt(all, i)} />
             </span>
           </Fragment>
         ))}
       </p>
       <p className="hero__intro">
-        <Write mode="prose" text={tie(site.intro)} budget={900} />
+        <Write mode="prose" text={tie(site.intro)} />
       </p>
       <div className="hero__actions">
         <a className="btn btn--solid" href="#program">

@@ -28,19 +28,19 @@ function PlacePanel({ place, drawing }: { place: Place; drawing: string }) {
             <Write text={place.title[0]} />
           </span>{" "}
           <span className="panel__line">
-            <Write text={tie(place.title[1])} start={writeTime(place.title[0]) + 120} />
+            <Write text={tie(place.title[1])} start={Math.round(writeTime(place.title[0]) * 0.7)} />
           </span>
         </h3>
         <p className="panel__sub">
           {details(place).map((line, i) => (
             <span className="panel__line" key={line}>
-              <Write mode="prose" text={line} budget={500} start={800 + i * 450} />
+              <Write mode="line" text={line} start={620 + i * 300} />
             </span>
           ))}
         </p>
       </div>
       <Drawing className="panel__art rv" src={drawing} />
-      <div className="panel__foot rv rv--brush" style={d(1700)}>
+      <div className="panel__foot rv rv--brush" style={d(1450)}>
         {place.mapUrl ? (
           <a className="btn" href={place.mapUrl} target="_blank" rel="noopener noreferrer">
             Otvoriť mapu<span className="sr-only"> (otvorí sa v novom okne)</span>

@@ -65,6 +65,7 @@
   --rv-y: 22px; /* rise distance */
   --rv-x: 16px; /* directional slide */
   --t-ink: 950ms; /* a drawing inked in */
+  --ease-write: cubic-bezier(0.25, 0.4, 0.3, 1); /* text inked: moving from the first letter, easing onto the last */
   --t-drop: 720ms; /* a riso colour drop falls, splashes and rests under it */
   --t-dry: 1600ms; /* the drop dries from wet to its riso tone */
   --ease-ink: cubic-bezier(0.45, 0.05, 0.25, 1); /* a hand drawing: unhurried start, steady line, gentle stop */

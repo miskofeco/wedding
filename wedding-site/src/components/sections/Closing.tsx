@@ -23,16 +23,16 @@ export function Closing() {
       <Drawing className="corner" src={art("rose-corner", "white")} />
       <Drawing className="close__garland rv rv--ink" src={art("garland", "white")} />
       <p className="close__thanks rv rv--write" style={d(300)}>
-        <Write text="Tešíme sa na vás." pace={40} />
+        <Write text="Tešíme sa na vás." />
       </p>
-      {/* The names are signed slowly, the ampersand last; the date is typed under the signature. */}
-      <h2 className="close__names rv rv--write" style={d(900)}>
-        <Names first={couple.first} second={couple.second} pace={64} />
+      {/* The names are signed, the ampersand last; the date is inked under the signature. */}
+      <h2 className="close__names rv rv--write" style={d(700)}>
+        <Names first={couple.first} second={couple.second} />
       </h2>
-      <p className="close__date rv rv--write" style={d(2300)}>
-        <Write text={`${site.dateLabel} · Hlinné · Zlatník`} mode="type" pace={34} />
+      <p className="close__date rv rv--write" style={d(1550)}>
+        <Write text={`${site.dateLabel} · Hlinné · Zlatník`} mode="line" />
       </p>
-      <ul className="close__links rv rv--brush" style={d(2900)}>
+      <ul className="close__links rv rv--brush" style={d(2000)}>
         {links.map((l) => (
           <li key={l.href}>
             <a className="link" href={l.href}>
