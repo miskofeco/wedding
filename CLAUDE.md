@@ -20,7 +20,7 @@ Production is **https://www.baskamisko.sk** (`baskamisko.sk` redirects there): V
   ```bash
   npm run deploy
   ```
-  It runs `vercel pull`, `vercel build --prod` and `vercel deploy --prebuilt --prod`. Run `npm run photos` or `npm run fills` first only if those assets changed.
+  It runs `vercel pull`, `vercel build --prod` and `vercel deploy --prebuilt --prod`. Run `npm run photos`, `npm run fills` or `npm run og` (the link preview image) first only if those assets changed.
 - **Deploy when the user asks**, and only a committed and pushed state, so production always matches a commit on `main`.
 - **Afterwards** check that https://www.baskamisko.sk and `/admin/login` answer, and report the deployment URL. If the build fails, report the error; don't deploy around it.
 - **„Pripravujeme“:** while `comingSoon` in `wedding-site/src/content/launch.ts` is `true`, production shows only the coming-soon page (a build-time rewrite in `next.config.ts`); `/admin` stays open. Switch it off only when the user says so, then deploy.

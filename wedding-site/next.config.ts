@@ -46,8 +46,8 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     // Before the pages, so it wins over them. Not the page itself, the calendar file it
-    // links, /admin, Next.js assets, drawings, masks or the icon.
-    const gate = { source: "/((?!admin(?:/|$)|pripravujeme|svadba\\.ics|_next/|art/|fills/|icon\\.svg).*)", destination: "/pripravujeme" };
+    // links, /admin, Next.js assets, drawings, masks, the icon or the share image.
+    const gate = { source: "/((?!admin(?:/|$)|pripravujeme|svadba\\.ics|_next/|art/|fills/|icon\\.svg|opengraph-image).*)", destination: "/pripravujeme" };
     return { beforeFiles: showComingSoon ? [gate] : [], afterFiles: [], fallback: [] };
   },
 };

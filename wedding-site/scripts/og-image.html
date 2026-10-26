@@ -1,0 +1,98 @@
+<!doctype html>
+<!--
+  The link preview (Open Graph image, 1200 × 630) in the site's grammar: the date set huge, the couple in
+  sunglasses above it, rose sprays beside them and two bouquets reaching in from the sides, all black drawings
+  on riso tints with the white sticker edge. `npm run og` renders it to src/app/opengraph-image.png.
+  Fonts come from Google Fonts here (the site self-hosts the same files through next/font); the render
+  checks they loaded.
+-->
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,300&display=block">
+<style>
+:root { --white: #fff; --ivory: #F6F2EA; --sage: #93A17F; --peony: #D8A0A6; --apricot: #D98962; --butter: #E4C765; --linen: #C7B69A; --blue: #7C9CBC; --ink: #111; --ink-soft: #4A4A4A; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1200px; height: 630px; overflow: hidden; }
+body { position: relative; background: var(--white); color: var(--ink); font-family: "DM Sans", sans-serif; -webkit-font-smoothing: antialiased; }
+img { display: block; }
+
+.f { font-family: Fraunces, serif; font-weight: 600; letter-spacing: -0.025em; font-variation-settings: "opsz" 144; }
+.amp { font-style: italic; font-weight: 300; }
+
+/* the names and the question are a pair: same face, size, leading, margin and caption row */
+.corner { position: absolute; top: 58px; width: 360px; }
+.corner--l { left: 64px; }
+.corner--r { right: 64px; text-align: right; }
+.corner .f { font-size: 54px; line-height: 1; }
+.cap { display: flex; align-items: center; height: 28px; margin-top: 16px; font-size: 20px; font-weight: 500; color: var(--ink-soft); }
+.corner--r .cap { justify-content: flex-end; gap: 9px; }
+.cap i { width: 22px; height: 19px; border-radius: 58% 42% 55% 45% / 50% 60% 40% 50%; }
+
+/* riso tint, as on the site (components.css): two soft blobs under a black line drawing */
+.tint { position: absolute; }
+.tint img { position: relative; z-index: 1; width: 100%; aspect-ratio: 1; object-fit: contain; filter: url(#sticker); }
+.tint::before, .tint::after { content: ""; position: absolute; z-index: 0; background: var(--c); border-radius: 58% 42% 55% 45% / 50% 60% 40% 50%; }
+.tint::before { left: 18%; top: 22%; width: 62%; height: 64%; }
+.tint::after { background: var(--c2); left: 8%; bottom: 6%; width: 30%; height: 24%; border-radius: 45% 55% 50% 50% / 55% 45% 55% 45%; }
+
+.couple { left: 450px; top: 30px; width: 300px; --c: var(--peony); --c2: var(--butter); }
+
+/* rose sprays frame the couple, like the hero's blooms */
+.spray::before { left: 30%; top: 42%; width: 56%; height: 48%; }
+.spray::after { left: 22%; top: 14%; width: 22%; height: 20%; }
+.spray--l { left: 300px; top: 168px; width: 172px; transform: scaleX(-1) rotate(8deg); --c: var(--apricot); --c2: var(--butter); }
+.spray--r { left: 730px; top: 168px; width: 172px; transform: rotate(8deg); --c: var(--sage); --c2: var(--peony); }
+
+/* the bouquets reach in from the sides as a mirrored pair, stems cut by the edge; offsets differ
+   so each keeps the same distance from the date */
+.bouq::before { left: 10%; top: 6%; width: 76%; height: 54%; }
+.bouq::after { left: 44%; bottom: 10%; width: 28%; height: 20%; }
+.bouq--l { left: -86px; top: 352px; width: 300px; transform: rotate(25deg); --c: var(--butter); --c2: var(--blue); }
+.bouq--r { right: -110px; top: 352px; width: 300px; transform: rotate(-25deg); --c: var(--peony); --c2: var(--sage); }
+
+.date { position: absolute; z-index: 2; left: 0; right: 0; bottom: -6px; text-align: center; font-size: 344px; line-height: 1; letter-spacing: -0.045em; font-variant-numeric: lining-nums tabular-nums; }
+</style>
+</head>
+<body>
+<!-- the site's sticker edge (layout.tsx), a little wider so it holds at preview size -->
+<svg width="0" height="0" style="position: absolute">
+  <filter id="sticker" x="-12%" y="-12%" width="124%" height="124%" color-interpolation-filters="sRGB">
+    <feGaussianBlur in="SourceAlpha" stdDeviation="2.1" result="soft" />
+    <feComponentTransfer in="soft" result="wide"><feFuncA type="linear" slope="40" /></feComponentTransfer>
+    <feGaussianBlur in="wide" stdDeviation="1.8" result="round" />
+    <feComponentTransfer in="round" result="cut"><feFuncA type="linear" slope="12" intercept="-5" /></feComponentTransfer>
+    <feFlood flood-color="#ffffff" />
+    <feComposite in2="cut" operator="in" result="edge" />
+    <feMerge><feMergeNode in="edge" /><feMergeNode in="SourceGraphic" /></feMerge>
+  </filter>
+</svg>
+
+<div class="corner corner--l">
+  <p class="f">Barbora<br><span class="amp">&amp;</span> Michal</p>
+  <p class="cap">Hlinné · Zlatník · 2027</p>
+</div>
+<div class="corner corner--r">
+  <p class="f">Môžeme<br>s&nbsp;vami rátať?</p>
+  <p class="cap"><i style="background: var(--sage)"></i><i style="background: var(--peony)"></i><i style="background: var(--apricot)"></i><i style="background: var(--butter)"></i><i style="background: var(--linen)"></i><i style="background: var(--blue)"></i></p>
+</div>
+
+<span class="tint spray spray--l"><img src="../public/art/black/rose-corner.svg" alt=""></span>
+<span class="tint spray spray--r"><img src="../public/art/black/rose-corner.svg" alt=""></span>
+<span class="tint bouq bouq--l"><img src="../public/art/black/daisy-bouquet.svg" alt=""></span>
+<span class="tint bouq bouq--r"><img src="../public/art/black/ranunculus-bouquet.svg" alt=""></span>
+<span class="tint couple"><img src="../public/art/black/couple-cool.svg" alt=""></span>
+<p class="date f">29.05.</p>
+
+<script>
+  // render-og.mjs reads this before it takes the picture: every face and drawing must have loaded.
+  Promise.all([document.fonts.ready, ...[...document.images].map((img) => img.decode().catch(() => {}))]).then(() => {
+    // fonts.check() also passes when a face was never declared (the stylesheet failed), so look for loaded faces
+    const loaded = [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family.replace(/"/g, '')} ${f.style}`);
+    const missing = ['Fraunces normal', 'Fraunces italic', 'DM Sans normal'].filter((face) => !loaded.includes(face));
+    for (const img of document.images) if (!img.naturalWidth) missing.push(img.getAttribute('src'));
+    document.documentElement.dataset.ready = missing.length ? `missing: ${missing.join(', ')}` : 'ok';
+  });
+</script>
+</body>
+</html>

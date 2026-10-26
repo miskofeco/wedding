@@ -91,13 +91,14 @@ Plain HTTP to localhost and a local database file are accepted only outside prod
 - `art-manifest.json` lists the 18 drawings used, their source file in `../doodles/whimsical/`, and the inks each needs. `npm run art` regenerates `public/art/` and `src/lib/art.generated.ts`. An entry with `crop` (`box` [x, y, w, h] on the 1080 artboard, optional `clip` polygon) takes one figure out of a larger drawing; the palette figures use it. Coordinates are copied exactly; rounding breaks the thin outlines.
 - `npm run fills` regenerates `public/fills/`: the suit and dress of the palette figures as masks, flood-filled from seed points in `scripts/sync-fills.mjs` (the bride's open train is closed by traced walls there).
 - `npm run photos` converts the three chosen originals from `../Photos/` into `src/assets/photos/` and fails if any location (GPS) metadata survives. Next.js serves AVIF and WebP sizes from them.
+- `npm run og` renders `scripts/og-image.html` (1200 × 630, the date with the couple and bouquets) to `src/app/opengraph-image.png`, the picture chat apps show when someone shares a link. Next.js adds the `og:image` tags, with the alt text from `src/app/opengraph-image.alt.txt` and absolute URLs from `NEXT_PUBLIC_SITE_URL`. It needs Chrome (or `CHROME=<path>`) and network access for Google Fonts, and refuses to write the file if a font or drawing failed to load. Chat apps cache previews, so after changing it on a link already shared, refresh the link in Facebook's Sharing Debugger.
 - **Licence:** no licence terms were found in the illustration pack. Keep the purchase or licence record for web use and modification before publishing.
 
 ## Deploy to Vercel
 
 Production: https://www.baskamisko.sk (`baskamisko.sk` redirects to it). The domain is registered at Websupport, whose DNS keeps an A record for `@` and a CNAME for `www` with the values shown in Vercel → Settings → Domains; `NEXT_PUBLIC_SITE_URL` is `https://www.baskamisko.sk`.
 
-The photos and palette masks are not in git, so Vercel can't build from the repository. The site is built on this machine and the finished build is uploaded. `vercel.json` turns off deploys on git push, so pushes never trigger a build that would fail.
+The photos, palette masks and share image are not in git, so Vercel can't build from the repository. The site is built on this machine and the finished build is uploaded. `vercel.json` turns off deploys on git push, so pushes never trigger a build that would fail.
 
 Once:
 
@@ -113,6 +114,7 @@ Every deploy, from `wedding-site/` with Node 24, the version Vercel runs (`nvm i
 ```bash
 npm run photos     # only if the photos changed
 npm run fills      # only if the palette figures changed
+npm run og         # only if the share image changed
 npm run deploy     # pulls the settings, builds here, uploads the build to production
 ```
 
@@ -124,7 +126,7 @@ After the first deploy, submit one test RSVP, check it appears in `/admin` and i
 
 ### „Pripravujeme“ (coming soon)
 
-While `comingSoon` in `src/content/launch.ts` is `true`, production shows only `/pripravujeme`: a rewrite in `next.config.ts` sends every guest page to it, `/rsvp` included (sending an answer is refused too). `/admin`, `/svadba.ics` (the page's calendar button), drawings and Next.js assets stay reachable. The address bar keeps the URL the guest opened. The rewrite is fixed when the site is built: `npm run deploy` builds with `VERCEL_ENV=production` from `vercel pull`, so local builds and preview deploys always show the full site; open `/pripravujeme` there to see the page. To open the invitation, set `comingSoon` to `false` and deploy.
+While `comingSoon` in `src/content/launch.ts` is `true`, production shows only `/pripravujeme`: a rewrite in `next.config.ts` sends every guest page to it, `/rsvp` included (sending an answer is refused too). `/admin`, `/svadba.ics` (the page's calendar button), drawings, the share image and Next.js assets stay reachable. The address bar keeps the URL the guest opened. The rewrite is fixed when the site is built: `npm run deploy` builds with `VERCEL_ENV=production` from `vercel pull`, so local builds and preview deploys always show the full site; open `/pripravujeme` there to see the page. To open the invitation, set `comingSoon` to `false` and deploy.
 
 The guest pages are static. The build reads the edited content from the production database (`vercel pull` brings the Turso variables), and saving in „Obsah webu“ rebuilds them on Vercel on the next visit, so content edits need no deploy.
 

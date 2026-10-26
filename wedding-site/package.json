@@ -16,6 +16,7 @@
     "art": "node scripts/sync-art.mjs",
     "fills": "node scripts/sync-fills.mjs",
     "photos": "sh scripts/prepare-photos.sh",
+    "og": "node scripts/render-og.mjs",
     "sheet:mock": "node scripts/sheet-mock.mjs"
   },
   "dependencies": {

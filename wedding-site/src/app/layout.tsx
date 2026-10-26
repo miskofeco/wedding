@@ -38,6 +38,8 @@ const dmSans = DM_Sans({
 const names = `${site.couple.first} & ${site.couple.second}`;
 
 export const metadata: Metadata = {
+  // Chat apps need the share image (app/opengraph-image.png, `npm run og`) as an absolute URL.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: `${names} · ${site.dateLabel}`,
   description: site.description,
   // A private invitation: keep it out of search engines.
@@ -48,6 +50,7 @@ export const metadata: Metadata = {
     locale: "sk_SK",
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
