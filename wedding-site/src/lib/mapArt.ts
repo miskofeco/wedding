@@ -5,7 +5,6 @@ export type Box = [number, number, number, number];
 /** A house or town block seen from above, centred on (x, y), turned `a` degrees. */
 export type Plan = { x: number; y: number; w: number; h: number; a: number };
 export type Tree = { x: number; y: number; r: number };
-export type Label = { x: number; y: number; text: string; anchor: "start" | "middle" | "end" };
 
 const r1 = (v: number) => Math.round(v * 10) / 10;
 
@@ -176,37 +175,32 @@ export function grove(name: string, at: Point, count: number, spread: number, ro
   return out;
 }
 
-/** A name for a cluster: below it, else above, beside or at a corner, wherever it fits; null if nowhere. */
-export function placeName(text: string, centre: Point, plans: Plan[], room: Clearance, size = 18): Label | null {
+/**
+ * A spot for a `w` × `h` mark that stands for a cluster: beside it, above or
+ * below, or by its centre when the cluster straddles a road; null if nowhere.
+ * Returns the mark's top-left corner.
+ */
+export function placeMark(centre: Point, plans: Plan[], w: number, h: number, room: Clearance): Point | null {
   if (!plans.length) return null;
   const xs = plans.map((p) => p.x);
   const ys = plans.map((p) => p.y);
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
-  const w = text.length * size * 0.52;
-  const mid = (x0 + x1) / 2;
-  const midY = (y0 + y1) / 2;
-  const at = (x: number, y: number, anchor: Label["anchor"]): [Label, Box] => {
-    const left = anchor === "start" ? x : anchor === "end" ? x - w : x - w / 2;
-    return [{ x, y, text, anchor }, [left - 2, y - size * 0.8, left + w + 2, y + size * 0.25]];
-  };
-  const tries = [
-    at(mid, y1 + 10 + size, "middle"),
-    at(mid, y0 - 10, "middle"),
-    at(x1 + 10, midY + size / 3, "start"),
-    at(x0 - 10, midY + size / 3, "end"),
-    at(x1 + 6, y1 + 8 + size, "start"),
-    at(x0 - 6, y1 + 8 + size, "end"),
-    at(x1 + 6, y0 - 8, "start"),
-    at(x0 - 6, y0 - 8, "end"),
-    // a village astride a road: beside its centre, on whichever bank is free
-    ...[18, 36, 54].flatMap((g) => [at(centre[0] + g, centre[1] + size / 3, "start"), at(centre[0] - g, centre[1] + size / 3, "end")]),
-    at(centre[0], centre[1] + 30, "middle"),
-    at(centre[0], centre[1] - 24, "middle"),
+  const [mx, my] = [(x0 + x1) / 2, (y0 + y1) / 2];
+  const tries: Point[] = [
+    [x1 + 8, my - h / 2],
+    [x0 - 8 - w, my - h / 2],
+    [mx - w / 2, y0 - 8 - h],
+    [mx - w / 2, y1 + 8],
+    ...[14, 30, 46].flatMap((g): Point[] => [
+      [centre[0] + g, centre[1] - h / 2],
+      [centre[0] - g - w, centre[1] - h / 2],
+    ]),
   ];
-  for (const [label, box] of tries) {
+  for (const [x, y] of tries) {
+    const box: Box = [x, y, x + w, y + h];
     if (room.boxClear(box)) {
       room.block(box);
-      return { ...label, x: r1(label.x), y: r1(label.y) };
+      return [r1(x), r1(y)];
     }
   }
   return null;

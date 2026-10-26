@@ -489,25 +489,25 @@
 .journey__stops a { justify-self: start; margin-top: 4px; }
 .journey__map { margin: 0 auto; max-width: 1560px; padding: 0 clamp(0px, 2vw, 32px); }
 .map { display: block; width: 100%; height: auto; overflow: hidden; }
-.map__river { fill: none; stroke: var(--sage); stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
+.map__river { fill: none; stroke: var(--blue); stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
 .map__note--river { font-style: italic; }
-.map__pond { fill: var(--sage); }
-/* the land around the route: woods, villages and Vranov as grey plans, the Ondava and Domaša; quieter than anything on top */
+.map__pond { fill: var(--blue); }
+/* the land around the route: woods, villages and Vranov as grey plans, signposts for the villages, the Ondava and Domaša; quieter than anything on top */
 .journey { --plan: #a9a496; --place: #5e5a51; --sign: oklch(0.5 0.1 252); }
 .map__trees { fill: var(--sage); }
 .map__plans { fill: var(--plan); }
-.map__water { fill: var(--sage); }
+.map__water { fill: var(--blue); }
 .map__river--minor { stroke-width: 12; }
-.map__place { font-family: var(--font-text); font-size: 18px; fill: var(--place); }
-.map__place--water { font-style: italic; font-size: 20px; }
+.map__sign { fill: var(--ink); filter: url(#sticker-lg); }
+.map__place { font-family: var(--font-text); font-size: 20px; font-style: italic; fill: var(--place); }
 /* parking at the barn: the blue road sign with its white inner edge */
 .map__parking rect { fill: var(--sign); }
 .map__parking .map__parking-edge { fill: none; stroke: var(--white); stroke-width: 2.5; }
 .map__parking text { font-family: var(--font-text); font-weight: 700; font-size: 34px; fill: var(--white); }
 .journey__park { display: flex; align-items: center; gap: 8px; font-size: var(--text-small); }
 .journey__p { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 4px; background: var(--sign); color: var(--white); font-weight: 700; line-height: 1; }
-.map__road-band { fill: none; stroke: var(--white); stroke-width: 30; stroke-linecap: round; }
-.map__road { fill: none; stroke: var(--ink); stroke-width: 3; stroke-dasharray: 10 12; stroke-linecap: round; }
+.map__road-band { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
+.map__road { fill: none; stroke: var(--white); stroke-width: 3; stroke-dasharray: 10 12; stroke-linecap: round; }
 .map__road-band--minor { stroke-width: 18; }
 .map__road--minor { stroke-width: 2; stroke-dasharray: 6 9; }
 .map__reveal { fill: none; stroke: var(--white); stroke-width: 44; stroke-dasharray: 1 1; stroke-dashoffset: 0; }
@@ -552,7 +552,7 @@
   .map__town--small { font-size: 44px; }
   .map__sub, .map__note { font-size: 34px; }
   .map__north text { font-size: 44px; }
-  .map__place { display: none; }
+  .map__place, .map__sign { display: none; }
 }
 /* Under 520 px the map is under 500 px wide and its second lines would fall below 14 px; the legend
    below repeats them, so the map keeps only towns, river and scale, set larger. */

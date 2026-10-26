@@ -6,7 +6,7 @@ import type { Place, Stay } from "@/content/types";
 import { art } from "@/lib/art";
 import { formatKm, tie } from "@/lib/format";
 import { projection, smoothPath, type Point } from "@/lib/geo";
-import { areaPath, Clearance, grove, placeName, plansPath, street, townPlan, treesPath, village, type Box, type Plan } from "@/lib/mapArt";
+import { areaPath, Clearance, grove, placeMark, plansPath, street, townPlan, treesPath, village, type Box, type Plan } from "@/lib/mapArt";
 import { MapCar } from "../MapCar";
 import { Write } from "../Write";
 
@@ -84,6 +84,10 @@ export async function Journey() {
         >
           {/* MapCar draws both roads by scroll through these masks; without it they are never applied. */}
           <defs>
+            {/* a village signpost: post with a rounded top, one arm to the west, two to the east */}
+            <symbol id="signpost" viewBox="0 0 256 256">
+              <path d="M116 16a12 12 0 0 1 24 0V256H116ZM140 22H228L256 48L228 74H140ZM140 102H228L256 128L228 154H140ZM116 62H28L0 88L28 114H116Z" />
+            </symbol>
             <mask id="journey-road-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1200" height="1000">
               <path className="map__reveal" id="journey-road-reveal" d={road} pathLength={1} />
             </mask>
@@ -304,6 +308,8 @@ function StayMark({
   );
 }
 
+const SIGN = 30;
+
 /**
  * What lies around the route, drawn quietly under it: the woods on the named
  * hills, the villages and Vranov as grey plans, the Ondava and Domaša. Real
@@ -348,10 +354,11 @@ function Landscape({
     plans.push(...houses);
     return { name: v.name, at, houses };
   });
-  const names = groups
-    .filter((g) => g.name !== "Hlinné") // already named in large type
-    .map((g) => placeName(g.name, g.at, g.houses, room))
-    .filter((l) => l !== null);
+  // the main places keep their names in large type; every other village gets a signpost, named on hover
+  const signs = groups
+    .filter((g) => g.name !== "Hlinné")
+    .map((g) => ({ name: g.name, at: placeMark(g.at, g.houses, SIGN, SIGN, room) }))
+    .filter((s): s is { name: string; at: Point } => s.at !== null);
   const trees = hills.flatMap((h) => grove(h.name, project(h.at), 24, 80, room));
 
   return (
@@ -361,15 +368,16 @@ function Landscape({
       <path className="map__river map__river--minor" d={smoothPath(ondava, 4)} />
       <path className="map__trees" d={treesPath(trees)} />
       <path className="map__plans" d={plansPath(plans)} />
-      {names.map((l) => (
-        <text key={l.text} className="map__place" x={l.x} y={l.y} textAnchor={l.anchor}>
-          {l.text}
-        </text>
+      {signs.map(({ name, at: [x, y] }) => (
+        <g key={name} className="map__sign">
+          <title>{name}</title>
+          <use href="#signpost" x={x} y={y} width={SIGN} height={SIGN} />
+        </g>
       ))}
-      <text className="map__place map__place--water" x={domasaLabel[0]} y={domasaLabel[1]} textAnchor="end">
+      <text className="map__place" x={domasaLabel[0]} y={domasaLabel[1]} textAnchor="end">
         Domaša
       </text>
-      <text className="map__place map__place--water" x={ondavaLabel[0]} y={ondavaLabel[1]} textAnchor="end">
+      <text className="map__place" x={ondavaLabel[0]} y={ondavaLabel[1]} textAnchor="end">
         Ondava
       </text>
     </g>
