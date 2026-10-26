@@ -493,7 +493,7 @@
 .map__note--river { font-style: italic; }
 .map__pond { fill: var(--blue); }
 /* the land around the route: woods, villages and Vranov as grey plans, signposts for the villages, the Ondava and Domaša; quieter than anything on top */
-.journey { --plan: #a9a496; --place: #5e5a51; --sign: oklch(0.5 0.1 252); }
+.journey { --plan: #a9a496; --place: #5e5a51; --sign: oklch(0.5 0.1 252); --asphalt: #4a4843; }
 .map__trees { fill: var(--sage); }
 .map__plans { fill: var(--plan); }
 .map__water { fill: var(--blue); }
@@ -506,7 +506,7 @@
 .map__parking text { font-family: var(--font-text); font-weight: 700; font-size: 34px; fill: var(--white); }
 .journey__park { display: flex; align-items: center; gap: 8px; font-size: var(--text-small); }
 .journey__p { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 4px; background: var(--sign); color: var(--white); font-weight: 700; line-height: 1; }
-.map__road-band { fill: none; stroke: var(--ink); stroke-width: 30; stroke-linecap: round; }
+.map__road-band { fill: none; stroke: var(--asphalt); stroke-width: 30; stroke-linecap: round; }
 .map__road { fill: none; stroke: var(--white); stroke-width: 3; stroke-dasharray: 10 12; stroke-linecap: round; }
 .map__road-band--minor { stroke-width: 18; }
 .map__road--minor { stroke-width: 2; stroke-dasharray: 6 9; }
