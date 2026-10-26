@@ -1,10 +1,12 @@
 import type { CSSProperties } from "react";
 import { churchToBarn, churchToVranov, stays, toplaRiver } from "@/content";
+import { hills, malaDomasa, ondavaRiver, town, velkaDomasa, villages } from "@/content/landscape";
 import { getSiteContent } from "@/lib/content";
 import type { Place, Stay } from "@/content/types";
 import { art } from "@/lib/art";
 import { formatKm, tie } from "@/lib/format";
-import { projection, smoothPath } from "@/lib/geo";
+import { projection, smoothPath, type Point } from "@/lib/geo";
+import { areaPath, Clearance, grove, placeName, plansPath, street, townPlan, treesPath, village, type Box, type Plan } from "@/lib/mapArt";
 import { MapCar } from "../MapCar";
 import { Write } from "../Write";
 
@@ -36,6 +38,23 @@ export async function Journey() {
   const road = smoothPath(churchToBarn.map(project));
   const vranovRoad = smoothPath(churchToVranov.map(project));
   const river = smoothPath(toplaRiver.map(project), 4);
+  const parked = project(churchToBarn[6]);
+  const pensionAt = pension && project(pension.at);
+  const hotelAt = hotel && project(hotel.at);
+
+  // The background keeps clear of every name, drawing and note drawn on top of it.
+  const keep: Box[] = [
+    [bx - 120, by - 270, bx + 120, by + 116], // Zlatník, the barn, its label and the parking sign
+    [cx - 372, cy - 24, cx - 16, cy + 166], // Hlinné, the church and its label
+    [cx + 18, cy - 200, cx + 112, cy - 158], // 4,5 km
+    [470, 690, 574, 726], // 11,7 km
+    [628, 532, 708, 570], // Topľa
+    [1080, 50, 1140, 196], // north
+    [56, 896, 200, 944], // scale
+    [parked[0] - 66, parked[1] - 70, parked[0] + 66, parked[1] + 20], // the car waiting at the junction
+  ];
+  if (pensionAt) keep.push([pensionAt[0] + 34, pensionAt[1] - 108, pensionAt[0] + 430, pensionAt[1] - 2]);
+  if (hotelAt) keep.push([hotelAt[0] - 76, hotelAt[1] - 226, hotelAt[0] + 260, hotelAt[1] - 88], [hotelAt[0] - 16, hotelAt[1] - 16, hotelAt[0] + 16, hotelAt[1] + 16]);
 
   return (
     <section className="journey" id="mapa" aria-labelledby="journey-h">
@@ -72,6 +91,7 @@ export async function Journey() {
               <path className="map__reveal" id="journey-minor-reveal" d={vranovRoad} pathLength={1} />
             </mask>
           </defs>
+          <Landscape project={project} keep={keep} roads={[churchToBarn.map(project), churchToVranov.map(project)]} river={toplaRiver.map(project)} />
           <path className="map__river map__fade" d={river} />
           <text className="map__note map__note--river map__fade" x="640" y="560">
             Topľa
@@ -122,6 +142,14 @@ export async function Journey() {
               stodola · oslava
             </text>
           </a>
+          {/* parking at the barn: the road sign, under the barn's label */}
+          <g className="map__parking map__img map__drop" role="img" aria-label="Parkovisko pri stodole" style={{ "--d": "380ms" } as CSSProperties}>
+            <rect x={bx - 24} y={by + 60} width="48" height="48" rx="9" />
+            <rect className="map__parking-edge" x={bx - 19.5} y={by + 64.5} width="39" height="39" rx="6" />
+            <text x={bx} y={by + 98} textAnchor="middle">
+              P
+            </text>
+          </g>
           <circle className="map__pulse" cx={bx} cy={by} r="14" aria-hidden="true" />
           <circle className="map__pin map__drop" data-stop="barn" cx={bx} cy={by} r="8" style={{ "--d": "300ms" } as CSSProperties} />
 
@@ -153,12 +181,13 @@ export async function Journey() {
             sideRoadId="journey-minor"
             src={art("car-vintage", "black")}
             size={116}
-            parked={project(churchToBarn[6])}
+            parked={parked}
           />
         </svg>
         <figcaption className="sr-only">
-          Mapa je v mierke, sever hore. Kostol v Hlinnom, stodola v Zlatníku 4,5 km severozápadne, Penzión Škorpión pri
-          kostole v Hlinnom a Hotel Patriot vo Vranove nad Topľou 11,7 km juhovýchodne.
+          Mapa je v mierke, sever hore. Kostol v Hlinnom, stodola v Zlatníku 4,5 km severozápadne s parkoviskom pri stodole,
+          Penzión Škorpión pri kostole v Hlinnom a Hotel Patriot vo Vranove nad Topľou 11,7 km juhovýchodne. Okolo ležia
+          obce, zalesnené kopce, rieka Ondava a vodná nádrž Domaša.
         </figcaption>
       </figure>
 
@@ -187,6 +216,12 @@ export async function Journey() {
               {venue.address && <span className="journey__addr">{venue.address}</span>}
             </p>
             <p className="journey__when">Oslava, záhrada a&nbsp;jazierko · {venue.time ? `od ${venue.time}` : "po obrade"}</p>
+            <p className="journey__park">
+              <span className="journey__p" aria-hidden="true">
+                P
+              </span>
+              Parkovanie priamo pri stodole
+            </p>
             <a className="link" href={mapHref(venue)} target="_blank" rel="noopener noreferrer">
               {mapLabel(venue, "do stodoly")}
               <span className="sr-only"> (otvorí sa v novom okne)</span>
@@ -266,5 +301,77 @@ function StayMark({
       </a>
       <circle className="map__pin map__pin--stay map__drop" data-stop="stay" cx={x} cy={y} r="7" style={d} />
     </>
+  );
+}
+
+/**
+ * What lies around the route, drawn quietly under it: the woods on the named
+ * hills, the villages and Vranov as grey plans, the Ondava and Domaša. Real
+ * positions (content/landscape.ts); the house rows and crowns are drawn, not
+ * surveyed. One path per kind keeps the map light.
+ */
+function Landscape({
+  project,
+  keep,
+  roads,
+  river,
+}: {
+  project: (at: [number, number]) => Point;
+  keep: Box[];
+  roads: Point[][];
+  river: Point[];
+}) {
+  const ondava = ondavaRiver.map(project);
+  const mala = malaDomasa.map(project);
+  const velka = velkaDomasa.map(project);
+  const bounds = (pts: Point[], pad: number): Box => [
+    Math.min(...pts.map((p) => p[0])) - pad,
+    Math.min(...pts.map((p) => p[1])) - pad,
+    Math.max(...pts.map((p) => p[0])) + pad,
+    Math.max(...pts.map((p) => p[1])) + pad,
+  ];
+  const ondavaLabel: Point = [1172, 400];
+  const domasaLabel: Point = [1000, 34];
+  const room = new Clearance(
+    [...keep, bounds(mala, 6), bounds(velka, 6), [ondavaLabel[0] - 76, ondavaLabel[1] - 22, 1200, ondavaLabel[1] + 8], [domasaLabel[0] - 84, domasaLabel[1] - 22, domasaLabel[0] + 6, domasaLabel[1] + 8]],
+    [
+      ...roads.map((points) => ({ points, gap: 22 })),
+      { points: river, gap: 14 },
+      { points: ondava, gap: 10 },
+    ],
+  );
+
+  const plans: Plan[] = townPlan(town.name, project(town.at), 210, 115, 35, room);
+  const groups = villages.map((v) => {
+    const at = project(v.at);
+    const houses = v.onRoad ? village(v.name, at, roads, v.houses, 30, room) : village(v.name, at, [street(at, v.street, v.houses)], v.houses, 9, room);
+    plans.push(...houses);
+    return { name: v.name, at, houses };
+  });
+  const names = groups
+    .filter((g) => g.name !== "Hlinné") // already named in large type
+    .map((g) => placeName(g.name, g.at, g.houses, room))
+    .filter((l) => l !== null);
+  const trees = hills.flatMap((h) => grove(h.name, project(h.at), 24, 80, room));
+
+  return (
+    <g className="map__land map__fade" aria-hidden="true">
+      <path className="map__water" d={areaPath(velka)} />
+      <path className="map__water" d={areaPath(mala)} />
+      <path className="map__river map__river--minor" d={smoothPath(ondava, 4)} />
+      <path className="map__trees" d={treesPath(trees)} />
+      <path className="map__plans" d={plansPath(plans)} />
+      {names.map((l) => (
+        <text key={l.text} className="map__place" x={l.x} y={l.y} textAnchor={l.anchor}>
+          {l.text}
+        </text>
+      ))}
+      <text className="map__place map__place--water" x={domasaLabel[0]} y={domasaLabel[1]} textAnchor="end">
+        Domaša
+      </text>
+      <text className="map__place map__place--water" x={ondavaLabel[0]} y={ondavaLabel[1]} textAnchor="end">
+        Ondava
+      </text>
+    </g>
   );
 }

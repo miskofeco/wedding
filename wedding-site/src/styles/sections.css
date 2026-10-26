@@ -492,6 +492,20 @@
 .map__river { fill: none; stroke: var(--sage); stroke-width: 22; stroke-linecap: round; stroke-linejoin: round; }
 .map__note--river { font-style: italic; }
 .map__pond { fill: var(--sage); }
+/* the land around the route: woods, villages and Vranov as grey plans, the Ondava and Domaša; quieter than anything on top */
+.journey { --plan: #a9a496; --place: #5e5a51; --sign: oklch(0.5 0.1 252); }
+.map__trees { fill: var(--sage); }
+.map__plans { fill: var(--plan); }
+.map__water { fill: var(--sage); }
+.map__river--minor { stroke-width: 12; }
+.map__place { font-family: var(--font-text); font-size: 18px; fill: var(--place); }
+.map__place--water { font-style: italic; font-size: 20px; }
+/* parking at the barn: the blue road sign with its white inner edge */
+.map__parking rect { fill: var(--sign); }
+.map__parking .map__parking-edge { fill: none; stroke: var(--white); stroke-width: 2.5; }
+.map__parking text { font-family: var(--font-text); font-weight: 700; font-size: 34px; fill: var(--white); }
+.journey__park { display: flex; align-items: center; gap: 8px; font-size: var(--text-small); }
+.journey__p { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; border-radius: 4px; background: var(--sign); color: var(--white); font-weight: 700; line-height: 1; }
 .map__road-band { fill: none; stroke: var(--white); stroke-width: 30; stroke-linecap: round; }
 .map__road { fill: none; stroke: var(--ink); stroke-width: 3; stroke-dasharray: 10 12; stroke-linecap: round; }
 .map__road-band--minor { stroke-width: 18; }
@@ -538,6 +552,7 @@
   .map__town--small { font-size: 44px; }
   .map__sub, .map__note { font-size: 34px; }
   .map__north text { font-size: 44px; }
+  .map__place { display: none; }
 }
 /* Under 520 px the map is under 500 px wide and its second lines would fall below 14 px; the legend
    below repeats them, so the map keeps only towns, river and scale, set larger. */
@@ -546,6 +561,7 @@
   .map__note--river, .map__scale text { font-size: 50px; }
   .map__town--small { font-size: 48px; }
   .map__north text { font-size: 56px; }
+  .map__parking { transform: scale(1.5); transform-box: fill-box; transform-origin: 50% 0; }
   /* the stays' tap areas were 40 px tall here and stopped short of the one-line label: shift right over the label and
      grow (about 52 px tall at 360 px); a transform, since Safari's support for rx/ry in CSS is not one to rely on */
   .map [data-stop="stay"] .map__hit { transform-box: fill-box; transform-origin: center; transform: translateX(110px) scale(1.45, 1.3); }
