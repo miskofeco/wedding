@@ -1,21 +1,22 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import type { PaletteColour } from "@/content/types";
-import { art } from "@/lib/art";
 import { tie } from "@/lib/format";
-import { Drawing } from "./Drawing";
 
 const CYCLE_MS = 4000;
 
 /**
- * The palette dabs and, for each colour, a figure dressed in it: the figure
- * under the mouse (desktop) or the last one tapped or clicked is shown. Each
- * new colour pours into the garment from the top.
- * Until the guest touches the palette (hover, tap, click or focus), the figure
- * moves to the next colour every four seconds while the section is on screen,
- * so phones see all six. Without JavaScript, or with reduced motion, the first
- * figure stays.
+ * The bride and five bridesmaids (public/gowns.svg) over a row of palette dabs,
+ * each dab under the woman it dresses: the n-th colour is the n-th dress from the
+ * left. Only one dress is coloured at a time: the one under the mouse (desktop,
+ * over its dab or over the woman herself) or the last one tapped or clicked. Each
+ * new colour pours into the dress from the top.
+ * Until the guest touches the palette (hover, tap, click or focus), the colour
+ * moves to the next woman every four seconds while the section is on screen, so
+ * phones see all six. Without JavaScript, or with reduced motion, the first
+ * dress stays coloured.
  */
 export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
   const [picked, setPicked] = useState(0);
@@ -24,7 +25,7 @@ export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
   const fit = useRef<HTMLElement>(null);
   const shown = hovered ?? picked;
 
-  // Auto-cycle while the figure is on screen, until the first touch.
+  // Auto-cycle while the women are on screen, until the first touch.
   useEffect(() => {
     const el = fit.current;
     if (!el || touched || !document.documentElement.classList.contains("mo")) return;
@@ -52,7 +53,32 @@ export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
   };
 
   return (
-    <>
+    <div className="try">
+      <figure className="gowns rv" ref={fit} style={{ "--d": "200ms" } as CSSProperties}>
+        {palette.map((p, i) => (
+          <span
+            className="gowns__fill"
+            key={p.colour}
+            data-on={i === shown || undefined}
+            style={{ "--c": `var(--${p.colour})`, "--mask": `url(/fills/gown-${i + 1}.png)` } as CSSProperties}
+          />
+        ))}
+        <Image
+          src="/gowns.svg"
+          alt="Nevesta a päť družičiek v dlhých šatách, každá s kyticou."
+          width={1150}
+          height={880}
+          unoptimized
+          loading="lazy"
+          draggable={false}
+        />
+        {/* The women answer the mouse like their dabs; keyboards and screen readers use the dabs. */}
+        <span className="gowns__hit" aria-hidden="true">
+          {palette.map((p, i) => (
+            <span key={p.colour} onClick={() => pick(i)} onPointerEnter={preview(i)} onPointerLeave={preview(null)} />
+          ))}
+        </span>
+      </figure>
       <ol className="story" data-rv-stagger="60">
         {palette.map((p, i) => (
           <li
@@ -80,22 +106,6 @@ export function PaletteStory({ palette }: { palette: PaletteColour[] }) {
           </li>
         ))}
       </ol>
-      <figure className="fit rv" ref={fit} style={{ "--d": "200ms" } as CSSProperties}>
-        <div className="fit__stage">
-          {palette.map((p, i) => (
-            <span
-              className="fit__fig"
-              key={p.colour}
-              data-on={i === shown || undefined}
-              style={{ "--c": `var(--${p.colour})`, "--mask": `url(/fills/${p.figure}.png)` } as CSSProperties}
-            >
-              <span className="fit__fill" />
-              <Drawing src={art(p.figure, "black")} />
-            </span>
-          ))}
-        </div>
-        <figcaption className="fit__label">{palette[shown].name}</figcaption>
-      </figure>
-    </>
+    </div>
   );
 }

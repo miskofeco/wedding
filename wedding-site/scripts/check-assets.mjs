@@ -9,7 +9,8 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const read = (file) => readFileSync(path.join(root, file), "utf8");
 
 const photos = [...read("src/content/photos.ts").matchAll(/from "@\/(assets\/[^"]+)"/g)].map((m) => `src/${m[1]}`);
-const fills = [...read("src/content/palette.ts").matchAll(/figure: "([^"]+)"/g)].map((m) => `public/fills/${m[1]}.png`);
+// one dress mask per palette colour, counted from the left of public/gowns.svg
+const fills = [...read("src/content/palette.ts").matchAll(/colour: "/g)].map((_, i) => `public/fills/gown-${i + 1}.png`);
 
 const share = ["src/app/opengraph-image.png"];
 

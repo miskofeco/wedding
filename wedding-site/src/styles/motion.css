@@ -229,14 +229,14 @@ html.mo:not(.land) .panel--mid .panel__art.rv:not(.in) { translate: 0 56px; }
 html.mo .panel__art.rv.in:not([data-rv-instant]) { animation: ink-up 1100ms var(--ease-ink) calc(var(--delay, 0ms) + 120ms) backwards; }
 @media (hover: hover) { .panel:hover .panel__art { --lift: -8px; } }
 
-/* ===== palette: the colour pours into the garment; a picked dab squashes once ===== */
-html.mo .fit__fill { clip-path: inset(0); transition: clip-path 520ms var(--ease-out) calc(var(--delay, 0ms) + var(--pour-wait, 0ms)); }
-/* on arrival the figure is inked first, and only then is its colour poured in */
-html.mo .fit:not([data-rv-done]) { --pour-wait: 900ms; }
-html.mo .fit.in:not([data-rv-instant]) .fit__fig[data-on] img { animation: ink var(--t-ink) var(--ease-ink) var(--delay, 0ms) backwards; }
-/* the outgoing figure keeps its colour while it fades, then empties */
-html.mo .fit__fig:not([data-on]) .fit__fill { clip-path: inset(0 0 100% 0); transition-duration: 0s; transition-delay: 450ms; }
-html.mo:not(.land) .fit:not(.in) .fit__fill { clip-path: inset(0 0 100% 0); }
+/* ===== palette: the colour pours into one dress from the top; a picked dab squashes once ===== */
+/* the outgoing dress keeps its colour while it fades, then empties; the incoming one pours from the top */
+html.mo .gowns__fill { clip-path: inset(0 0 100% 0); transition: opacity 300ms var(--ease-out), clip-path 0s 300ms; }
+html.mo .gowns__fill[data-on] { clip-path: inset(0); transition: clip-path 640ms var(--ease-out) calc(var(--delay, 0ms) + var(--pour-wait, 0ms)), opacity 0s; }
+/* on arrival the women are inked first, and only then is the colour poured in */
+html.mo .gowns:not([data-rv-done]) { --pour-wait: 900ms; }
+html.mo .gowns.in:not([data-rv-instant]) img { animation: ink var(--t-ink) var(--ease-ink) var(--delay, 0ms) backwards; }
+html.mo:not(.land) .gowns:not(.in) .gowns__fill { clip-path: inset(0 0 100% 0); }
 html.mo .dab[data-picked] .dab__shape { animation: squash 360ms var(--ease-out); }
 /* each colour dab lands as a drop of paint as it arrives, one after another along the stagger */
 html.mo .dab.in:not([data-rv-instant]) .dab__shape { animation: splash var(--t-drop) var(--ease-out) calc(var(--delay, 0ms) + 80ms) backwards, dry var(--t-dry) var(--ease-out) calc(var(--delay, 0ms) + 80ms) backwards; }

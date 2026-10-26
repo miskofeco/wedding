@@ -4,11 +4,12 @@ import type { PaletteColour } from "./types";
 export const paletteIntro =
   "Volá sa Májová záhrada. Každá farba v nej má na svadbe svoje miesto. Ak sa chcete zladiť, budeme radi. Podmienka to nie je.";
 
+// In this order the colours dress the women in public/gowns.svg from the left, the bride third.
 export const palette: PaletteColour[] = [
-  { colour: "sage", name: "Šalviová", meaning: "Zeleň záhrady a obrúsky na stoloch.", figure: "groom-walk" },
-  { colour: "peony", name: "Pivonková", meaning: "Kvety v kyticiach a na stoloch.", figure: "bride-bouquet" },
-  { colour: "apricot", name: "Marhuľová", meaning: "Fasáda kostola v Hlinnom.", figure: "bride-champagne" },
-  { colour: "butter", name: "Masložltá", meaning: "Májové slnko a lúčne kvety.", figure: "bride-stand" },
-  { colour: "linen", name: "Prírodný ľan", meaning: "Drevo stodoly a ľanové obrusy.", figure: "groom-dance" },
-  { colour: "blue", name: "Holubia modrá", meaning: "Večerná obloha nad stodolou.", figure: "groom-portrait" },
+  { colour: "sage", name: "Šalviová", meaning: "Zeleň záhrady a obrúsky na stoloch." },
+  { colour: "peony", name: "Pivonková", meaning: "Kvety v kyticiach a na stoloch." },
+  { colour: "apricot", name: "Marhuľová", meaning: "Fasáda kostola v Hlinnom." },
+  { colour: "butter", name: "Masložltá", meaning: "Májové slnko a lúčne kvety." },
+  { colour: "linen", name: "Prírodný ľan", meaning: "Drevo stodoly a ľanové obrusy." },
+  { colour: "blue", name: "Holubia modrá", meaning: "Večerná obloha nad stodolou." },
 ];

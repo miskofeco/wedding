@@ -90,8 +90,8 @@ Plain HTTP to localhost and a local database file are accepted only outside prod
 
 ## Drawings and photos
 
-- `art-manifest.json` lists the 18 drawings used, their source file in `../doodles/whimsical/`, and the inks each needs. `npm run art` regenerates `public/art/` and `src/lib/art.generated.ts`. An entry with `crop` (`box` [x, y, w, h] on the 1080 artboard, optional `clip` polygon) takes one figure out of a larger drawing; the palette figures use it. Coordinates are copied exactly; rounding breaks the thin outlines.
-- `npm run fills` regenerates `public/fills/`: the suit and dress of the palette figures as masks, flood-filled from seed points in `scripts/sync-fills.mjs` (the bride's open train is closed by traced walls there).
+- `art-manifest.json` lists the 18 drawings used, their source file in `../doodles/whimsical/`, and the inks each needs. `npm run art` regenerates `public/art/` and `src/lib/art.generated.ts`. An entry with `crop` (`box` [x, y, w, h] on the 1080 artboard, optional `clip` polygon) takes one figure out of a larger drawing. Coordinates are copied exactly; rounding breaks the thin outlines.
+- `public/gowns.svg` is the palette section's line-up of the bride and five bridesmaids (kept outside `public/art/`, which `npm run art` rebuilds). `npm run fills` regenerates `public/fills/gown-1.png` … `gown-6.png`: each woman's dress as a mask, flood-filled from seed points in `scripts/sync-fills.mjs`. The n-th colour in `src/content/palette.ts` dresses the n-th woman from the left.
 - `npm run photos` converts the three chosen originals from `../Photos/` into `src/assets/photos/` and fails if any location (GPS) metadata survives. Next.js serves AVIF and WebP sizes from them.
 - `npm run og` renders `scripts/og-image.html` (1200 × 630, the date with the couple and bouquets) to `src/app/opengraph-image.png`, the picture chat apps show when someone shares a link. Next.js adds the `og:image` tags, with the alt text from `src/app/opengraph-image.alt.txt` and absolute URLs from `NEXT_PUBLIC_SITE_URL`. It needs Chrome (or `CHROME=<path>`) and network access for Google Fonts, and refuses to write the file if a font or drawing failed to load. Chat apps cache previews, so after changing it on a link already shared, refresh the link in Facebook's Sharing Debugger.
 - **Licence:** no licence terms were found in the illustration pack. Keep the purchase or licence record for web use and modification before publishing.
@@ -115,7 +115,7 @@ Every deploy, from `wedding-site/` with Node 24, the version Vercel runs (`nvm i
 
 ```bash
 npm run photos     # only if the photos changed
-npm run fills      # only if the palette figures changed
+npm run fills      # only if public/gowns.svg changed
 npm run og         # only if the share image changed
 npm run deploy     # pulls the settings, builds here, uploads the build to production
 ```

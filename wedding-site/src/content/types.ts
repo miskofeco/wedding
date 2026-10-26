@@ -75,8 +75,6 @@ export interface PaletteColour {
   colour: Colour;
   name: string;
   meaning: string;
-  /** The figure that tries the colour on in the palette section. Needs a garment mask from `npm run fills`. */
-  figure: DrawingName;
 }
 
 export interface Photo {
