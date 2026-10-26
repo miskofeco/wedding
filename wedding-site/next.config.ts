@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { comingSoon } from "./src/content/launch";
 import { publicCsp } from "./src/lib/csp";
 
 const securityHeaders = [
@@ -12,6 +13,12 @@ const securityHeaders = [
 // Drawings and masks keep their names when regenerated, so they can't be cached
 // forever: a day fresh, then a week served while the browser checks for a new one.
 const assetCache = { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" };
+
+// Until the invitation opens, production answers every guest page with „Pripravujeme“
+// (content/launch.ts). Decided when the site is built: `npm run deploy` builds with the
+// production settings from `vercel pull`, which include VERCEL_ENV. Local builds and
+// preview deploys keep the full site.
+const showComingSoon = comingSoon && process.env.VERCEL_ENV === "production";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -36,6 +43,12 @@ const nextConfig: NextConfig = {
       { source: "/art/:path*", headers: [assetCache] },
       { source: "/fills/:path*", headers: [assetCache] },
     ];
+  },
+  async rewrites() {
+    // Before the pages, so it wins over them. Not the page itself, the calendar file it
+    // links, /admin, Next.js assets, drawings, masks or the icon.
+    const gate = { source: "/((?!admin(?:/|$)|pripravujeme|svadba\\.ics|_next/|art/|fills/|icon\\.svg).*)", destination: "/pripravujeme" };
+    return { beforeFiles: showComingSoon ? [gate] : [], afterFiles: [], fallback: [] };
   },
 };
 

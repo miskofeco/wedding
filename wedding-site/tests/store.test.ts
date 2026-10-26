@@ -110,6 +110,27 @@ test("an answer sent twice with the same submission key is stored once", async (
   assert.ok(other.ok && other.data !== first.data);
 });
 
+test("two identical retries at once store one answer and both succeed", async () => {
+  const results = await Promise.all([1, 2, 3].map(() => createAnswer({ ...answer, name: "Súbežný Test" }, "web", "submission-race")));
+  assert.ok(results.every((r) => r.ok));
+  assert.equal(new Set(results.map((r) => r.ok && r.data)).size, 1);
+  const { rows } = await (await db()).execute({ sql: "SELECT COUNT(*) AS n FROM answers WHERE submission = ?", args: ["submission-race"] });
+  assert.equal(Number(rows[0].n), 1);
+});
+
+test("an answer the couple deleted doesn't swallow the guest's retry", async () => {
+  const first = await createAnswer({ ...answer, name: "Zmazaný Test" }, "web", "submission-deleted");
+  assert.ok(first.ok);
+  assert.ok((await deleteAnswer(first.data)).ok);
+
+  // Still in the database until the sync removes it, but no longer holding the key.
+  const again = await createAnswer({ ...answer, name: "Zmazaný Test" }, "web", "submission-deleted");
+  assert.ok(again.ok);
+  assert.notEqual(again.data, first.data);
+  assert.ok(await findAnswer(again.data), "the retry is stored");
+  assert.equal(await findAnswer(first.data), undefined);
+});
+
 test("invitations are created, updated, reminded and deleted", async () => {
   const created = await createInvites([invite, { ...invite, household: "Pokusovci", expected: 1, side: "bride" }]);
   assert.ok(created.ok);

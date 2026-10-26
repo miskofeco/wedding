@@ -12,10 +12,20 @@ import "@/styles/motion.css";
 
 const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
-  style: ["normal", "italic"],
   axes: ["opsz"],
   display: "swap",
   variable: "--font-fraunces",
+});
+
+// Italic is used in a few places only (the ampersand, the kickers, the info button), so
+// it isn't preloaded and doesn't compete with the hero drawing for bandwidth.
+const frauncesItalic = Fraunces({
+  subsets: ["latin", "latin-ext"],
+  style: "italic",
+  axes: ["opsz"],
+  display: "swap",
+  preload: false,
+  variable: "--font-fraunces-italic",
 });
 
 const dmSans = DM_Sans({
@@ -46,7 +56,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="sk" className={`${fraunces.variable} ${dmSans.variable}`} suppressHydrationWarning>
+    <html lang="sk" className={`${fraunces.variable} ${frauncesItalic.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
